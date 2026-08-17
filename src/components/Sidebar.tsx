@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { NAV_GROUPS, navTargets } from '../lib/nav'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
@@ -23,7 +23,7 @@ function BrandMark() {
       </span>
       <div className="leading-tight">
         <p className="label-lg text-text">Formula 1</p>
-        <p className="text-[10px] tracking-[0.2em] text-muted">DATA CENTER</p>
+        <p className="text-[11px] tracking-[0.2em] text-muted">DATA CENTER</p>
       </div>
     </div>
   )
@@ -43,7 +43,7 @@ function NavList({
       {NAV_GROUPS.map((group, gi) => (
         <div key={group.label ?? `g${gi}`} className={gi > 0 ? 'mt-4' : ''}>
           {group.label ? (
-            <p className="label px-2 pb-1.5 text-[9px] text-muted/70">{group.label}</p>
+            <p className="label px-2 pb-1.5 text-[10px] text-muted/70">{group.label}</p>
           ) : null}
           <ul className="space-y-0.5">
             {group.items.map((item) => {
@@ -54,21 +54,22 @@ function NavList({
                     href={item.route ? `#${item.route}` : `#${item.target}`}
                     onClick={(e) => {
                       e.preventDefault()
-                      window.location.hash = item.route ? `#${item.route}` : `#${item.target}`
-                      onNavigate(item.id)
-                      onNavigateEnd?.()
-                      if (!item.route) {
+                      if (item.route) {
+                        window.location.hash = `#${item.route}`
+                      } else {
                         scrollToTarget(item.target)
                       }
+                      onNavigate(item.id)
+                      onNavigateEnd?.()
                     }}
                     aria-current={isActive ? 'page' : undefined}
-                    className={`group relative flex items-center gap-2.5 rounded px-2.5 py-1.5 text-xs font-medium tracking-wide transition-colors duration-150 ${
+                    className={`group relative flex items-center gap-2.5 rounded px-2.5 py-2 text-sm font-medium tracking-wide transition-colors duration-150 ${
                       isActive ? 'text-text' : 'text-muted hover:bg-surface/60 hover:text-text'
                     }`}
                   >
                     <span
                       aria-hidden="true"
-                      className={`h-3.5 w-0.5 rounded-full transition-colors duration-150 ${
+                      className={`h-3.5 w-0.5 rounded-full transition-colors duration-75 ${
                         isActive ? 'bg-accent' : 'bg-transparent group-hover:bg-line-strong'
                       }`}
                     />
@@ -96,8 +97,8 @@ export function Sidebar({ active, onNavigate }: { active: string; onNavigate?: (
       </ScrollArea>
 
       <div className="border-t border-line px-5 py-3">
-        <p className="label text-[9px] text-muted/70">Data Source</p>
-        <p className="mt-0.5 text-[10px] leading-snug text-muted">Jolpica F1 API · Live</p>
+        <p className="label text-[10px] text-muted/70">Data Source</p>
+        <p className="mt-0.5 text-[11px] leading-snug text-muted">Jolpica F1 API · Live</p>
       </div>
     </aside>
   )
@@ -130,8 +131,8 @@ export function MobileNavSheet({
         </ScrollArea>
         <Separator className="bg-line" />
         <div className="px-5 py-3">
-          <p className="label text-[9px] text-muted/70">Data Source</p>
-          <p className="mt-0.5 text-[10px] leading-snug text-muted">Jolpica F1 API · Live</p>
+          <p className="label text-[10px] text-muted/70">Data Source</p>
+          <p className="mt-0.5 text-[11px] leading-snug text-muted">Jolpica F1 API · Live</p>
         </div>
         <SheetHeader className="sr-only">
           <SheetTitle>Formula 1 Navigation</SheetTitle>
@@ -144,39 +145,28 @@ export function MobileNavSheet({
 
 export function useScrollSpy(ids: string[]): string {
   const [active, setActive] = useState<string>(ids[0] ?? 'overview')
+  const raf = useRef(0)
 
   useEffect(() => {
-    const sections = ids
-      .map((id) => document.getElementById(id))
-      .filter((el): el is HTMLElement => el !== null)
-    if (sections.length === 0) return
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)
-        if (visible[0]?.target.id) setActive(visible[0].target.id)
-      },
-      { rootMargin: '-30% 0px -55% 0px', threshold: [0, 0.2, 0.6] },
-    )
-    for (const s of sections) observer.observe(s)
-
     const onScroll = () => {
-      const pos = window.scrollY + 120
-      let current = ids[0]
-      for (const id of ids) {
-        const el = document.getElementById(id)
-        if (el && el.offsetTop <= pos) current = id
-      }
-      setActive(current)
+      if (raf.current) return
+      raf.current = requestAnimationFrame(() => {
+        raf.current = 0
+        const pos = window.scrollY + 120
+        let current = ids[0]
+        for (const id of ids) {
+          const el = document.getElementById(id)
+          if (el && el.offsetTop <= pos) current = id
+        }
+        setActive((prev) => (prev === current ? prev : current))
+      })
     }
     window.addEventListener('scroll', onScroll, { passive: true })
     onScroll()
 
     return () => {
-      observer.disconnect()
       window.removeEventListener('scroll', onScroll)
+      if (raf.current) cancelAnimationFrame(raf.current)
     }
   }, [ids])
 
@@ -184,7 +174,38 @@ export function useScrollSpy(ids: string[]): string {
 }
 
 export function useNavActive(): { active: string; onNavigate: (id: string) => void } {
-  const targets = navTargets()
-  const active = useScrollSpy(targets)
-  return { active, onNavigate: () => undefined }
+  const targets = useMemo(() => navTargets(), [])
+  const spy = useScrollSpy(targets)
+  const [manual, setManual] = useState<string | null>(null)
+  const timer = useRef<number | null>(null)
+
+  const clearManual = useCallback(() => {
+    setManual(null)
+    window.removeEventListener('scrollend', clearManual)
+    if (timer.current !== null) {
+      window.clearTimeout(timer.current)
+      timer.current = null
+    }
+  }, [])
+
+  const onNavigate = useCallback(
+    (id: string) => {
+      setManual(id)
+      window.removeEventListener('scrollend', clearManual)
+      window.addEventListener('scrollend', clearManual, { once: true })
+      if (timer.current !== null) window.clearTimeout(timer.current)
+      timer.current = window.setTimeout(clearManual, 2500)
+    },
+    [clearManual],
+  )
+
+  useEffect(
+    () => () => {
+      window.removeEventListener('scrollend', clearManual)
+      if (timer.current !== null) window.clearTimeout(timer.current)
+    },
+    [clearManual],
+  )
+
+  return { active: manual ?? spy, onNavigate }
 }

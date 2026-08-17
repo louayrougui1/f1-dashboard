@@ -23,6 +23,8 @@ export function StandingsPage({
   onNext,
   canPrev,
   canNext,
+  onSelectDriver,
+  onSelectConstructor,
 }: {
   season: string | null
   drivers: DriverStandingRow[]
@@ -42,6 +44,8 @@ export function StandingsPage({
   onNext?: () => void
   canPrev?: boolean
   canNext?: boolean
+  onSelectDriver?: (driverId: string) => void
+  onSelectConstructor?: (constructorId: string) => void
 }) {
   const results = featuredDetail?.results ?? []
   const meta = `${display(season)} · All Positions`
@@ -57,6 +61,7 @@ export function StandingsPage({
             loading={driverLoading}
             error={driverError}
             onRetry={onRetryDrivers}
+            onSelectDriver={onSelectDriver}
           />
         </div>
       </section>
@@ -70,6 +75,7 @@ export function StandingsPage({
             loading={constructorLoading}
             error={constructorError}
             onRetry={onRetryConstructors}
+            onSelectConstructor={onSelectConstructor}
           />
         </div>
       </section>

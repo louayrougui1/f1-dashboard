@@ -12,6 +12,14 @@ export interface Constructor {
   nationality: string
 }
 
+export type SessionKey = 'firstPractice' | 'secondPractice' | 'thirdPractice' | 'qualifying' | 'sprint' | 'sprintQualifying'
+
+export interface WeekendSession {
+  date: string
+  time: string | null
+  start: Date | null
+}
+
 export interface Race {
   round: number
   raceName: string
@@ -24,6 +32,7 @@ export interface Race {
   start: Date | null
   lat: number | null
   long: number | null
+  weekend: Partial<Record<SessionKey, WeekendSession>>
 }
 
 export interface DriverStandingRow {

@@ -11,6 +11,9 @@ export function viewLabel(activeId: string): string {
     const found = g.items.find((i) => i.id === activeId)
     if (found) return found.label.toUpperCase()
   }
+  if (activeId === 'standings') return 'STANDINGS'
+  if (activeId === 'driver') return 'DRIVER'
+  if (activeId === 'team') return 'TEAM'
   return 'OVERVIEW'
 }
 

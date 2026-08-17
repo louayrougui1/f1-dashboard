@@ -68,6 +68,13 @@ export function formatBroadcastDate(start: Date | null): string {
   return `${weekday} ${pad(day)} ${month}`
 }
 
+export function formatBroadcastTime(start: Date | null): string {
+  if (!start || Number.isNaN(start.getTime())) return NA
+  return (
+    start.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'UTC' }) + ' UTC'
+  )
+}
+
 export function roundLabel(round: number | null | undefined): string {
   if (round === null || round === undefined || Number.isNaN(round)) return NA
   return `R${pad(round, 2)}`

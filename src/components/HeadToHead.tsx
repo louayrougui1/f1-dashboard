@@ -43,20 +43,26 @@ export function HeadToHead({
   loading,
   error,
   onRetry,
+  defaultA = null,
+  defaultB = null,
+  onSelectDriver,
 }: {
   rounds: SeasonRoundResults[]
   drivers: DriverStandingRow[]
   loading: boolean
   error: Error | null
   onRetry: () => void
+  defaultA?: string | null
+  defaultB?: string | null
+  onSelectDriver?: (driverId: string) => void
 }) {
   const teammateId = drivers[0]?.constructor.constructorId ?? null
   const teammates = useMemo(
     () => (teammateId ? drivers.filter((d) => d.constructor.constructorId === teammateId) : []),
     [drivers, teammateId],
   )
-  const [aId, setAId] = useState<string | null>(null)
-  const [bId, setBId] = useState<string | null>(null)
+  const [aId, setAId] = useState<string | null>(defaultA)
+  const [bId, setBId] = useState<string | null>(defaultB)
 
   const a = drivers.find((d) => d.driver.driverId === aId) ?? teammates[0] ?? drivers[0] ?? null
   const b = drivers.find((d) => d.driver.driverId === bId) ?? teammates[1] ?? drivers[1] ?? null
@@ -191,7 +197,11 @@ export function HeadToHead({
           <TableBody>
             {[a, b].map((d) =>
               d ? (
-                <TableRow key={`row-${d.driver.driverId}`} className="border-0 hover:bg-surface-hover">
+                <TableRow
+                  key={`row-${d.driver.driverId}`}
+                  className={cn('border-0 hover:bg-surface-hover', onSelectDriver ? 'cursor-pointer' : '')}
+                  onClick={onSelectDriver ? () => onSelectDriver(d.driver.driverId) : undefined}
+                >
                   <TableCell className="sticky left-0 z-10 border-b border-line/60 bg-surface px-4 py-2">
                     <span className="flex items-center gap-2">
                       <span

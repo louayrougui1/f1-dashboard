@@ -33,12 +33,14 @@ export function DriverTable({
   error,
   onRetry,
   limit = 12,
+  onSelectDriver,
 }: {
   rows: DriverStandingRow[]
   loading: boolean
   error: Error | null
   onRetry: () => void
   limit?: number
+  onSelectDriver?: (driverId: string) => void
 }) {
   if (loading && rows.length === 0) {
     return (
@@ -77,8 +79,27 @@ export function DriverTable({
                 key={row.driver.driverId}
                 className={cn(
                   'border-line/60 hover:bg-surface-hover',
+                  onSelectDriver ? 'cursor-pointer' : '',
                   isP1 ? 'bg-accent/[0.05]' : podium ? 'bg-surface-2/40' : '',
                 )}
+                role={onSelectDriver ? 'link' : undefined}
+                tabIndex={onSelectDriver ? 0 : undefined}
+                title={onSelectDriver ? `Open ${driverFullName(row.driver)}` : undefined}
+                onClick={
+                  onSelectDriver
+                    ? () => onSelectDriver(row.driver.driverId)
+                    : undefined
+                }
+                onKeyDown={
+                  onSelectDriver
+                    ? (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault()
+                          onSelectDriver(row.driver.driverId)
+                        }
+                      }
+                    : undefined
+                }
               >
                 <TableCell
                   className={cn(
@@ -145,12 +166,14 @@ export function ConstructorTable({
   error,
   onRetry,
   limit,
+  onSelectConstructor,
 }: {
   rows: ConstructorStandingRow[]
   loading: boolean
   error: Error | null
   onRetry: () => void
   limit?: number
+  onSelectConstructor?: (constructorId: string) => void
 }) {
   if (loading && rows.length === 0) {
     return (
@@ -190,8 +213,29 @@ export function ConstructorTable({
                 key={row.constructor.constructorId}
                 className={cn(
                   'border-line/60 hover:bg-surface-hover',
+                  onSelectConstructor ? 'cursor-pointer' : '',
                   isP1 ? 'bg-accent/[0.05]' : podium ? 'bg-surface-2/40' : '',
                 )}
+                role={onSelectConstructor ? 'link' : undefined}
+                tabIndex={onSelectConstructor ? 0 : undefined}
+                title={
+                  onSelectConstructor ? `Open ${display(row.constructor.name)}` : undefined
+                }
+                onClick={
+                  onSelectConstructor
+                    ? () => onSelectConstructor(row.constructor.constructorId)
+                    : undefined
+                }
+                onKeyDown={
+                  onSelectConstructor
+                    ? (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault()
+                          onSelectConstructor(row.constructor.constructorId)
+                        }
+                      }
+                    : undefined
+                }
               >
                 <TableCell
                   className={cn(
@@ -258,6 +302,8 @@ export function Standings({
   constructorError,
   onRetryDrivers,
   onRetryConstructors,
+  onSelectDriver,
+  onSelectConstructor,
 }: {
   drivers: DriverStandingRow[]
   constructors: ConstructorStandingRow[]
@@ -266,11 +312,19 @@ export function Standings({
   constructorError: Error | null
   onRetryDrivers: () => void
   onRetryConstructors: () => void
+  onSelectDriver?: (driverId: string) => void
+  onSelectConstructor?: (constructorId: string) => void
 }) {
   return (
     <div className="grid grid-cols-1 gap-4 xl:grid-cols-5">
       <div id="drivers" className="scroll-mt-20 xl:col-span-3">
-        <DriverTable rows={drivers} loading={loading} error={driverError} onRetry={onRetryDrivers} />
+        <DriverTable
+          rows={drivers}
+          loading={loading}
+          error={driverError}
+          onRetry={onRetryDrivers}
+          onSelectDriver={onSelectDriver}
+        />
       </div>
       <div id="constructors" className="scroll-mt-20 xl:col-span-2">
         <ConstructorTable
@@ -278,6 +332,7 @@ export function Standings({
           loading={loading}
           error={constructorError}
           onRetry={onRetryConstructors}
+          onSelectConstructor={onSelectConstructor}
         />
       </div>
     </div>

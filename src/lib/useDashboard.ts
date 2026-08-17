@@ -79,9 +79,16 @@ const EMPTY: Record<DataKey, SliceState<unknown>> = {
 
 const SEASON_FLOOR = 2000
 
-export function useDashboard(): DashboardState {
-  const [seasonId, setSeasonId] = useState<string>('current')
-  const [round, setRound] = useState<number | null>(null)
+export interface DashboardInitial {
+  season: string | null
+  round: number | null
+}
+
+export function useDashboard(initial: DashboardInitial = { season: null, round: null }): DashboardState {
+  const [seasonId, setSeasonId] = useState<string>(() =>
+    initial.season && initial.season !== 'current' ? initial.season : 'current',
+  )
+  const [round, setRound] = useState<number | null>(initial.round)
   const [slices, setSlices] = useState<Record<DataKey, SliceState<unknown>>>(EMPTY)
   const [version, setVersion] = useState<Record<DataKey, number>>({
     schedule: 0,
@@ -96,6 +103,7 @@ export function useDashboard(): DashboardState {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const [liveSeason, setLiveSeason] = useState<string | null>(null)
   const firstRun = useRef(true)
+  const mounted = useRef(false)
 
   const currentSeason = useMemo(() => {
     const data = slices.schedule.data as Race[] | null
@@ -173,6 +181,10 @@ export function useDashboard(): DashboardState {
 
   // Reset slices whenever the selected season changes (round resets to follow the season).
   useEffect(() => {
+    if (!mounted.current) {
+      mounted.current = true
+      return
+    }
     setRound(null)
     setSlices((prev) => {
       const next = { ...prev }

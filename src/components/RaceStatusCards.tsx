@@ -4,6 +4,7 @@ import {
   driverCode,
   driverFullName,
   formatBroadcastDate,
+  formatBroadcastTime,
   formatNumber,
   formatPoints,
   posTwo,
@@ -313,7 +314,7 @@ export function RaceStatusCards({
                   <div>
                     <p className="label text-muted/70">Race Start</p>
                     <p className="mono-num mt-1 text-lg font-semibold text-text">
-                      {formatBroadcastDate(featuredRace.start)} · {display(formatBroadcastTime(featuredRace))}
+                      {formatBroadcastDate(featuredRace.start)} · {formatBroadcastTime(featuredRace.start)}
                     </p>
                   </div>
                 )}
@@ -370,7 +371,7 @@ export function RaceStatusCards({
                 {display(nextRace.circuitName)} · {display(nextRace.country)}
               </p>
               <p className="mono-num mt-1 text-xs tracking-wider text-muted">
-                {formatBroadcastDate(nextRace.start)} · {display(formatBroadcastTime(nextRace))}
+                {formatBroadcastDate(nextRace.start)} · {formatBroadcastTime(nextRace.start)}
               </p>
               <div className="mt-auto pt-5">
                 <Countdown target={nextRace.start} />
@@ -390,12 +391,4 @@ export function RaceStatusCards({
       </div>
     </Card>
   )
-}
-
-function formatBroadcastTime(race: Race): string {
-  const s = display(race.time)
-  if (s === 'N/A') return s
-  const m = s.match(/^(\d{2}):(\d{2})/)
-  if (m) return `${m[1]}:${m[2]} UTC`
-  return s
 }

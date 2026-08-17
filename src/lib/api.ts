@@ -12,6 +12,7 @@ import type {
   RaceDetail,
   RaceResultRow,
   SeasonRoundResults,
+  SessionKey,
 } from './types'
 
 const BASE = 'https://api.jolpi.ca/ergast/f1'
@@ -57,6 +58,11 @@ interface RawResult {
   Constructor?: RawConstructor
 }
 
+interface RawSession {
+  date?: string
+  time?: string
+}
+
 interface RawRace {
   round?: string
   raceName?: string
@@ -67,6 +73,12 @@ interface RawRace {
   }
   date?: string
   time?: string
+  FirstPractice?: RawSession
+  SecondPractice?: RawSession
+  ThirdPractice?: RawSession
+  Qualifying?: RawSession
+  Sprint?: RawSession
+  SprintQualifying?: RawSession
 }
 
 function str(v: unknown): string | null {
@@ -119,6 +131,27 @@ function normalizeRace(raw: RawRace): Race | null {
   const lat = num(raw.Circuit?.Location?.lat)
   const long = num(raw.Circuit?.Location?.long)
   const start = time ? new Date(`${date}T${time}`) : new Date(`${date}T00:00:00Z`)
+  const weekend: Race['weekend'] = {}
+  const sessions: Array<[SessionKey, RawSession | undefined]> = [
+    ['firstPractice', raw.FirstPractice],
+    ['secondPractice', raw.SecondPractice],
+    ['thirdPractice', raw.ThirdPractice],
+    ['qualifying', raw.Qualifying],
+    ['sprint', raw.Sprint],
+    ['sprintQualifying', raw.SprintQualifying],
+  ]
+  for (const [key, sess] of sessions) {
+    if (!sess) continue
+    const sDate = str(sess.date)
+    if (!sDate) continue
+    const sTime = str(sess.time)
+    const sStart = sTime ? new Date(`${sDate}T${sTime}`) : null
+    weekend[key] = {
+      date: sDate,
+      time: sTime,
+      start: sStart && Number.isNaN(sStart.getTime()) ? null : sStart,
+    }
+  }
   return {
     round: num(raw.round) ?? 0,
     raceName,
@@ -131,6 +164,7 @@ function normalizeRace(raw: RawRace): Race | null {
     start: Number.isNaN(start.getTime()) ? null : start,
     lat,
     long,
+    weekend,
   }
 }
 

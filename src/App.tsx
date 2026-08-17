@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useDashboard } from './lib/useDashboard'
-import { useHashRoute } from './lib/router'
+import { buildHash, useHashRoute } from './lib/router'
 import { CIRCUIT_TRACKS } from './lib/circuitTracks'
 import { display, roundLabel } from './lib/format'
 import { TooltipProvider } from '@/components/ui/tooltip'
@@ -18,22 +18,73 @@ import { PitStops } from './components/PitStops'
 import { Progression } from './components/Progression'
 import { HeadToHead } from './components/HeadToHead'
 import { StandingsPage } from './components/StandingsPage'
+import { DriverPage } from './components/DriverPage'
+import { TeamPage } from './components/TeamPage'
 import { SectionHeading } from './components/Card'
 import { ErrorState } from './components/ErrorState'
 
+const SEASON_FLOOR = 2000
+
+function parseSeasonParam(v: string | null): string | null {
+  if (!v) return null
+  if (v === 'current') return 'current'
+  if (!/^\d{4}$/.test(v)) return null
+  const n = Number(v)
+  if (n < SEASON_FLOOR || n > new Date().getFullYear()) return null
+  return v
+}
+
+function parseRoundParam(v: string | null): number | null {
+  if (!v || !/^\d{1,2}$/.test(v)) return null
+  const n = Number(v)
+  if (n < 1 || n > 60) return null
+  return n
+}
+
 export default function App() {
-  const dashboard = useDashboard()
-  const route = useHashRoute()
+  const hash = useHashRoute()
+  const route = hash.route
+  const initial = useMemo(
+    () => ({
+      season: parseSeasonParam(hash.params.season),
+      round: parseRoundParam(hash.params.round),
+    }),
+    [hash.params.season, hash.params.round],
+  )
+  const dashboard = useDashboard(initial)
   const { active, onNavigate } = useNavActive()
   const [navOpen, setNavOpen] = useState(false)
   const { season, calendar, lastRace, nextRace, featuredRound } = dashboard
-  const effectiveActive = route === 'standings' ? 'standings' : active
+  const effectiveActive =
+    route.name === 'standings' ? 'standings' : route.name === 'driver' ? 'driver' : route.name === 'team' ? 'team' : active
 
-  const prevRoute = useRef(route)
   useEffect(() => {
-    if (route === 'standings' && prevRoute.current !== 'standings') window.scrollTo(0, 0)
-    prevRoute.current = route
-  }, [route])
+    const seasonParam = dashboard.seasonId
+    const roundParam = dashboard.round !== null ? String(dashboard.round) : null
+    const want = buildHash(route, { season: seasonParam, round: roundParam })
+    if (window.location.hash !== want) window.history.replaceState(null, '', want)
+  }, [route, dashboard.seasonId, dashboard.round])
+
+  const prevRoute = useRef(route.name)
+  useEffect(() => {
+    if (route.name !== 'dashboard' && prevRoute.current !== route.name) window.scrollTo(0, 0)
+    prevRoute.current = route.name
+  }, [route.name])
+
+  const navigate = useMemo(
+    () => ({
+      toDashboard: () => {
+        window.location.hash = '#/'
+      },
+      toDriver: (driverId: string) => {
+        window.location.hash = `#/driver/${encodeURIComponent(driverId)}`
+      },
+      toConstructor: (constructorId: string) => {
+        window.location.hash = `#/team/${encodeURIComponent(constructorId)}`
+      },
+    }),
+    [],
+  )
 
   const scheduleLoading = dashboard.schedule.status === 'loading'
   const scheduleError = dashboard.schedule.error
@@ -81,7 +132,7 @@ export default function App() {
     <TooltipProvider>
       <div className="min-h-screen bg-bg text-text">
         <div className="flex min-h-screen">
-          <Sidebar active={effectiveActive} />
+          <Sidebar active={effectiveActive} onNavigate={onNavigate} />
 
           <div className="flex min-w-0 flex-1 flex-col">
             <TopBar
@@ -102,7 +153,7 @@ export default function App() {
             <MobileNavSheet open={navOpen} onOpenChange={setNavOpen} active={effectiveActive} onNavigate={onNavigate} />
 
             <main className="main-wash flex-1 px-4 py-5 lg:px-6">
-              {route === 'standings' ? (
+              {route.name === 'standings' ? (
                 <div className="mx-auto max-w-[1560px]">
                   <StandingsPage
                     season={season}
@@ -125,6 +176,47 @@ export default function App() {
                     onNext={nextRound !== null ? () => dashboard.setRound(nextRound) : undefined}
                     canPrev={prevRound !== null}
                     canNext={nextRound !== null}
+                    onSelectDriver={navigate.toDriver}
+                    onSelectConstructor={navigate.toConstructor}
+                  />
+                </div>
+              ) : route.name === 'driver' ? (
+                <div className="mx-auto max-w-[1560px]">
+                  <DriverPage
+                    driverId={route.driverId}
+                    seasonLabel={season}
+                    calendar={calendar}
+                    standings={driverRows}
+                    standingsLoading={dashboard.driverStandings.status === 'loading' && driverRows.length === 0}
+                    standingsError={dashboard.driverStandings.error}
+                    onRetryStandings={() => dashboard.retry('drivers')}
+                    rounds={seasonResults}
+                    roundsLoading={seasonResultsLoading}
+                    roundsError={seasonResultsError}
+                    onRetryRounds={() => dashboard.retry('seasonResults')}
+                    onBack={navigate.toDashboard}
+                    onSelectDriver={navigate.toDriver}
+                  />
+                </div>
+              ) : route.name === 'team' ? (
+                <div className="mx-auto max-w-[1560px]">
+                  <TeamPage
+                    constructorId={route.constructorId}
+                    seasonLabel={season}
+                    calendar={calendar}
+                    standings={constructorRows}
+                    driverStandings={driverRows}
+                    standingsLoading={
+                      dashboard.constructorStandings.status === 'loading' && constructorRows.length === 0
+                    }
+                    standingsError={dashboard.constructorStandings.error}
+                    onRetryStandings={() => dashboard.retry('constructors')}
+                    rounds={seasonResults}
+                    roundsLoading={seasonResultsLoading}
+                    roundsError={seasonResultsError}
+                    onRetryRounds={() => dashboard.retry('seasonResults')}
+                    onBack={navigate.toDashboard}
+                    onSelectDriver={navigate.toDriver}
                   />
                 </div>
               ) : (
@@ -180,6 +272,8 @@ export default function App() {
                         constructorError={dashboard.constructorStandings.error}
                         onRetryDrivers={() => dashboard.retry('drivers')}
                         onRetryConstructors={() => dashboard.retry('constructors')}
+                        onSelectDriver={navigate.toDriver}
+                        onSelectConstructor={navigate.toConstructor}
                       />
                     </div>
                   </section>

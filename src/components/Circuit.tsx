@@ -2,6 +2,7 @@ import type { Race, RaceResultRow } from '../lib/types'
 import type { CircuitTrack as Track } from '../lib/circuitTracks'
 import { display, formatBroadcastDate, formatNumber, roundLabel } from '../lib/format'
 import { CircuitTrack } from './CircuitTrack'
+import { WeekendSchedule } from './WeekendSchedule'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 
@@ -88,6 +89,7 @@ export function Circuit({
           </div>
         </div>
       </div>
+      <WeekendSchedule race={race} />
     </Card>
   )
 }
