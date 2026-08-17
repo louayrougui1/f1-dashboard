@@ -1,5 +1,6 @@
 import type { RaceResultRow } from '../lib/types'
 import { display, driverCode, driverFullName, formatPoints, posTwo, roundLabel } from '../lib/format'
+import { teamColor } from '../lib/teamColors'
 import { cn } from '@/lib/utils'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -165,10 +166,18 @@ export function LastRaceResults({
                 </TableCell>
                 <TableCell className="min-w-0 border-b border-line/60 px-2 py-2.5">
                   <div className="flex items-center gap-2 min-w-0">
+                    <span
+                      aria-hidden="true"
+                      className="h-4 w-1 shrink-0 rounded-full"
+                      style={{ backgroundColor: teamColor(row.constructor.constructorId) }}
+                    />
                     <span className="mono-num w-8 shrink-0 text-[10px] font-bold tracking-widest text-muted">
                       {driverCode(row.driver)}
                     </span>
-                    <span className="max-w-[9.5rem] truncate font-medium text-text sm:max-w-none">
+                    <span
+                      className="max-w-[9.5rem] truncate font-medium sm:max-w-none"
+                      style={{ color: teamColor(row.constructor.constructorId) }}
+                    >
                       {driverFullName(row.driver)}
                     </span>
                     {row.fastestLap?.rank === 1 ? (
@@ -181,8 +190,17 @@ export function LastRaceResults({
                     ) : null}
                   </div>
                 </TableCell>
-                <TableCell className="hidden border-b border-line/60 px-2 py-2.5 text-xs text-muted sm:table-cell">
-                  {display(row.constructor.name)}
+                <TableCell className="hidden border-b border-line/60 px-2 py-2.5 text-xs sm:table-cell">
+                  <span className="flex items-center gap-1.5">
+                    <span
+                      aria-hidden="true"
+                      className="h-2 w-2 shrink-0 rounded-full"
+                      style={{ backgroundColor: teamColor(row.constructor.constructorId) }}
+                    />
+                    <span style={{ color: teamColor(row.constructor.constructorId) }}>
+                      {display(row.constructor.name)}
+                    </span>
+                  </span>
                 </TableCell>
                 <TableCell className="mono-num border-b border-line/60 px-2 py-2.5 text-right text-muted">
                   {display(row.grid)}

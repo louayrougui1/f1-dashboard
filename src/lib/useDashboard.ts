@@ -34,6 +34,7 @@ export interface DashboardState {
   setRound: (round: number | null) => void
   season: string | null
   seasonYears: string[]
+  liveSeason: string | null
   calendar: Race[]
   lastRace: Race | null
   nextRace: Race | null
@@ -73,6 +74,7 @@ export function useDashboard(): DashboardState {
   })
   const [refreshing, setRefreshing] = useState(false)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
+  const [liveSeason, setLiveSeason] = useState<string | null>(null)
   const firstRun = useRef(true)
 
   const currentSeason = useMemo(() => {
@@ -81,13 +83,14 @@ export function useDashboard(): DashboardState {
   }, [slices.schedule])
 
   const seasonYears = useMemo(() => {
-    if (!currentSeason) return ['current']
-    const cur = Number(currentSeason)
+    const anchor = liveSeason ?? currentSeason
+    if (!anchor) return ['current']
+    const cur = Number(anchor)
     if (!Number.isFinite(cur)) return ['current']
     const years: string[] = ['current']
     for (let y = cur; y >= SEASON_FLOOR; y--) years.push(String(y))
     return years
-  }, [currentSeason])
+  }, [liveSeason, currentSeason])
 
   const keyFor = useCallback(
     (k: DataKey): string => {
@@ -214,6 +217,11 @@ export function useDashboard(): DashboardState {
         .then((value) => {
           writeCache(f.cache, value)
           setSlices((prev) => ({ ...prev, [f.key]: { status: 'ready', data: value, error: null } }))
+          if (seasonId === 'current' && f.key === 'schedule') {
+            const first = (value as Race[])?.[0]
+            const year = first?.date?.slice(0, 4)
+            if (year) setLiveSeason(year)
+          }
           setLastUpdated(new Date())
         })
         .catch((err: unknown) => {
@@ -268,6 +276,7 @@ export function useDashboard(): DashboardState {
     setRound,
     season,
     seasonYears,
+    liveSeason,
     calendar,
     lastRace,
     nextRace,

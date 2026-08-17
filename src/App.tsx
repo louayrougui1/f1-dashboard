@@ -57,7 +57,7 @@ export default function App() {
               onOpenNav={() => setNavOpen(true)}
               seasonId={dashboard.seasonId}
               seasonYears={dashboard.seasonYears}
-              currentSeason={season}
+              currentSeason={dashboard.liveSeason}
               round={dashboard.round}
               lastRace={lastRace}
               calendar={calendar}

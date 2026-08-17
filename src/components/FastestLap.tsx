@@ -1,5 +1,6 @@
 import type { RaceResultRow } from '../lib/types'
 import { display, driverFullName, formatPoints, positionLabel } from '../lib/format'
+import { teamColor } from '../lib/teamColors'
 import { cn } from '@/lib/utils'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -41,10 +42,19 @@ export function FastestLap({
 
   const fl = rows.find((r) => r.fastestLap?.rank === 1) ?? null
   const flTime = fl?.fastestLap?.time
+  const flColor = fl ? teamColor(fl.constructor.constructorId) : null
 
   return (
     <Card className="relative overflow-hidden rounded-lg border border-line bg-surface p-0">
-      <div className="hero-wash-rule absolute inset-x-0 top-0 h-0.5" aria-hidden="true" />
+      <div
+        className="hero-wash-rule absolute inset-x-0 top-0 h-0.5"
+        aria-hidden="true"
+        style={
+          flColor
+            ? { background: `linear-gradient(90deg, var(--color-accent) 0%, ${flColor} 100%)` }
+            : undefined
+        }
+      />
       {fl && flTime ? (
         <div className="flex flex-wrap items-center justify-between gap-x-10 gap-y-5 px-6 py-6 lg:px-8">
           <div className="min-w-0">
@@ -65,7 +75,16 @@ export function FastestLap({
             <p className="truncate text-xl font-semibold tracking-wide text-text uppercase">
               {driverFullName(fl.driver)}
             </p>
-            <p className="mt-0.5 truncate text-sm text-muted">{display(fl.constructor.name)}</p>
+            <p className="mt-0.5 flex items-center justify-start gap-1.5 truncate text-sm lg:justify-end">
+              <span
+                aria-hidden="true"
+                className="h-2 w-2 shrink-0 rounded-full"
+                style={{ backgroundColor: teamColor(fl.constructor.constructorId) }}
+              />
+              <span style={{ color: teamColor(fl.constructor.constructorId) }}>
+                {display(fl.constructor.name)}
+              </span>
+            </p>
             <div className="mt-3 flex flex-wrap gap-2">
               <Badge
                 variant="outline"

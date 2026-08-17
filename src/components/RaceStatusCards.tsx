@@ -10,6 +10,7 @@ import {
   roundLabel,
   splitGrandPrix,
 } from '../lib/format'
+import { teamColor } from '../lib/teamColors'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
@@ -27,10 +28,20 @@ function PodiumRow({ result, position }: { result: RaceResultRow; position: numb
       }`}
     >
       <span className={`mono-num w-6 shrink-0 text-sm font-bold ${tone}`}>{posTwo(result.position)}</span>
+      <span
+        aria-hidden="true"
+        className="h-4 w-1 shrink-0 rounded-full"
+        style={{ backgroundColor: teamColor(result.constructor.constructorId) }}
+      />
       <span className="mono-num w-9 shrink-0 text-[11px] font-bold tracking-widest text-text">
         {driverCode(result.driver)}
       </span>
-      <span className="min-w-0 flex-1 truncate text-sm text-text">{driverFullName(result.driver)}</span>
+      <span
+        className="min-w-0 flex-1 truncate text-sm"
+        style={{ color: teamColor(result.constructor.constructorId) }}
+      >
+        {driverFullName(result.driver)}
+      </span>
       {position === 1 ? (
         <Badge className="hidden h-auto shrink-0 rounded-sm border-gold/40 bg-gold/15 px-1.5 py-px text-[9px] font-bold tracking-[0.18em] text-gold sm:inline-flex">
           WINNER
@@ -75,15 +86,48 @@ function SeasonSummary({
               {championDriver ? formatPoints(championDriver.points) : '—'} PTS
             </p>
           </div>
-          <p className="mt-0.5 truncate text-[11px] text-muted">
-            {display(championDriver?.constructor.name)} · P1
+          <p className="mt-0.5 flex items-center gap-1.5 truncate text-[11px]">
+            {championDriver ? (
+              <span
+                aria-hidden="true"
+                className="h-2 w-2 shrink-0 rounded-full"
+                style={{ backgroundColor: teamColor(championDriver.constructor.constructorId) }}
+              />
+            ) : null}
+            <span
+              className="truncate"
+              style={{
+                color: championDriver
+                  ? teamColor(championDriver.constructor.constructorId)
+                  : undefined,
+              }}
+            >
+              {display(championDriver?.constructor.name)}
+            </span>
+            <span className="text-muted">· P1</span>
           </p>
         </div>
         <div className="rounded-md border border-line bg-bg/40 px-3 py-2.5">
           <p className="label text-[9px] text-muted/70">Champion Constructor</p>
           <div className="mt-1 flex items-center justify-between gap-2">
-            <p className="truncate text-base font-semibold text-text">
-              {display(championConstructor?.constructor.name)}
+            <p className="flex min-w-0 items-center gap-1.5 truncate text-base font-semibold text-text">
+              {championConstructor ? (
+                <span
+                  aria-hidden="true"
+                  className="h-2.5 w-2.5 shrink-0 rounded-full"
+                  style={{ backgroundColor: teamColor(championConstructor.constructor.constructorId) }}
+                />
+              ) : null}
+              <span
+                className="truncate"
+                style={{
+                  color: championConstructor
+                    ? teamColor(championConstructor.constructor.constructorId)
+                    : undefined,
+                }}
+              >
+                {display(championConstructor?.constructor.name)}
+              </span>
             </p>
             <p className="mono-num shrink-0 text-sm font-bold text-text">
               {championConstructor ? formatPoints(championConstructor.points) : '—'} PTS
@@ -137,8 +181,25 @@ function ChampionshipStatus({
               {leaderPoints !== null ? formatPoints(leaderPoints) : '—'} PTS
             </p>
           </div>
-          <p className="mt-0.5 truncate text-[11px] text-muted">
-            {display(leaderConstructor?.constructor.name)} · P1
+          <p className="mt-0.5 flex items-center gap-1.5 truncate text-[11px]">
+            {leaderConstructor ? (
+              <span
+                aria-hidden="true"
+                className="h-2 w-2 shrink-0 rounded-full"
+                style={{ backgroundColor: teamColor(leaderConstructor.constructor.constructorId) }}
+              />
+            ) : null}
+            <span
+              className="truncate"
+              style={{
+                color: leaderConstructor
+                  ? teamColor(leaderConstructor.constructor.constructorId)
+                  : undefined,
+              }}
+            >
+              {display(leaderConstructor?.constructor.name)}
+            </span>
+            <span className="text-muted">· P1</span>
           </p>
         </div>
       </div>

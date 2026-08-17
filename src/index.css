@@ -167,11 +167,6 @@ body {
   background: linear-gradient(90deg, var(--color-accent) 0%, rgba(225, 6, 0, 0) 100%);
 }
 
-/* Muted (non-leader) constructor points bar */
-.progress-muted [data-slot="progress-indicator"] {
-  background-color: rgba(140, 150, 166, 0.45);
-}
-
 @theme inline {
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);

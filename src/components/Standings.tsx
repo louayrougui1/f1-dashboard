@@ -1,5 +1,6 @@
 import type { ConstructorStandingRow, DriverStandingRow } from '../lib/types'
 import { display, driverCode, driverFullName, formatPoints, posTwo } from '../lib/format'
+import { teamColor } from '../lib/teamColors'
 import { cn } from '@/lib/utils'
 import { TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Progress } from '@/components/ui/progress'
@@ -87,6 +88,11 @@ function DriverTable({
                 </TableCell>
                 <TableCell className="min-w-0 border-b border-line/60 px-2 py-2.5">
                   <div className="flex items-center gap-2 min-w-0">
+                    <span
+                      aria-hidden="true"
+                      className="h-4 w-1 shrink-0 rounded-full"
+                      style={{ backgroundColor: teamColor(row.constructor.constructorId) }}
+                    />
                     <span className="mono-num hidden w-8 shrink-0 text-[10px] font-bold tracking-widest text-muted sm:inline">
                       {display(driverCode(row.driver))}
                     </span>
@@ -94,7 +100,12 @@ function DriverTable({
                       <span className="block max-w-[7.5rem] truncate font-medium text-text sm:max-w-none">
                         {driverFullName(row.driver)}
                       </span>
-                      <span className="block truncate text-[10px] text-muted">{display(row.constructor.name)}</span>
+                      <span
+                        className="block truncate text-[10px]"
+                        style={{ color: teamColor(row.constructor.constructorId) }}
+                      >
+                        {display(row.constructor.name)}
+                      </span>
                     </span>
                     {isP1 ? (
                       <Badge className="hidden h-auto shrink-0 rounded-sm bg-accent px-1.5 py-px text-[9px] font-bold tracking-[0.18em] text-bg sm:inline-flex">
@@ -188,7 +199,15 @@ function ConstructorTable({
                 </TableCell>
                 <TableCell className="min-w-0 border-b border-line/60 px-2 py-2.5">
                   <span className="flex items-center gap-2">
-                    <span className="block max-w-[8.5rem] truncate font-medium text-text sm:max-w-none">
+                    <span
+                      aria-hidden="true"
+                      className="h-2.5 w-2.5 shrink-0 rounded-full"
+                      style={{ backgroundColor: teamColor(row.constructor.constructorId) }}
+                    />
+                    <span
+                      className="block max-w-[8.5rem] truncate font-medium sm:max-w-none"
+                      style={{ color: teamColor(row.constructor.constructorId) }}
+                    >
                       {display(row.constructor.name)}
                     </span>
                     {isP1 ? (
@@ -199,7 +218,8 @@ function ConstructorTable({
                   </span>
                   <Progress
                     value={Math.max(4, (row.points / max) * 100)}
-                    className={cn('mt-1.5 h-1 bg-bg-secondary', isP1 ? '' : 'progress-muted')}
+                    className="mt-1.5 h-1 bg-bg-secondary"
+                    indicatorStyle={{ backgroundColor: teamColor(row.constructor.constructorId) }}
                     aria-label={`${display(row.constructor.name)} ${row.points} points`}
                   />
                 </TableCell>
