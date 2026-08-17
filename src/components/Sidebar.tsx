@@ -4,6 +4,17 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 
+function scrollToTarget(id: string, attempts = 0) {
+  const el = document.getElementById(id)
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    return
+  }
+  if (attempts < 20) {
+    requestAnimationFrame(() => scrollToTarget(id, attempts + 1))
+  }
+}
+
 function BrandMark() {
   return (
     <div className="flex items-center gap-2.5">
@@ -40,10 +51,15 @@ function NavList({
               return (
                 <li key={item.id}>
                   <a
-                    href={`#${item.target}`}
-                    onClick={() => {
+                    href={item.route ? `#${item.route}` : `#${item.target}`}
+                    onClick={(e) => {
+                      e.preventDefault()
+                      window.location.hash = item.route ? `#${item.route}` : `#${item.target}`
                       onNavigate(item.id)
                       onNavigateEnd?.()
+                      if (!item.route) {
+                        scrollToTarget(item.target)
+                      }
                     }}
                     aria-current={isActive ? 'page' : undefined}
                     className={`group relative flex items-center gap-2.5 rounded px-2.5 py-1.5 text-xs font-medium tracking-wide transition-colors duration-150 ${
@@ -70,7 +86,7 @@ function NavList({
 
 export function Sidebar({ active, onNavigate }: { active: string; onNavigate?: (id: string) => void }) {
   return (
-    <aside className="hidden w-[13.5rem] shrink-0 flex-col border-r border-line bg-bg-secondary lg:flex">
+    <aside className="sticky top-0 hidden h-screen w-[13.5rem] shrink-0 flex-col border-r border-line bg-bg-secondary lg:flex">
       <div className="px-5 pt-5 pb-4">
         <BrandMark />
       </div>

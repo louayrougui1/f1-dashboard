@@ -52,6 +52,7 @@ export function LastRaceResults({
   onNext,
   canPrev,
   canNext,
+  maxRows,
 }: {
   raceName: string | null
   round: number | null
@@ -64,6 +65,7 @@ export function LastRaceResults({
   onNext?: () => void
   canPrev?: boolean
   canNext?: boolean
+  maxRows?: number
 }) {
   if (loading && !hasData) {
     return (
@@ -79,7 +81,8 @@ export function LastRaceResults({
       </div>
     )
   }
-  const shown = rows.slice(0, 12)
+  const fullTiming = maxRows != null
+  const shown = rows.slice(0, maxRows ?? 12)
   const headerBtns = onPrev || onNext ? (
     <div className="flex items-center gap-1">
       <Button
@@ -115,7 +118,7 @@ export function LastRaceResults({
         </p>
         <div className="flex shrink-0 items-center gap-3">
           {headerBtns}
-          <p className="label text-[10px] text-muted/70">Top 12 · Timing</p>
+          <p className="label text-[10px] text-muted/70">{fullTiming ? 'Full Timing' : 'Top 12 · Timing'}</p>
         </div>
       </div>
       <Table className="min-w-[34rem] border-separate border-spacing-0 text-sm">

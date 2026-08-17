@@ -2,10 +2,21 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   fetchConstructorStandings,
   fetchDriverStandings,
+  fetchPitStops,
+  fetchQualifying,
   fetchRaceResults,
   fetchSchedule,
+  fetchSeasonResults,
 } from './api'
-import type { ConstructorStandingRow, DriverStandingRow, Race, RaceDetail } from './types'
+import type {
+  ConstructorStandingRow,
+  DriverStandingRow,
+  PitStopDetail,
+  QualifyingDetail,
+  Race,
+  RaceDetail,
+  SeasonRoundResults,
+} from './types'
 
 const cache = new Map<string, unknown>()
 
@@ -25,7 +36,7 @@ export interface SliceState<T> {
   error: Error | null
 }
 
-export type DataKey = 'schedule' | 'drivers' | 'constructors' | 'results'
+export type DataKey = 'schedule' | 'drivers' | 'constructors' | 'results' | 'qualifying' | 'pitStops' | 'seasonResults'
 
 export interface DashboardState {
   seasonId: string
@@ -44,6 +55,9 @@ export interface DashboardState {
   featuredDetail: SliceState<RaceDetail | null>
   driverStandings: SliceState<DriverStandingRow[]>
   constructorStandings: SliceState<ConstructorStandingRow[]>
+  qualifying: SliceState<QualifyingDetail | null>
+  pitStops: SliceState<PitStopDetail | null>
+  seasonResults: SliceState<SeasonRoundResults[]>
   championDriver: DriverStandingRow | null
   championConstructor: ConstructorStandingRow | null
   seasonComplete: boolean
@@ -58,6 +72,9 @@ const EMPTY: Record<DataKey, SliceState<unknown>> = {
   drivers: { status: 'loading', data: null, error: null },
   constructors: { status: 'loading', data: null, error: null },
   results: { status: 'loading', data: null, error: null },
+  qualifying: { status: 'loading', data: null, error: null },
+  pitStops: { status: 'loading', data: null, error: null },
+  seasonResults: { status: 'loading', data: null, error: null },
 }
 
 const SEASON_FLOOR = 2000
@@ -71,6 +88,9 @@ export function useDashboard(): DashboardState {
     drivers: 0,
     constructors: 0,
     results: 0,
+    qualifying: 0,
+    pitStops: 0,
+    seasonResults: 0,
   })
   const [refreshing, setRefreshing] = useState(false)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
@@ -92,11 +112,16 @@ export function useDashboard(): DashboardState {
     return years
   }, [liveSeason, currentSeason])
 
+  const cacheKey = useCallback((k: DataKey, season: string, r: number | null): string => {
+    if (k === 'results' || k === 'qualifying' || k === 'pitStops') return `${k}:${season}:${r ?? ''}`
+    return `${k}:${season}`
+  }, [])
+
   const keyFor = useCallback(
     (k: DataKey): string => {
-      return k === 'results' ? `results:${seasonId}:${round ?? ''}` : `${k}:${seasonId}`
+      return cacheKey(k, seasonId, round)
     },
-    [seasonId, round],
+    [cacheKey, seasonId, round],
   )
 
   const calendar = useMemo(() => {
@@ -113,6 +138,7 @@ export function useDashboard(): DashboardState {
     () => (completedRaces.length > 0 ? completedRaces[completedRaces.length - 1] : null),
     [completedRaces],
   )
+  const completedRounds = useMemo(() => completedRaces.map((r) => r.round), [completedRaces])
   const upcoming = useMemo(
     () => calendar.filter((r) => r.start !== null && r.start.getTime() > now.getTime()),
     [calendar, now],
@@ -151,7 +177,7 @@ export function useDashboard(): DashboardState {
     setSlices((prev) => {
       const next = { ...prev }
       for (const k of Object.keys(next) as DataKey[]) {
-        const key = k === 'results' ? `results:${seasonId}:` : `${k}:${seasonId}`
+        const key = cacheKey(k, seasonId, null)
         const cached = readCache(key)
         next[k] =
           cached !== null
@@ -163,18 +189,19 @@ export function useDashboard(): DashboardState {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [seasonId])
 
-  // When an explicit round changes, reset only the results slice for the new key.
+  // When an explicit round changes, reset only the round-scoped slices for the new key.
   useEffect(() => {
     if (round === null) return
     setSlices((prev) => {
-      const cached = readCache(keyFor('results'))
-      return {
-        ...prev,
-        results:
+      const next = { ...prev }
+      for (const k of ['results', 'qualifying', 'pitStops'] as DataKey[]) {
+        const cached = readCache(keyFor(k))
+        next[k] =
           cached !== null
             ? { status: 'ready', data: cached, error: null }
-            : { status: 'loading', data: null, error: null },
+            : { status: 'loading', data: null, error: null }
       }
+      return next
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [round])
@@ -199,6 +226,24 @@ export function useDashboard(): DashboardState {
         key: 'results',
         cache: keyFor('results'),
         run: (s) => fetchRaceResults(seasonId, featuredRound, s),
+      })
+      defs.push({
+        key: 'qualifying',
+        cache: keyFor('qualifying'),
+        run: (s) => fetchQualifying(seasonId, featuredRound, s),
+      })
+      defs.push({
+        key: 'pitStops',
+        cache: keyFor('pitStops'),
+        run: (s) => fetchPitStops(seasonId, featuredRound, s),
+      })
+    }
+
+    if (scheduleReady && completedRounds.length > 0) {
+      defs.push({
+        key: 'seasonResults',
+        cache: keyFor('seasonResults'),
+        run: (s) => fetchSeasonResults(seasonId, completedRounds, s),
       })
     }
 
@@ -245,7 +290,7 @@ export function useDashboard(): DashboardState {
 
     return () => controller.abort()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [version, seasonId, round, featuredRound, scheduleReady, keyFor])
+  }, [version, seasonId, round, featuredRound, scheduleReady, keyFor, completedRounds])
 
   const refresh = useCallback(() => {
     cache.clear()
@@ -286,6 +331,9 @@ export function useDashboard(): DashboardState {
     featuredDetail: slices.results as SliceState<RaceDetail | null>,
     driverStandings: slices.drivers as SliceState<DriverStandingRow[]>,
     constructorStandings: slices.constructors as SliceState<ConstructorStandingRow[]>,
+    qualifying: slices.qualifying as SliceState<QualifyingDetail | null>,
+    pitStops: slices.pitStops as SliceState<PitStopDetail | null>,
+    seasonResults: slices.seasonResults as SliceState<SeasonRoundResults[]>,
     championDriver,
     championConstructor,
     seasonComplete,

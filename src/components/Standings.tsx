@@ -27,16 +27,18 @@ function headClass(extra = '') {
   )
 }
 
-function DriverTable({
+export function DriverTable({
   rows,
   loading,
   error,
   onRetry,
+  limit = 12,
 }: {
   rows: DriverStandingRow[]
   loading: boolean
   error: Error | null
   onRetry: () => void
+  limit?: number
 }) {
   if (loading && rows.length === 0) {
     return (
@@ -65,7 +67,7 @@ function DriverTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {rows.slice(0, 12).map((row) => {
+          {rows.slice(0, limit).map((row) => {
             const isP1 = row.position === 1
             const podium = row.position <= 3
             const leaderPts = rows[0]?.points ?? row.points
@@ -137,16 +139,18 @@ function DriverTable({
   )
 }
 
-function ConstructorTable({
+export function ConstructorTable({
   rows,
   loading,
   error,
   onRetry,
+  limit,
 }: {
   rows: ConstructorStandingRow[]
   loading: boolean
   error: Error | null
   onRetry: () => void
+  limit?: number
 }) {
   if (loading && rows.length === 0) {
     return (
@@ -177,7 +181,7 @@ function ConstructorTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {rows.map((row) => {
+          {rows.slice(0, limit ?? rows.length).map((row) => {
             const isP1 = row.position === 1
             const podium = row.position <= 3
             const gap = leaderPts - row.points

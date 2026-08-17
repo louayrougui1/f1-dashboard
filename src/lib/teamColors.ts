@@ -62,6 +62,8 @@ const TEAM_COLORS: Record<string, string> = {
   aston_martin_aramco: '#229971',
   alpine_f1: '#0093CC',
   rb_f1: '#6692FF',
+  audi: '#A50F2D',
+  cadillac: '#2E66D0',
 }
 
 const FALLBACK = '#8C96A6'

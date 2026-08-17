@@ -11,6 +11,8 @@ import {
   splitGrandPrix,
 } from '../lib/format'
 import { teamColor } from '../lib/teamColors'
+import type { CircuitTrack as Track } from '../lib/circuitTracks'
+import { CircuitTrack } from './CircuitTrack'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
@@ -225,6 +227,7 @@ export function RaceStatusCards({
   championDriver,
   championConstructor,
   loading,
+  featuredTrack,
 }: {
   featuredRace: Race | null
   featuredResults: RaceResultRow[]
@@ -237,6 +240,7 @@ export function RaceStatusCards({
   championDriver: DriverStandingRow | null
   championConstructor: ConstructorStandingRow | null
   loading: boolean
+  featuredTrack: Track | null
 }) {
   if (loading && !featuredRace) {
     return (
@@ -288,10 +292,15 @@ export function RaceStatusCards({
                   </>
                 ) : null}
               </h2>
-              <p className="relative mt-3 truncate text-sm text-muted">
-                {display(featuredRace.circuitName)}
-                {featuredRace.country ? ` · ${display(featuredRace.country)}` : ''}
-              </p>
+              <div className="relative mt-3 flex items-end justify-between gap-4">
+                <p className="min-w-0 truncate text-sm text-muted">
+                  {display(featuredRace.circuitName)}
+                  {featuredRace.country ? ` · ${display(featuredRace.country)}` : ''}
+                </p>
+                {featuredTrack ? (
+                  <CircuitTrack track={featuredTrack} className="h-14 w-20 shrink-0 sm:h-16 sm:w-24" />
+                ) : null}
+              </div>
               <div className="relative mt-7 flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
                 {hasResults ? (
                   <div>

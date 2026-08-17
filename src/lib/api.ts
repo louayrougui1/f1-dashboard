@@ -4,9 +4,14 @@ import type {
   Driver,
   DriverStandingRow,
   FastestLap,
+  PitStopDetail,
+  PitStopRow,
+  QualifyingDetail,
+  QualifyingRow,
   Race,
   RaceDetail,
   RaceResultRow,
+  SeasonRoundResults,
 } from './types'
 
 const BASE = 'https://api.jolpi.ca/ergast/f1'
@@ -56,8 +61,9 @@ interface RawRace {
   round?: string
   raceName?: string
   Circuit?: {
+    circuitId?: string
     circuitName?: string
-    Location?: { locality?: string; country?: string }
+    Location?: { lat?: string; long?: string; locality?: string; country?: string }
   }
   date?: string
   time?: string
@@ -106,19 +112,25 @@ function normalizeRace(raw: RawRace): Race | null {
   const date = str(raw.date)
   if (!raceName || !date) return null
   const time = str(raw.time)
+  const circuitId = str(raw.Circuit?.circuitId) ?? ''
   const circuitName = str(raw.Circuit?.circuitName)
   const locality = str(raw.Circuit?.Location?.locality)
   const country = str(raw.Circuit?.Location?.country)
+  const lat = num(raw.Circuit?.Location?.lat)
+  const long = num(raw.Circuit?.Location?.long)
   const start = time ? new Date(`${date}T${time}`) : new Date(`${date}T00:00:00Z`)
   return {
     round: num(raw.round) ?? 0,
     raceName,
+    circuitId,
     circuitName: circuitName ?? '',
     locality: locality ?? '',
     country: country ?? '',
     date,
     time,
     start: Number.isNaN(start.getTime()) ? null : start,
+    lat,
+    long,
   }
 }
 
@@ -193,6 +205,43 @@ interface RawResultsResponse {
       season?: string
       round?: string
       Races?: Array<RawRace & { Results?: RawResult[] }>
+    }
+  }
+}
+
+interface RawQualifyingResult {
+  position?: string
+  Driver?: RawDriver
+  Constructor?: RawConstructor
+  Q1?: string
+  Q2?: string
+  Q3?: string
+}
+
+interface RawQualifyingResponse {
+  MRData?: {
+    RaceTable?: {
+      season?: string
+      round?: string
+      Races?: Array<RawRace & { QualifyingResults?: RawQualifyingResult[] }>
+    }
+  }
+}
+
+interface RawPitStop {
+  driverId?: string
+  stop?: string
+  lap?: string
+  time?: string
+  duration?: string
+}
+
+interface RawPitStopsResponse {
+  MRData?: {
+    RaceTable?: {
+      season?: string
+      round?: string
+      Races?: Array<RawRace & { PitStops?: RawPitStop[] }>
     }
   }
 }
@@ -294,4 +343,82 @@ export async function fetchRaceResults(season: string, round: number, signal?: A
     race,
     results,
   }
+}
+
+export async function fetchQualifying(season: string, round: number, signal?: AbortSignal): Promise<QualifyingDetail | null> {
+  const json = await request<RawQualifyingResponse>(`/${seasonSegment(season)}/${round}/qualifying.json`, signal)
+  const rawRace = json.MRData?.RaceTable?.Races?.[0]
+  if (!rawRace) return null
+  const race = normalizeRace(rawRace)
+  if (!race) return null
+  const rows: QualifyingRow[] = (rawRace.QualifyingResults ?? [])
+    .map((raw): QualifyingRow | null => {
+      const driver = normalizeDriver(raw.Driver)
+      const constructor = normalizeConstructor(raw.Constructor)
+      if (!driver || !constructor) return null
+      return {
+        position: num(raw.position) ?? 0,
+        driver,
+        constructor,
+        q1: str(raw.Q1),
+        q2: str(raw.Q2),
+        q3: str(raw.Q3),
+      }
+    })
+    .filter((r): r is QualifyingRow => r !== null)
+    .sort((a, b) => a.position - b.position)
+  return {
+    season: json.MRData?.RaceTable?.season ?? '',
+    round: race.round,
+    race,
+    rows,
+  }
+}
+
+export async function fetchPitStops(season: string, round: number, signal?: AbortSignal): Promise<PitStopDetail | null> {
+  const json = await request<RawPitStopsResponse>(`/${seasonSegment(season)}/${round}/pitstops.json`, signal)
+  const rawRace = json.MRData?.RaceTable?.Races?.[0]
+  if (!rawRace) return null
+  const race = normalizeRace(rawRace)
+  if (!race) return null
+  const stops: PitStopRow[] = (rawRace.PitStops ?? [])
+    .map((raw): PitStopRow | null => {
+      const driverId = str(raw.driverId)
+      if (!driverId) return null
+      return {
+        driverId,
+        stop: num(raw.stop) ?? 0,
+        lap: num(raw.lap) ?? 0,
+        time: str(raw.time) ?? '',
+        duration: num(raw.duration),
+      }
+    })
+    .filter((r): r is PitStopRow => r !== null)
+    .sort((a, b) => a.stop - b.stop)
+  return {
+    season: json.MRData?.RaceTable?.season ?? '',
+    round: race.round,
+    race,
+    stops,
+  }
+}
+
+const SEASON_CHUNK = 6
+
+export async function fetchSeasonResults(
+  season: string,
+  rounds: number[],
+  signal?: AbortSignal,
+): Promise<SeasonRoundResults[]> {
+  const out: SeasonRoundResults[] = []
+  for (let i = 0; i < rounds.length; i += SEASON_CHUNK) {
+    const chunk = rounds.slice(i, i + SEASON_CHUNK)
+    const settled = await Promise.allSettled(chunk.map((r) => fetchRaceResults(season, r, signal)))
+    settled.forEach((res, idx) => {
+      if (res.status === 'fulfilled' && res.value) {
+        out.push({ round: chunk[idx], results: res.value.results })
+      }
+    })
+  }
+  return out.sort((a, b) => a.round - b.round)
 }

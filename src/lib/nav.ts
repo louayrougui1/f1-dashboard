@@ -2,6 +2,7 @@ export interface NavItem {
   id: string
   label: string
   target: string
+  route?: string
 }
 
 export interface NavGroup {
@@ -16,6 +17,8 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { id: 'calendar', label: 'Calendar', target: 'calendar' },
       { id: 'results', label: 'Results', target: 'results' },
+      { id: 'qualifying', label: 'Qualifying', target: 'qualifying' },
+      { id: 'pitstops', label: 'Pit Stops', target: 'pitstops' },
     ],
   },
   {
@@ -23,17 +26,20 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { id: 'drivers', label: 'Drivers', target: 'drivers' },
       { id: 'constructors', label: 'Constructors', target: 'constructors' },
+      { id: 'standings', label: 'Standings', target: 'standings', route: '/standings' },
+      { id: 'progression', label: 'Progression', target: 'progression' },
     ],
   },
   {
     label: 'Analysis',
     items: [
+      { id: 'circuit', label: 'Circuit', target: 'circuit' },
       { id: 'fastest', label: 'Fastest Lap', target: 'fastest' },
-      { id: 'analysis', label: 'Race Analysis', target: 'results' },
+      { id: 'headtohead', label: 'Head-to-Head', target: 'headtohead' },
     ],
   },
 ]
 
 export function navTargets(): string[] {
-  return NAV_GROUPS.flatMap((g) => g.items.map((i) => i.target))
+  return NAV_GROUPS.flatMap((g) => g.items.filter((i) => !i.route).map((i) => i.target))
 }
