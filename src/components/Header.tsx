@@ -28,6 +28,7 @@ export function TopBar({
   currentSeason,
   round,
   lastRace,
+  nextRace,
   calendar,
   onSeasonChange,
   onRoundChange,
@@ -42,6 +43,7 @@ export function TopBar({
   currentSeason: string | null
   round: number | null
   lastRace: Race | null
+  nextRace: Race | null
   calendar: Race[]
   onSeasonChange: (season: string) => void
   onRoundChange: (round: number | null) => void
@@ -74,6 +76,7 @@ export function TopBar({
             currentSeason={currentSeason}
             round={round}
             lastRace={lastRace}
+            nextRace={nextRace}
             calendar={calendar}
             onSeasonChange={onSeasonChange}
             onRoundChange={onRoundChange}

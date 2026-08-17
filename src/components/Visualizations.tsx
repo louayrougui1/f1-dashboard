@@ -31,6 +31,7 @@ function SeasonTimeline({
           <ol className="flex min-w-[46rem] justify-between lg:min-w-0" aria-label="Season race calendar">
             {calendar.map((race, idx) => {
               const isPast = lastRound !== null && race.round <= lastRound
+              const isLastCompleted = lastRound !== null && race.round === lastRound
               const isNext = nextRound !== null && race.round === nextRound
               const isSelected = selectedRound !== null && race.round === selectedRound
               const isFirst = idx === 0
@@ -40,10 +41,12 @@ function SeasonTimeline({
                 ? 'border-accent bg-accent ring-2 ring-accent/50 ring-offset-2 ring-offset-surface'
                 : isNext
                   ? 'border-accent bg-accent'
-                  : isPast
-                    ? 'border-accent/40 bg-accent/25'
-                    : 'border-line bg-bg-secondary'
-              const numCls = isSelected || isNext ? 'text-accent' : isPast ? 'text-text/80' : 'text-muted'
+                  : isLastCompleted
+                    ? 'border-gold bg-gold'
+                    : isPast
+                      ? 'border-accent/40 bg-accent/25'
+                      : 'border-line bg-bg-secondary'
+              const numCls = isSelected || isNext ? 'text-accent' : isLastCompleted ? 'text-gold' : isPast ? 'text-text/80' : 'text-muted'
               return (
                 <li key={race.round} className="flex min-w-0 flex-1 flex-col items-center">
                   <button
@@ -73,6 +76,10 @@ function SeasonTimeline({
           <span className="flex items-center gap-1.5">
             <span className="h-2.5 w-2.5 rounded-full border border-accent/40 bg-accent/25" aria-hidden="true" />
             Completed
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-full border border-gold bg-gold" aria-hidden="true" />
+            Last completed
           </span>
           <span className="flex items-center gap-1.5">
             <span

@@ -22,13 +22,37 @@ function dateLabel(date: string | null): string {
   return `${String(day).padStart(2, '0')} ${MONTHS[month - 1]}`
 }
 
-export function WeekendSchedule({ race }: { race: Race | null }) {
+export function WeekendSchedule({ race, compact }: { race: Race | null; compact?: boolean }) {
   const sessions = SESSIONS.map((s) => ({
     ...s,
     session: race?.weekend[s.key] ?? null,
   })).filter((s) => s.session !== null)
 
   if (sessions.length === 0) return null
+
+  if (compact) {
+    return (
+      <div>
+        <div className="flex items-baseline justify-between gap-3">
+          <p className="label text-[10px] text-muted/70">Weekend Schedule</p>
+          <p className="label text-[10px] text-muted/40">All times UTC</p>
+        </div>
+        <div className="mt-2 grid grid-cols-2 gap-px overflow-hidden rounded-md border border-line bg-line sm:grid-cols-3">
+          {sessions.map((s) => (
+            <div key={s.key} className="min-w-0 bg-bg/40 px-3 py-2">
+              <p className="label text-[10px] tracking-[0.2em] text-accent">{s.label}</p>
+              <p className="mono-num mt-1 truncate text-xs font-semibold text-text">
+                {dateLabel(s.session?.date ?? null)}
+              </p>
+              <p className="mono-num mt-0.5 truncate text-[10px] text-muted">
+                {display(formatBroadcastTime(s.session?.start ?? null))}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="border-t border-line">

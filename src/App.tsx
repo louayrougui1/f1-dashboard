@@ -94,6 +94,7 @@ export default function App() {
   const featuredResults = featuredDetail.data?.results ?? []
   const featuredRace = dashboard.featuredRace
   const featuredTrack = featuredRace?.circuitId ? (CIRCUIT_TRACKS[featuredRace.circuitId] ?? null) : null
+  const nextTrack = nextRace?.circuitId ? (CIRCUIT_TRACKS[nextRace.circuitId] ?? null) : null
   const resultsLoading = featuredDetail.status === 'loading' && featuredResults.length === 0
   const resultsError = featuredDetail.status === 'error' ? featuredDetail.error : null
 
@@ -146,6 +147,7 @@ export default function App() {
               currentSeason={dashboard.liveSeason}
               round={dashboard.round}
               lastRace={lastRace}
+              nextRace={nextRace}
               calendar={calendar}
               onSeasonChange={dashboard.setSeason}
               onRoundChange={dashboard.setRound}
@@ -244,6 +246,9 @@ export default function App() {
                         championConstructor={dashboard.championConstructor}
                         loading={resultsLoading && featuredRace === null}
                         featuredTrack={featuredTrack}
+                        nextTrack={nextTrack}
+                        driverRows={driverRows}
+                        constructorRows={constructorRows}
                       />
                     )}
                     <div className="mt-4">

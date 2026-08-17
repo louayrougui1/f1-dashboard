@@ -12,8 +12,10 @@ import {
   splitGrandPrix,
 } from '../lib/format'
 import { teamColor } from '../lib/teamColors'
+import { cn } from '@/lib/utils'
 import type { CircuitTrack as Track } from '../lib/circuitTracks'
 import { CircuitTrack } from './CircuitTrack'
+import { WeekendSchedule } from './WeekendSchedule'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
@@ -154,17 +156,16 @@ function ChampionshipStatus({
   roundsCompleted,
   totalRounds,
   nextRace,
-  leader,
-  leaderConstructor,
-  leaderPoints,
+  driverTop3,
+  constructorTop3,
 }: {
   roundsCompleted: number | null
   totalRounds: number | null
   nextRace: Race | null
-  leader: DriverStandingRow | null
-  leaderConstructor: ConstructorStandingRow | null
-  leaderPoints: number | null
+  driverTop3: DriverStandingRow[]
+  constructorTop3: ConstructorStandingRow[]
 }) {
+  const posCls = ['text-gold', 'text-silver', 'text-bronze']
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-center justify-between gap-3">
@@ -173,40 +174,71 @@ function ChampionshipStatus({
           R{formatNumber(roundsCompleted)} / {formatNumber(totalRounds)}
         </Badge>
       </div>
-      <div className="mt-4 grid flex-1 gap-4">
-        <div className="rounded-md border border-line bg-bg/40 px-3 py-2.5">
-          <p className="label text-[10px] text-muted/70">Points Leader</p>
-          <div className="mt-1 flex items-center justify-between gap-2">
-            <p className="truncate text-lg font-semibold text-accent">
-              {leader ? driverFullName(leader.driver) : '—'}
-            </p>
-            <p className="mono-num shrink-0 text-sm font-bold text-text">
-              {leaderPoints !== null ? formatPoints(leaderPoints) : '—'} PTS
-            </p>
-          </div>
-          <p className="mt-0.5 flex items-center gap-1.5 truncate text-xs">
-            {leaderConstructor ? (
-              <span
-                aria-hidden="true"
-                className="h-2 w-2 shrink-0 rounded-full"
-                style={{ backgroundColor: teamColor(leaderConstructor.constructor.constructorId) }}
-              />
-            ) : null}
-            <span
-              className="truncate"
-              style={{
-                color: leaderConstructor
-                  ? teamColor(leaderConstructor.constructor.constructorId)
-                  : undefined,
-              }}
-            >
-              {display(leaderConstructor?.constructor.name)}
-            </span>
-            <span className="text-muted">· P1</span>
-          </p>
+
+      <div className="mt-4">
+        <p className="label text-[10px] text-muted/70">Top 3 Drivers</p>
+        <div className="mt-1.5 overflow-hidden rounded-md border border-line">
+          {driverTop3.length === 0 ? (
+            <p className="px-3 py-2 text-xs text-muted">Standings unavailable.</p>
+          ) : (
+            driverTop3.map((row, i) => (
+              <div
+                key={row.driver.driverId}
+                className={cn(
+                  'flex items-center gap-2.5 border-b border-line/60 px-3 py-2 last:border-b-0',
+                  i === 0 ? 'bg-gold/[0.05]' : '',
+                )}
+              >
+                <span className={cn('mono-num w-5 shrink-0 text-sm font-bold', posCls[i] ?? 'text-muted')}>
+                  {i + 1}
+                </span>
+                <span
+                  aria-hidden="true"
+                  className="h-4 w-1 shrink-0 rounded-full"
+                  style={{ backgroundColor: teamColor(row.constructor.constructorId) }}
+                />
+                <span className="min-w-0 flex-1 truncate text-sm text-text">{driverFullName(row.driver)}</span>
+                <span className="mono-num shrink-0 text-xs font-semibold text-text">
+                  {formatPoints(row.points)}
+                </span>
+              </div>
+            ))
+          )}
         </div>
       </div>
-      <div className="mt-4 flex items-center justify-between gap-2 border-t border-line pt-3">
+
+      <div className="mt-4">
+        <p className="label text-[10px] text-muted/70">Top 3 Constructors</p>
+        <div className="mt-1.5 overflow-hidden rounded-md border border-line">
+          {constructorTop3.length === 0 ? (
+            <p className="px-3 py-2 text-xs text-muted">Standings unavailable.</p>
+          ) : (
+            constructorTop3.map((row, i) => (
+              <div
+                key={row.constructor.constructorId}
+                className="flex items-center gap-2.5 border-b border-line/60 px-3 py-2 last:border-b-0"
+              >
+                <span className={cn('mono-num w-5 shrink-0 text-sm font-bold', posCls[i] ?? 'text-muted')}>
+                  {i + 1}
+                </span>
+                <span
+                  aria-hidden="true"
+                  className="h-2 w-2 shrink-0 rounded-full"
+                  style={{ backgroundColor: teamColor(row.constructor.constructorId) }}
+                />
+                <span className="min-w-0 flex-1 truncate text-sm" style={{ color: teamColor(row.constructor.constructorId) }}>
+                  {display(row.constructor.name)}
+                </span>
+                <span className="mono-num shrink-0 text-xs font-semibold text-text">
+                  {formatPoints(row.points)}
+                </span>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      <div className="mt-auto flex items-center justify-between gap-2 border-t border-line pt-3">
         <p className="label text-[10px] text-muted/70">Next Round</p>
         <p className="mono-num truncate text-xs text-text">
           {roundLabel(nextRace?.round ?? null)} · {display(nextRace?.raceName)}
@@ -229,6 +261,9 @@ export function RaceStatusCards({
   championConstructor,
   loading,
   featuredTrack,
+  nextTrack,
+  driverRows,
+  constructorRows,
 }: {
   featuredRace: Race | null
   featuredResults: RaceResultRow[]
@@ -242,6 +277,9 @@ export function RaceStatusCards({
   championConstructor: ConstructorStandingRow | null
   loading: boolean
   featuredTrack: Track | null
+  nextTrack: Track | null
+  driverRows: DriverStandingRow[]
+  constructorRows: ConstructorStandingRow[]
 }) {
   if (loading && !featuredRace) {
     return (
@@ -259,7 +297,9 @@ export function RaceStatusCards({
   const podium = featuredResults.slice(0, 3)
   const hasResults = featuredResults.length > 0
   const name = splitGrandPrix(featuredRace?.raceName)
-  const leader = championDriver
+  const isFeaturedNext = nextRace !== null && featuredRound === nextRace.round
+  const driverTop3 = driverRows.slice(0, 3)
+  const constructorTop3 = constructorRows.slice(0, 3)
 
   return (
     <Card className="rounded-lg p-0 gap-0">
@@ -276,7 +316,9 @@ export function RaceStatusCards({
                 {featuredRound !== null ? String(featuredRound) : ''}
               </span>
               <div className="relative flex items-center justify-between gap-3">
-                <span className="label-lg text-accent">{hasResults ? 'Race Result' : 'Next Event'}</span>
+                <span className="label-lg text-accent">
+                  {hasResults ? 'Race Result' : isFeaturedNext ? 'Next Event' : 'Upcoming Round'}
+                </span>
                 <Badge
                   variant="outline"
                   className="h-auto rounded-md border-line bg-bg/60 px-2 py-0.5 text-xs tracking-[0.18em] text-muted"
@@ -299,7 +341,9 @@ export function RaceStatusCards({
                   {featuredRace.country ? ` · ${display(featuredRace.country)}` : ''}
                 </p>
                 {featuredTrack ? (
-                  <CircuitTrack track={featuredTrack} className="h-14 w-20 shrink-0 sm:h-16 sm:w-24" />
+                  <div className="shrink-0 rounded-md border border-line bg-bg/40 p-1.5">
+                    <CircuitTrack track={featuredTrack} className="h-20 w-28 sm:h-24 sm:w-36" />
+                  </div>
                 ) : null}
               </div>
               <div className="relative mt-7 flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
@@ -373,6 +417,17 @@ export function RaceStatusCards({
               <p className="mono-num mt-1 text-xs tracking-wider text-muted">
                 {formatBroadcastDate(nextRace.start)} · {formatBroadcastTime(nextRace.start)}
               </p>
+              {nextTrack ? (
+                <div className="mt-4 rounded-md border border-line bg-bg/40 px-4 py-3">
+                  <CircuitTrack track={nextTrack} className="h-24 w-full sm:h-28" />
+                  <p className="mono-num mt-1.5 text-center text-[9px] tracking-[0.2em] text-muted/70">
+                    {nextTrack.name.toUpperCase()}
+                  </p>
+                </div>
+              ) : null}
+              <div className="mt-4">
+                <WeekendSchedule race={nextRace} compact />
+              </div>
               <div className="mt-auto pt-5">
                 <Countdown target={nextRace.start} />
               </div>
@@ -382,9 +437,8 @@ export function RaceStatusCards({
               roundsCompleted={roundsCompleted}
               totalRounds={totalRounds}
               nextRace={nextRace}
-              leader={leader}
-              leaderConstructor={championConstructor}
-              leaderPoints={leader?.points ?? null}
+              driverTop3={driverTop3}
+              constructorTop3={constructorTop3}
             />
           )}
         </div>
