@@ -46,7 +46,7 @@ export function SeasonRoundControls({
         <SelectTrigger
           size="sm"
           aria-label="Select season"
-          className="h-8 max-w-[7.5rem] border-line bg-surface px-2.5 text-xs text-text hover:border-accent/60 lg:max-w-none"
+          className="h-8 max-w-[7.5rem] border-line bg-surface px-2.5 text-sm text-text hover:border-accent/60 lg:max-w-none"
         >
           <SelectValue placeholder="Season" />
         </SelectTrigger>
@@ -67,7 +67,7 @@ export function SeasonRoundControls({
         <SelectTrigger
           size="sm"
           aria-label="Select round"
-          className="h-8 max-w-[6.5rem] border-line bg-surface px-2.5 text-xs text-text hover:border-accent/60 sm:max-w-[9rem]"
+          className="h-8 max-w-[6.5rem] border-line bg-surface px-2.5 text-sm text-text hover:border-accent/60 sm:max-w-[9rem]"
         >
           <SelectValue placeholder="Round" />
         </SelectTrigger>

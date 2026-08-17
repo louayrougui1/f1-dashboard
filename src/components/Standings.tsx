@@ -22,7 +22,7 @@ function PositionMark({ position }: { position: number }) {
 
 function headClass(extra = '') {
   return cn(
-    'sticky top-14 z-10 h-auto border-b border-line bg-surface px-2 py-2.5 text-[10px] font-semibold tracking-[0.18em] text-muted',
+    'sticky top-14 z-10 h-auto border-b border-line bg-surface px-2 py-2.5 text-[11px] font-semibold tracking-[0.18em] text-muted',
     extra,
   )
 }
@@ -93,7 +93,7 @@ function DriverTable({
                       className="h-4 w-1 shrink-0 rounded-full"
                       style={{ backgroundColor: teamColor(row.constructor.constructorId) }}
                     />
-                    <span className="mono-num hidden w-8 shrink-0 text-[10px] font-bold tracking-widest text-muted sm:inline">
+                    <span className="mono-num hidden w-8 shrink-0 text-[11px] font-bold tracking-widest text-muted sm:inline">
                       {display(driverCode(row.driver))}
                     </span>
                     <span className="min-w-0">
@@ -101,7 +101,7 @@ function DriverTable({
                         {driverFullName(row.driver)}
                       </span>
                       <span
-                        className="block truncate text-[10px]"
+                        className="block truncate text-[11px]"
                         style={{ color: teamColor(row.constructor.constructorId) }}
                       >
                         {display(row.constructor.name)}

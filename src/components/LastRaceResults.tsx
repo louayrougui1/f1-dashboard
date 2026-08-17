@@ -35,7 +35,7 @@ function StatusBadge({ status }: { status: string }) {
 
 function headClass(extra = '') {
   return cn(
-    'h-auto border-b border-line bg-surface px-2 py-2.5 text-[10px] font-semibold tracking-[0.18em] text-muted',
+    'h-auto border-b border-line bg-surface px-2 py-2.5 text-[11px] font-semibold tracking-[0.18em] text-muted',
     extra,
   )
 }
@@ -115,7 +115,7 @@ export function LastRaceResults({
         </p>
         <div className="flex shrink-0 items-center gap-3">
           {headerBtns}
-          <p className="label text-[9px] text-muted/70">Top 12 · Timing</p>
+          <p className="label text-[10px] text-muted/70">Top 12 · Timing</p>
         </div>
       </div>
       <Table className="min-w-[34rem] border-separate border-spacing-0 text-sm">
@@ -171,7 +171,7 @@ export function LastRaceResults({
                       className="h-4 w-1 shrink-0 rounded-full"
                       style={{ backgroundColor: teamColor(row.constructor.constructorId) }}
                     />
-                    <span className="mono-num w-8 shrink-0 text-[10px] font-bold tracking-widest text-muted">
+                    <span className="mono-num w-8 shrink-0 text-[11px] font-bold tracking-widest text-muted">
                       {driverCode(row.driver)}
                     </span>
                     <span

@@ -33,11 +33,11 @@ function PodiumRow({ result, position }: { result: RaceResultRow; position: numb
         className="h-4 w-1 shrink-0 rounded-full"
         style={{ backgroundColor: teamColor(result.constructor.constructorId) }}
       />
-      <span className="mono-num w-9 shrink-0 text-[11px] font-bold tracking-widest text-text">
+      <span className="mono-num w-9 shrink-0 text-xs font-bold tracking-widest text-text">
         {driverCode(result.driver)}
       </span>
       <span
-        className="min-w-0 flex-1 truncate text-sm"
+        className="min-w-0 flex-1 truncate text-base"
         style={{ color: teamColor(result.constructor.constructorId) }}
       >
         {driverFullName(result.driver)}
@@ -71,22 +71,22 @@ function SeasonSummary({
     <div className="flex h-full flex-col">
       <div className="flex items-center justify-between gap-3">
         <span className="label-lg text-text">Season Summary</span>
-        <Badge className="h-auto rounded-sm bg-accent px-2 py-px text-[10px] font-bold tracking-[0.18em] text-bg">
+        <Badge className="h-auto rounded-sm bg-accent px-2 py-px text-xs font-bold tracking-[0.18em] text-bg">
           {display(season)}
         </Badge>
       </div>
       <div className="mt-4 grid flex-1 gap-4">
         <div className="rounded-md border border-line bg-bg/40 px-3 py-2.5">
-          <p className="label text-[9px] text-muted/70">Champion Driver</p>
+          <p className="label text-[10px] text-muted/70">Champion Driver</p>
           <div className="mt-1 flex items-center justify-between gap-2">
-            <p className="truncate text-base font-semibold text-gold">
+            <p className="truncate text-lg font-semibold text-gold">
               {championDriver ? driverFullName(championDriver.driver) : '—'}
             </p>
             <p className="mono-num shrink-0 text-sm font-bold text-text">
               {championDriver ? formatPoints(championDriver.points) : '—'} PTS
             </p>
           </div>
-          <p className="mt-0.5 flex items-center gap-1.5 truncate text-[11px]">
+          <p className="mt-0.5 flex items-center gap-1.5 truncate text-xs">
             {championDriver ? (
               <span
                 aria-hidden="true"
@@ -108,9 +108,9 @@ function SeasonSummary({
           </p>
         </div>
         <div className="rounded-md border border-line bg-bg/40 px-3 py-2.5">
-          <p className="label text-[9px] text-muted/70">Champion Constructor</p>
+          <p className="label text-[10px] text-muted/70">Champion Constructor</p>
           <div className="mt-1 flex items-center justify-between gap-2">
-            <p className="flex min-w-0 items-center gap-1.5 truncate text-base font-semibold text-text">
+            <p className="flex min-w-0 items-center gap-1.5 truncate text-lg font-semibold text-text">
               {championConstructor ? (
                 <span
                   aria-hidden="true"
@@ -136,10 +136,10 @@ function SeasonSummary({
         </div>
       </div>
       <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
-        <p className="mono-num text-[11px] tracking-wider text-muted">
+        <p className="mono-num text-xs tracking-wider text-muted">
           R{formatNumber(roundsCompleted)} / {formatNumber(totalRounds)} ROUNDS
         </p>
-        <Badge variant="outline" className="h-auto rounded-md border-line bg-bg/60 px-2 py-0.5 text-[10px] tracking-[0.18em] text-muted">
+        <Badge variant="outline" className="h-auto rounded-md border-line bg-bg/60 px-2 py-0.5 text-xs tracking-[0.18em] text-muted">
           SEASON COMPLETE
         </Badge>
       </div>
@@ -166,22 +166,22 @@ function ChampionshipStatus({
     <div className="flex h-full flex-col">
       <div className="flex items-center justify-between gap-3">
         <span className="label-lg text-text">Championship Status</span>
-        <Badge variant="outline" className="h-auto rounded-md border-line bg-bg/60 px-2 py-0.5 text-[10px] tracking-[0.18em] text-muted">
+        <Badge variant="outline" className="h-auto rounded-md border-line bg-bg/60 px-2 py-0.5 text-xs tracking-[0.18em] text-muted">
           R{formatNumber(roundsCompleted)} / {formatNumber(totalRounds)}
         </Badge>
       </div>
       <div className="mt-4 grid flex-1 gap-4">
         <div className="rounded-md border border-line bg-bg/40 px-3 py-2.5">
-          <p className="label text-[9px] text-muted/70">Points Leader</p>
+          <p className="label text-[10px] text-muted/70">Points Leader</p>
           <div className="mt-1 flex items-center justify-between gap-2">
-            <p className="truncate text-base font-semibold text-accent">
+            <p className="truncate text-lg font-semibold text-accent">
               {leader ? driverFullName(leader.driver) : '—'}
             </p>
             <p className="mono-num shrink-0 text-sm font-bold text-text">
               {leaderPoints !== null ? formatPoints(leaderPoints) : '—'} PTS
             </p>
           </div>
-          <p className="mt-0.5 flex items-center gap-1.5 truncate text-[11px]">
+          <p className="mt-0.5 flex items-center gap-1.5 truncate text-xs">
             {leaderConstructor ? (
               <span
                 aria-hidden="true"
@@ -204,8 +204,8 @@ function ChampionshipStatus({
         </div>
       </div>
       <div className="mt-4 flex items-center justify-between gap-2 border-t border-line pt-3">
-        <p className="label text-[9px] text-muted/70">Next Round</p>
-        <p className="mono-num truncate text-[11px] text-text">
+        <p className="label text-[10px] text-muted/70">Next Round</p>
+        <p className="mono-num truncate text-xs text-text">
           {roundLabel(nextRace?.round ?? null)} · {display(nextRace?.raceName)}
         </p>
       </div>
@@ -274,7 +274,7 @@ export function RaceStatusCards({
                 <span className="label-lg text-accent">{hasResults ? 'Race Result' : 'Next Event'}</span>
                 <Badge
                   variant="outline"
-                  className="h-auto rounded-md border-line bg-bg/60 px-2 py-0.5 text-[10px] tracking-[0.18em] text-muted"
+                  className="h-auto rounded-md border-line bg-bg/60 px-2 py-0.5 text-xs tracking-[0.18em] text-muted"
                 >
                   {roundLabel(featuredRound)}
                 </Badge>
@@ -346,7 +346,7 @@ export function RaceStatusCards({
                 <span className="label-lg text-accent">Next Event</span>
                 <Badge
                   variant="outline"
-                  className="h-auto rounded-md border-line bg-bg/60 px-2 py-0.5 text-[10px] tracking-[0.18em] text-muted"
+                  className="h-auto rounded-md border-line bg-bg/60 px-2 py-0.5 text-xs tracking-[0.18em] text-muted"
                 >
                   {roundLabel(nextRace.round)}
                 </Badge>
@@ -360,7 +360,7 @@ export function RaceStatusCards({
               <p className="mt-1 truncate text-xs text-muted">
                 {display(nextRace.circuitName)} · {display(nextRace.country)}
               </p>
-              <p className="mono-num mt-1 text-[11px] tracking-wider text-muted">
+              <p className="mono-num mt-1 text-xs tracking-wider text-muted">
                 {formatBroadcastDate(nextRace.start)} · {display(formatBroadcastTime(nextRace))}
               </p>
               <div className="mt-auto pt-5">

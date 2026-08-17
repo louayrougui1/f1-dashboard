@@ -44,8 +44,8 @@ export function TopBar({
   onRoundChange: (round: number | null) => void
 }) {
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-bg/92 backdrop-blur-sm">
-      <div className="flex items-center justify-between gap-3 px-4 py-2.5 lg:px-6">
+    <header className="sticky top-0 z-40 h-14 border-b border-line bg-bg/92 backdrop-blur-sm">
+      <div className="flex h-full items-center justify-between gap-3 px-4 lg:px-6">
         <div className="flex items-center gap-3 min-w-0">
           <Button
             type="button"
@@ -57,9 +57,9 @@ export function TopBar({
           >
             <Menu aria-hidden="true" />
           </Button>
-          <p className="label hidden text-text truncate sm:block">{viewLabel(activeId)}</p>
+          <p className="label hidden text-xs text-text truncate sm:block">{viewLabel(activeId)}</p>
           <span className="hidden h-3.5 w-px bg-line-strong lg:block" aria-hidden="true" />
-          <p className="hidden mono-num text-[11px] tracking-widest text-muted lg:block">
+          <p className="hidden mono-num text-xs tracking-widest text-muted lg:block">
             UPDATED {formatLastUpdated(lastUpdated)}
           </p>
         </div>
@@ -77,7 +77,7 @@ export function TopBar({
           />
           <span className="hidden items-center gap-1.5 rounded border border-line bg-bg-secondary px-2 py-1 md:flex">
             <span className="h-1.5 w-1.5 rounded-full bg-accent" aria-hidden="true" />
-            <span className="label text-[9px] text-muted">Live Data</span>
+            <span className="label text-[10px] text-muted">Live Data</span>
           </span>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -87,7 +87,7 @@ export function TopBar({
                 size="sm"
                 onClick={onRefresh}
                 disabled={refreshing}
-                className="border-line bg-surface text-xs tracking-wide text-text hover:border-accent hover:bg-surface hover:text-text disabled:cursor-not-allowed disabled:opacity-50"
+                className="border-line bg-surface text-[13px] tracking-wide text-text hover:border-accent hover:bg-surface hover:text-text disabled:cursor-not-allowed disabled:opacity-50"
                 aria-label="Refresh data"
               >
                 <RefreshCw
