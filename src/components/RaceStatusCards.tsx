@@ -314,12 +314,12 @@ export function RaceStatusCards({
             <div className="relative px-6 py-6 lg:px-8 lg:py-7">
               <span
                 aria-hidden="true"
-                className="mono-num pointer-events-none absolute -top-1 right-2 select-none text-[7rem] font-black leading-none tracking-tighter text-accent/[0.06] lg:right-4 lg:text-[9.5rem]"
+                className="mono-num pointer-events-none absolute -top-1 right-2 select-none text-[7rem] font-black leading-none tracking-tighter text-text/[0.04] lg:right-4 lg:text-[9.5rem]"
               >
                 {featuredRound !== null ? String(featuredRound) : ''}
               </span>
               <div className="relative flex items-center justify-between gap-3">
-                <span className="label-lg text-accent">
+                <span className="label-lg text-muted">
                   {hasResults ? 'Race Result' : isFeaturedNext ? 'Next Event' : 'Upcoming Round'}
                 </span>
                 <Badge
@@ -400,7 +400,7 @@ export function RaceStatusCards({
           ) : hasResults && nextRace ? (
             <div className="flex h-full flex-col">
               <div className="flex items-center justify-between gap-3">
-                <span className="label-lg text-accent">Next Event</span>
+                <span className="label-lg text-muted">Next Event</span>
                 <Badge
                   variant="outline"
                   className="h-auto rounded-md border-line bg-bg/60 px-2 py-0.5 text-xs tracking-[0.18em] text-muted"

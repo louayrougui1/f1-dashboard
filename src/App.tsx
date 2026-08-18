@@ -18,6 +18,7 @@ import { Qualifying } from './components/Qualifying'
 import { PitStops } from './components/PitStops'
 import { Progression } from './components/Progression'
 import { HeadToHead } from './components/HeadToHead'
+import { LapChart } from './components/LapChart'
 import { StandingsPage } from './components/StandingsPage'
 import { DriverPage } from './components/DriverPage'
 import { TeamPage } from './components/TeamPage'
@@ -29,6 +30,7 @@ const SEASON_FLOOR = 2000
 const RACE_TABS = [
   { key: 'results', label: 'Race Results' },
   { key: 'qualifying', label: 'Qualifying' },
+  { key: 'sprint', label: 'Sprint' },
   { key: 'pitstops', label: 'Pit Stops' },
 ] as const
 
@@ -117,6 +119,19 @@ export default function App() {
   const pitStopRows = pitStops?.stops ?? []
   const pitStopsLoading = dashboard.pitStops.status === 'loading' && pitStopRows.length === 0
   const pitStopsError = dashboard.pitStops.status === 'error' ? dashboard.pitStops.error : null
+
+  const sprintDetail = dashboard.sprint.data
+  const sprintRows = sprintDetail?.results ?? []
+  const sprintLoading = dashboard.sprint.status === 'loading' && sprintRows.length === 0
+  const sprintError = dashboard.sprint.status === 'error' ? dashboard.sprint.error : null
+
+  const lapsDetail = dashboard.laps.data
+  const lapsLoading = dashboard.laps.status === 'loading' && !lapsDetail
+  const lapsError = dashboard.laps.status === 'error' ? dashboard.laps.error : null
+
+  const isSprintWeekend = featuredRace?.weekend.sprint != null
+  const visibleTabs = isSprintWeekend ? RACE_TABS : RACE_TABS.filter((t) => t.key !== 'sprint')
+  const activeRaceTab = visibleTabs.some((t) => t.key === raceTab) ? raceTab : 'results'
 
   const seasonResults = dashboard.seasonResults.data ?? []
   const seasonResultsLoading = dashboard.seasonResults.status === 'loading' && seasonResults.length === 0
@@ -297,14 +312,22 @@ export default function App() {
                       label="Race Data"
                       meta={
                         featuredRound !== null
-                          ? `${roundLabel(featuredRound)} · ${raceTab === 'results' ? 'Timing' : raceTab === 'qualifying' ? 'Q1/Q2/Q3' : 'Pit Stops'}`
+                          ? `${roundLabel(featuredRound)} · ${
+                              activeRaceTab === 'results'
+                                ? 'Timing'
+                                : activeRaceTab === 'qualifying'
+                                  ? 'Q1/Q2/Q3'
+                                  : activeRaceTab === 'sprint'
+                                    ? 'Sprint'
+                                    : 'Pit Stops'
+                            }`
                           : undefined
                       }
                     />
                     <div className="mt-3">
                       <div className="flex flex-wrap gap-1 rounded-lg border border-line bg-surface p-1">
-                        {RACE_TABS.map((t) => {
-                          const isActive = raceTab === t.key
+                        {visibleTabs.map((t) => {
+                          const isActive = activeRaceTab === t.key
                           return (
                             <button
                               key={t.key}
@@ -324,7 +347,7 @@ export default function App() {
                         })}
                       </div>
                       <div className="mt-3">
-                        {raceTab === 'results' ? (
+                        {activeRaceTab === 'results' ? (
                           <LastRaceResults
                             raceName={featuredDetail.data?.race.raceName ?? null}
                             round={featuredDetail.data?.round ?? featuredRound}
@@ -340,7 +363,7 @@ export default function App() {
                             canPrev={prevRound !== null}
                             canNext={nextRound !== null}
                           />
-                        ) : raceTab === 'qualifying' ? (
+                        ) : activeRaceTab === 'qualifying' ? (
                           <Qualifying
                             raceName={qualifyingRace?.raceName ?? null}
                             round={qualifying?.round ?? featuredRound}
@@ -350,6 +373,19 @@ export default function App() {
                             hasData={qualifyingRows.length > 0}
                             upcoming={dashboard.featuredUpcoming}
                             onRetry={() => dashboard.retry('qualifying')}
+                          />
+                        ) : activeRaceTab === 'sprint' ? (
+                          <LastRaceResults
+                            raceName={sprintDetail?.race.raceName ?? null}
+                            round={sprintDetail?.round ?? featuredRound}
+                            rows={sprintRows}
+                            maxRows={sprintRows.length || undefined}
+                            loading={sprintLoading}
+                            error={sprintError}
+                            hasData={sprintRows.length > 0}
+                            upcoming={dashboard.featuredUpcoming}
+                            onRetry={() => dashboard.retry('sprint')}
+                            variant="sprint"
                           />
                         ) : (
                           <PitStops
@@ -379,6 +415,25 @@ export default function App() {
                         hasData={featuredResults.length > 0}
                         upcoming={dashboard.featuredUpcoming}
                         onRetry={() => dashboard.retry('results')}
+                      />
+                    </div>
+                  </section>
+
+                  <section id="lapchart" aria-label="Lap-by-lap chart" className="scroll-mt-14">
+                    <SectionHeading
+                      label="Lap Chart"
+                      meta={featuredRound !== null ? roundLabel(featuredRound) : undefined}
+                    />
+                    <div className="mt-3">
+                      <LapChart
+                        raceName={featuredDetail.data?.race.raceName ?? null}
+                        round={featuredDetail.data?.round ?? featuredRound}
+                        detail={lapsDetail}
+                        resultRows={featuredResults}
+                        loading={lapsLoading}
+                        error={lapsError}
+                        upcoming={dashboard.featuredUpcoming}
+                        onRetry={() => dashboard.retry('laps')}
                       />
                     </div>
                   </section>

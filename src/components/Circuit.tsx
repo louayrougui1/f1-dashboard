@@ -58,7 +58,7 @@ export function Circuit({
 
         <div className="min-w-0 border-t border-line bg-surface px-6 py-6 lg:col-span-2 lg:border-l lg:border-t-0 lg:px-7">
           <div className="flex items-center justify-between gap-3">
-            <span className="label-lg text-accent">Circuit</span>
+            <span className="label-lg text-muted">Circuit</span>
             <Badge
               variant="outline"
               className="h-auto rounded-md border-line bg-bg/60 px-2 py-0.5 text-xs tracking-[0.18em] text-muted"

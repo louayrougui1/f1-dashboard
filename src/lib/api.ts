@@ -4,6 +4,9 @@ import type {
   Driver,
   DriverStandingRow,
   FastestLap,
+  Lap,
+  LapChartDetail,
+  LapTiming,
   PitStopDetail,
   PitStopRow,
   QualifyingDetail,
@@ -258,6 +261,16 @@ interface RawResultsResponse {
   }
 }
 
+interface RawSprintResponse {
+  MRData?: {
+    RaceTable?: {
+      season?: string
+      round?: string
+      Races?: Array<RawRace & { SprintResults?: RawResult[] }>
+    }
+  }
+}
+
 interface RawQualifyingResult {
   position?: string
   Driver?: RawDriver
@@ -402,6 +415,101 @@ export async function fetchRaceResults(season: string, round: number, signal?: A
     round: race.round,
     race,
     results,
+  }
+}
+
+export async function fetchSprint(season: string, round: number, signal?: AbortSignal): Promise<RaceDetail | null> {
+  const json = await request<RawSprintResponse>(`/${seasonSegment(season)}/${round}/sprint.json`, signal)
+  const rawRace = json.MRData?.RaceTable?.Races?.[0]
+  if (!rawRace) return null
+  const race = normalizeRace(rawRace)
+  if (!race) return null
+  const results: RaceResultRow[] = (rawRace.SprintResults ?? [])
+    .map(normalizeResult)
+    .filter((r): r is RaceResultRow => r !== null)
+    .sort((a, b) => a.position - b.position)
+  return {
+    season: json.MRData?.RaceTable?.season ?? '',
+    round: race.round,
+    race,
+    results,
+  }
+}
+
+interface RawLapTiming {
+  driverId?: string
+  position?: string
+  time?: string
+}
+
+interface RawLap {
+  number?: string
+  Timings?: RawLapTiming[]
+}
+
+interface RawLapsResponse {
+  MRData?: {
+    total?: string
+    RaceTable?: {
+      season?: string
+      round?: string
+      Races?: Array<RawRace & { Laps?: RawLap[] }>
+    }
+  }
+}
+
+const LAPS_PAGE = 100
+
+export async function fetchLaps(season: string, round: number, signal?: AbortSignal): Promise<LapChartDetail | null> {
+  let offset = 0
+  let total = 0
+  let race: Race | null = null
+  let seasonStr = ''
+  const byLap = new Map<number, LapTiming[]>()
+
+  do {
+    const json = await request<RawLapsResponse>(
+      `/${seasonSegment(season)}/${round}/laps.json?limit=${LAPS_PAGE}&offset=${offset}`,
+      signal,
+    )
+    const raceTable = json.MRData?.RaceTable
+    total = Number(json.MRData?.total ?? 0)
+    if (!race) {
+      const rawRace = raceTable?.Races?.[0]
+      if (rawRace) {
+        race = normalizeRace(rawRace)
+        seasonStr = raceTable?.season ?? ''
+      }
+    }
+    const pageLaps = raceTable?.Races?.[0]?.Laps ?? []
+    for (const raw of pageLaps) {
+      const lap = num(raw.number)
+      if (lap === null) continue
+      const timings: LapTiming[] = (raw.Timings ?? [])
+        .map((t): LapTiming | null => {
+          const driverId = str(t.driverId)
+          const position = num(t.position)
+          if (!driverId || position === null) return null
+          return { driverId, position, time: str(t.time) ?? '' }
+        })
+        .filter((t): t is LapTiming => t !== null)
+      const existing = byLap.get(lap)
+      if (existing) existing.push(...timings)
+      else byLap.set(lap, timings)
+    }
+    if (pageLaps.length === 0 || signal?.aborted || offset + LAPS_PAGE >= total) break
+    offset += LAPS_PAGE
+  } while (offset < total)
+
+  if (!race) return null
+  const laps: Lap[] = [...byLap.entries()]
+    .map(([lap, timings]) => ({ lap, timings: timings.sort((a, b) => a.position - b.position) }))
+    .sort((a, b) => a.lap - b.lap)
+  return {
+    season: seasonStr,
+    round: race.round,
+    race,
+    laps,
   }
 }
 

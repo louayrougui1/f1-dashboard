@@ -55,6 +55,7 @@ export function LastRaceResults({
   canPrev,
   canNext,
   maxRows,
+  variant = 'race',
 }: {
   raceName: string | null
   round: number | null
@@ -69,6 +70,7 @@ export function LastRaceResults({
   canPrev?: boolean
   canNext?: boolean
   maxRows?: number
+  variant?: 'race' | 'sprint'
 }) {
   if (loading && !hasData) {
     return (
@@ -87,8 +89,12 @@ export function LastRaceResults({
   if (upcoming && !hasData) {
     return (
       <div className="flex flex-col items-start gap-1 rounded-lg border border-line bg-surface px-4 py-6">
-        <p className="label text-text">Race Results</p>
-        <p className="text-xs text-muted">Race results have not been published yet.</p>
+        <p className="label text-text">{variant === 'sprint' ? 'Sprint Results' : 'Race Results'}</p>
+        <p className="text-xs text-muted">
+          {variant === 'sprint'
+            ? 'Sprint results have not been published yet.'
+            : 'Race results have not been published yet.'}
+        </p>
       </div>
     )
   }
@@ -132,13 +138,16 @@ export function LastRaceResults({
           <p className="label text-[10px] text-muted/70">{fullTiming ? 'Full Timing' : 'Top 12 · Timing'}</p>
         </div>
       </div>
-      <Table className="min-w-[34rem] border-separate border-spacing-0 text-sm">
+      <Table className="min-w-[37rem] border-separate border-spacing-0 text-sm">
         <TableHeader>
           <TableRow className="border-0">
             <TableHead className={cn(headClass(), 'pl-4')}>POS</TableHead>
             <TableHead className={headClass()}>DRIVER</TableHead>
             <TableHead className={cn(headClass(), 'hidden sm:table-cell')}>TEAM</TableHead>
             <TableHead className={cn(headClass(), 'text-right')}>GRID</TableHead>
+            <TableHead className={cn(headClass(), 'text-right')} aria-label="Grid to flag change">
+              Δ
+            </TableHead>
             <TableHead className={headClass()}>STATUS</TableHead>
             <TableHead className={cn(headClass(), 'text-right')}>TIME / GAP</TableHead>
             <TableHead className={cn(headClass(), 'pr-4 text-right')}>PTS</TableHead>
@@ -219,6 +228,26 @@ export function LastRaceResults({
                 </TableCell>
                 <TableCell className="mono-num border-b border-line/60 px-2 py-2.5 text-right text-muted">
                   {display(row.grid)}
+                </TableCell>
+                <TableCell className="mono-num border-b border-line/60 px-2 py-2.5 text-right text-xs">
+                  {row.grid === null ? (
+                    <span className="text-muted">--</span>
+                  ) : (
+                    (() => {
+                      const delta = row.grid - row.position
+                      const sign = delta > 0 ? '+' : delta < 0 ? '-' : ''
+                      const cls = delta > 0 ? 'text-good' : delta < 0 ? 'text-error' : 'text-muted'
+                      return (
+                        <span
+                          className={cn('font-semibold', cls)}
+                          title={`Started P${row.grid} · Finished P${row.position}`}
+                        >
+                          {sign}
+                          {delta}
+                        </span>
+                      )
+                    })()
+                  )}
                 </TableCell>
                 <TableCell className="border-b border-line/60 px-2 py-2.5">
                   <StatusBadge status={row.status} />

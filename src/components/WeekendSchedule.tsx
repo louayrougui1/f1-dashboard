@@ -43,7 +43,7 @@ export function WeekendSchedule({ race, compact }: { race: Race | null; compact?
         >
           {sessions.map((s) => (
             <div key={s.key} className="min-w-0 bg-bg/40 px-3 py-2">
-              <p className="label text-[10px] tracking-[0.2em] text-accent">{s.label}</p>
+              <p className="label text-[10px] tracking-[0.2em] text-muted">{s.label}</p>
               <p className="mono-num mt-1 truncate text-xs font-semibold text-text">
                 {dateLabel(s.session?.date ?? null)}
               </p>
@@ -69,7 +69,7 @@ export function WeekendSchedule({ race, compact }: { race: Race | null; compact?
       >
         {sessions.map((s) => (
           <div key={s.key} className="min-w-0 bg-surface px-4 py-3.5">
-            <p className="label text-[10px] tracking-[0.2em] text-accent">{s.label}</p>
+            <p className="label text-[10px] tracking-[0.2em] text-muted">{s.label}</p>
             <p className="mono-num mt-1.5 truncate text-sm font-semibold text-text">
               {dateLabel(s.session?.date ?? null)}
             </p>

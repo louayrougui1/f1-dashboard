@@ -157,10 +157,10 @@ body {
     var(--color-bg);
 }
 
-/* Restrained red wash behind the next-event panel */
+/* Restrained neutral tonal wash behind the featured/next-event panel */
 .hero-wash {
   background:
-    radial-gradient(90% 120% at 8% 0%, rgba(225, 6, 0, 0.14) 0%, rgba(225, 6, 0, 0) 55%),
+    radial-gradient(90% 120% at 8% 0%, rgba(140, 150, 166, 0.09) 0%, rgba(140, 150, 166, 0) 55%),
     linear-gradient(180deg, rgba(22, 25, 32, 0.9) 0%, rgba(15, 17, 21, 0.4) 100%);
 }
 

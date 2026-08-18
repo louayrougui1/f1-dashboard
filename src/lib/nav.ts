@@ -18,6 +18,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { id: 'calendar', label: 'Calendar', target: 'calendar' },
       { id: 'results', label: 'Race Data', target: 'results' },
       { id: 'fastest', label: 'Fastest Lap', target: 'fastest' },
+      { id: 'lapchart', label: 'Lap Chart', target: 'lapchart' },
     ],
   },
   {

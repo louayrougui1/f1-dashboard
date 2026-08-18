@@ -113,3 +113,21 @@ export interface SeasonRoundResults {
   round: number
   results: RaceResultRow[]
 }
+
+export interface LapTiming {
+  driverId: string
+  position: number
+  time: string
+}
+
+export interface Lap {
+  lap: number
+  timings: LapTiming[]
+}
+
+export interface LapChartDetail {
+  season: string
+  round: number
+  race: Race
+  laps: Lap[]
+}

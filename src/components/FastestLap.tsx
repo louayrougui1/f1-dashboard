@@ -61,7 +61,7 @@ export function FastestLap({
               <Badge className="h-auto rounded-sm bg-accent px-2 py-1 text-[11px] font-bold tracking-[0.2em] text-bg">
                 FL
               </Badge>
-              <p className="label-lg text-accent">Fastest Lap</p>
+              <p className="label-lg text-muted">Fastest Lap</p>
             </div>
             <p className="mono-num mt-3 text-6xl leading-none font-bold tracking-tight text-text lg:text-7xl">
               {display(flTime)}

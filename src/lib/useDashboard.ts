@@ -2,15 +2,18 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   fetchConstructorStandings,
   fetchDriverStandings,
+  fetchLaps,
   fetchPitStops,
   fetchQualifying,
   fetchRaceResults,
   fetchSchedule,
   fetchSeasonResults,
+  fetchSprint,
 } from './api'
 import type {
   ConstructorStandingRow,
   DriverStandingRow,
+  LapChartDetail,
   PitStopDetail,
   QualifyingDetail,
   Race,
@@ -36,7 +39,7 @@ export interface SliceState<T> {
   error: Error | null
 }
 
-export type DataKey = 'schedule' | 'drivers' | 'constructors' | 'results' | 'qualifying' | 'pitStops' | 'seasonResults'
+export type DataKey = 'schedule' | 'drivers' | 'constructors' | 'results' | 'qualifying' | 'pitStops' | 'sprint' | 'laps' | 'seasonResults'
 
 export interface DashboardState {
   seasonId: string
@@ -58,6 +61,8 @@ export interface DashboardState {
   constructorStandings: SliceState<ConstructorStandingRow[]>
   qualifying: SliceState<QualifyingDetail | null>
   pitStops: SliceState<PitStopDetail | null>
+  sprint: SliceState<RaceDetail | null>
+  laps: SliceState<LapChartDetail | null>
   seasonResults: SliceState<SeasonRoundResults[]>
   championDriver: DriverStandingRow | null
   championConstructor: ConstructorStandingRow | null
@@ -75,6 +80,8 @@ const EMPTY: Record<DataKey, SliceState<unknown>> = {
   results: { status: 'loading', data: null, error: null },
   qualifying: { status: 'loading', data: null, error: null },
   pitStops: { status: 'loading', data: null, error: null },
+  sprint: { status: 'loading', data: null, error: null },
+  laps: { status: 'loading', data: null, error: null },
   seasonResults: { status: 'loading', data: null, error: null },
 }
 
@@ -98,6 +105,8 @@ export function useDashboard(initial: DashboardInitial = { season: null, round: 
     results: 0,
     qualifying: 0,
     pitStops: 0,
+    sprint: 0,
+    laps: 0,
     seasonResults: 0,
   })
   const [refreshing, setRefreshing] = useState(false)
@@ -123,7 +132,8 @@ export function useDashboard(initial: DashboardInitial = { season: null, round: 
   }, [liveSeason, currentSeason])
 
   const cacheKey = useCallback((k: DataKey, season: string, r: number | null): string => {
-    if (k === 'results' || k === 'qualifying' || k === 'pitStops') return `${k}:${season}:${r ?? ''}`
+    if (k === 'results' || k === 'qualifying' || k === 'pitStops' || k === 'sprint' || k === 'laps')
+      return `${k}:${season}:${r ?? ''}`
     return `${k}:${season}`
   }, [])
 
@@ -212,7 +222,7 @@ export function useDashboard(initial: DashboardInitial = { season: null, round: 
     if (round === null) return
     setSlices((prev) => {
       const next = { ...prev }
-      for (const k of ['results', 'qualifying', 'pitStops'] as DataKey[]) {
+      for (const k of ['results', 'qualifying', 'pitStops', 'sprint', 'laps'] as DataKey[]) {
         const cached = readCache(keyFor(k))
         next[k] =
           cached !== null
@@ -255,10 +265,24 @@ export function useDashboard(initial: DashboardInitial = { season: null, round: 
         cache: keyFor('pitStops'),
         run: (s) => fetchPitStops(seasonId, featuredRound, s),
       })
+      if (featuredRace?.weekend.sprint != null) {
+        defs.push({
+          key: 'sprint',
+          cache: keyFor('sprint'),
+          run: (s) => fetchSprint(seasonId, featuredRound, s),
+        })
+      } else {
+        setSlices((prev) => ({ ...prev, sprint: { status: 'ready', data: null, error: null } }))
+      }
+      defs.push({
+        key: 'laps',
+        cache: keyFor('laps'),
+        run: (s) => fetchLaps(seasonId, featuredRound, s),
+      })
     } else if (featuredRound !== null && scheduleReady) {
       setSlices((prev) => {
         const next = { ...prev }
-        for (const k of ['results', 'qualifying', 'pitStops'] as DataKey[]) {
+        for (const k of ['results', 'qualifying', 'pitStops', 'sprint', 'laps'] as DataKey[]) {
           next[k] = { status: 'ready', data: null, error: null }
         }
         return next
@@ -361,6 +385,8 @@ export function useDashboard(initial: DashboardInitial = { season: null, round: 
     constructorStandings: slices.constructors as SliceState<ConstructorStandingRow[]>,
     qualifying: slices.qualifying as SliceState<QualifyingDetail | null>,
     pitStops: slices.pitStops as SliceState<PitStopDetail | null>,
+    sprint: slices.sprint as SliceState<RaceDetail | null>,
+    laps: slices.laps as SliceState<LapChartDetail | null>,
     seasonResults: slices.seasonResults as SliceState<SeasonRoundResults[]>,
     championDriver,
     championConstructor,
