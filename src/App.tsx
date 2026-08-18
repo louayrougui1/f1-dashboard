@@ -368,6 +368,21 @@ export default function App() {
                     </div>
                   </section>
 
+                  <section id="fastest" aria-label="Fastest lap" className="scroll-mt-14">
+                    <SectionHeading label="Fastest Lap" meta={featuredRound !== null ? roundLabel(featuredRound) : undefined} />
+                    <div className="mt-3">
+                      <FastestLap
+                        raceName={featuredDetail.data?.race.raceName ?? null}
+                        rows={featuredResults}
+                        loading={resultsLoading}
+                        error={resultsError}
+                        hasData={featuredResults.length > 0}
+                        upcoming={dashboard.featuredUpcoming}
+                        onRetry={() => dashboard.retry('results')}
+                      />
+                    </div>
+                  </section>
+
                   <section aria-label="Championship standings" className="scroll-mt-14">
                     <SectionHeading label="Championship" meta={`${display(season)} Season`} />
                     <div className="mt-3">
@@ -385,21 +400,6 @@ export default function App() {
                     </div>
                   </section>
 
-                  <section id="progression" aria-label="Championship progression" className="scroll-mt-14">
-                    <SectionHeading
-                      label="Championship Progression"
-                      meta={`${display(season)} · Cumulative`}
-                    />
-                    <div className="mt-3">
-                      <Progression
-                        rounds={seasonResults}
-                        loading={seasonResultsLoading}
-                        error={seasonResultsError}
-                        onRetry={() => dashboard.retry('seasonResults')}
-                      />
-                    </div>
-                  </section>
-
                   <section id="circuit" aria-label="Circuit" className="scroll-mt-14">
                     <SectionHeading
                       label="Circuit"
@@ -407,21 +407,6 @@ export default function App() {
                     />
                     <div className="mt-3">
                       <Circuit race={featuredRace} track={featuredTrack} rows={featuredResults} />
-                    </div>
-                  </section>
-
-                  <section id="fastest" aria-label="Fastest lap" className="scroll-mt-14">
-                    <SectionHeading label="Fastest Lap" meta={featuredRound !== null ? roundLabel(featuredRound) : undefined} />
-                    <div className="mt-3">
-                      <FastestLap
-                        raceName={featuredDetail.data?.race.raceName ?? null}
-                        rows={featuredResults}
-                        loading={resultsLoading}
-                        error={resultsError}
-                        hasData={featuredResults.length > 0}
-                        upcoming={dashboard.featuredUpcoming}
-                        onRetry={() => dashboard.retry('results')}
-                      />
                     </div>
                   </section>
 
@@ -434,6 +419,21 @@ export default function App() {
                       <HeadToHead
                         rounds={seasonResults}
                         drivers={driverRows}
+                        loading={seasonResultsLoading}
+                        error={seasonResultsError}
+                        onRetry={() => dashboard.retry('seasonResults')}
+                      />
+                    </div>
+                  </section>
+
+                  <section id="progression" aria-label="Championship progression" className="scroll-mt-14">
+                    <SectionHeading
+                      label="Championship Progression"
+                      meta={`${display(season)} · Cumulative`}
+                    />
+                    <div className="mt-3">
+                      <Progression
+                        rounds={seasonResults}
                         loading={seasonResultsLoading}
                         error={seasonResultsError}
                         onRetry={() => dashboard.retry('seasonResults')}

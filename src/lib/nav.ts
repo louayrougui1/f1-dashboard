@@ -17,6 +17,7 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { id: 'calendar', label: 'Calendar', target: 'calendar' },
       { id: 'results', label: 'Race Data', target: 'results' },
+      { id: 'fastest', label: 'Fastest Lap', target: 'fastest' },
     ],
   },
   {
@@ -25,15 +26,14 @@ export const NAV_GROUPS: NavGroup[] = [
       { id: 'drivers', label: 'Drivers', target: 'drivers' },
       { id: 'constructors', label: 'Constructors', target: 'constructors' },
       { id: 'standings', label: 'Standings', target: 'standings', route: '/standings' },
-      { id: 'progression', label: 'Progression', target: 'progression' },
     ],
   },
   {
     label: 'Analysis',
     items: [
       { id: 'circuit', label: 'Circuit', target: 'circuit' },
-      { id: 'fastest', label: 'Fastest Lap', target: 'fastest' },
       { id: 'headtohead', label: 'Head-to-Head', target: 'headtohead' },
+      { id: 'progression', label: 'Progression', target: 'progression' },
     ],
   },
 ]
