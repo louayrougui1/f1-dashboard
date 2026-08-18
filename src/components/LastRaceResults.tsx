@@ -47,6 +47,7 @@ export function LastRaceResults({
   loading,
   error,
   hasData,
+  upcoming,
   onRetry,
   onPrev,
   onNext,
@@ -60,6 +61,7 @@ export function LastRaceResults({
   loading: boolean
   error: Error | null
   hasData: boolean
+  upcoming?: boolean
   onRetry: () => void
   onPrev?: () => void
   onNext?: () => void
@@ -78,6 +80,14 @@ export function LastRaceResults({
     return (
       <div className="rounded-lg border border-line bg-surface">
         <ErrorState onRetry={onRetry} />
+      </div>
+    )
+  }
+  if (upcoming && !hasData) {
+    return (
+      <div className="flex flex-col items-start gap-1 rounded-lg border border-line bg-surface px-4 py-6">
+        <p className="label text-text">Race Results</p>
+        <p className="text-xs text-muted">Race results have not been published yet.</p>
       </div>
     )
   }

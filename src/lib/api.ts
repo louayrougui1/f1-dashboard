@@ -19,11 +19,24 @@ const BASE = 'https://api.jolpi.ca/ergast/f1'
 const TIMEOUT_MS = 20000
 
 export class ApiError extends Error {
-  constructor(message: string, cause?: unknown) {
+  readonly status: number | null
+  constructor(message: string, status: number | null = null, cause?: unknown) {
     super(message, cause === undefined ? undefined : { cause })
     this.name = 'ApiError'
+    this.status = status
   }
 }
+
+function isTransient(err: unknown): boolean {
+  if (!(err instanceof ApiError)) return false
+  const status = err.status
+  if (status === null) return true
+  if (status === 429) return true
+  return status >= 500
+}
+
+const MAX_ATTEMPTS = 3
+const RETRY_BASE_MS = 400
 
 interface RawDriver {
   driverId?: string
@@ -281,35 +294,46 @@ interface RawPitStopsResponse {
 }
 
 async function request<T>(path: string, signal?: AbortSignal): Promise<T> {
-  const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS)
-  const onOuterAbort = () => controller.abort()
-  signal?.addEventListener('abort', onOuterAbort, { once: true })
-  try {
-    const res = await fetch(BASE + path, {
-      signal: controller.signal,
-      headers: { accept: 'application/json' },
-    })
-    if (!res.ok) {
-      throw new ApiError(`API request failed (${res.status})`)
-    }
-    let json: unknown
+  let lastError: unknown
+  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+    if (signal?.aborted) throw new ApiError('Request aborted')
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), TIMEOUT_MS)
+    const onOuterAbort = () => controller.abort()
+    signal?.addEventListener('abort', onOuterAbort, { once: true })
     try {
-      json = await res.json()
-    } catch {
-      throw new ApiError('API returned a malformed response')
+      const res = await fetch(BASE + path, {
+        signal: controller.signal,
+        headers: { accept: 'application/json' },
+      })
+      if (!res.ok) {
+        throw new ApiError(`API request failed (${res.status})`, res.status)
+      }
+      let json: unknown
+      try {
+        json = await res.json()
+      } catch {
+        throw new ApiError('API returned a malformed response')
+      }
+      return json as T
+    } catch (err) {
+      if (err instanceof ApiError) {
+        lastError = err
+      } else if (err instanceof DOMException && err.name === 'AbortError') {
+        lastError = new ApiError('Request timed out')
+      } else {
+        lastError = new ApiError('Network error — could not reach the F1 data service', null, err)
+      }
+      if (signal?.aborted || !isTransient(lastError) || attempt >= MAX_ATTEMPTS - 1) {
+        throw lastError
+      }
+      await new Promise((resolve) => setTimeout(resolve, RETRY_BASE_MS * 2 ** attempt))
+    } finally {
+      clearTimeout(timer)
+      signal?.removeEventListener('abort', onOuterAbort)
     }
-    return json as T
-  } catch (err) {
-    if (err instanceof ApiError) throw err
-    if (err instanceof DOMException && err.name === 'AbortError') {
-      throw new ApiError('Request timed out')
-    }
-    throw new ApiError('Network error — could not reach the F1 data service', err)
-  } finally {
-    clearTimeout(timer)
-    signal?.removeEventListener('abort', onOuterAbort)
   }
+  throw lastError
 }
 
 function seasonSegment(season: string): string {
@@ -438,6 +462,7 @@ export async function fetchPitStops(season: string, round: number, signal?: Abor
 }
 
 const SEASON_CHUNK = 6
+const CHUNK_DELAY_MS = 120
 
 export async function fetchSeasonResults(
   season: string,
@@ -453,6 +478,9 @@ export async function fetchSeasonResults(
         out.push({ round: chunk[idx], results: res.value.results })
       }
     })
+    if (i + SEASON_CHUNK < rounds.length && !signal?.aborted) {
+      await new Promise((resolve) => setTimeout(resolve, CHUNK_DELAY_MS))
+    }
   }
   return out.sort((a, b) => a.round - b.round)
 }

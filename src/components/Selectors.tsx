@@ -78,45 +78,26 @@ export function SeasonRoundControls({
         </SelectContent>
       </Select>
 
-      <Select value={round === null ? 'latest' : String(round)} onValueChange={(v) => onRoundChange(v === 'latest' ? null : Number(v))}>
+      <Select
+        value={round === null ? 'latest' : String(round)}
+        onValueChange={(v) => onRoundChange(v === 'latest' ? null : Number(v))}
+      >
         <SelectTrigger
           size="sm"
           aria-label="Select round"
           className="h-8 max-w-[6.5rem] border-line bg-surface px-2.5 text-sm text-text hover:border-accent/60 sm:max-w-[9rem]"
         >
-          {round === null ? (
-            <span className="truncate">
-              {lastRace ? `${roundCode(lastRace.round)} · ${shortName(lastRace)}` : 'LATEST'}
-            </span>
-          ) : (
-            <SelectValue placeholder="Round" />
-          )}
+          <SelectValue placeholder="Round" />
         </SelectTrigger>
         <SelectContent align="end" className="max-h-72 border-line bg-surface">
-          <SelectItem value="latest">
-            <span className="flex items-center gap-1.5">
-              <RoundDot tone={null} />
-              LATEST
-            </span>
-          </SelectItem>
+          <SelectItem value="latest">LATEST</SelectItem>
           {calendar.map((r) => {
             const tone = r.round === nextRound ? 'next' : r.round === lastRound ? 'last' : null
             return (
-              <SelectItem
-                key={r.round}
-                value={String(r.round)}
-                title={
-                  tone === 'next'
-                    ? `${display(r.raceName)} — next race`
-                    : tone === 'last'
-                      ? `${display(r.raceName)} — last completed race`
-                      : display(r.raceName)
-                }
-              >
+              <SelectItem key={r.round} value={String(r.round)}>
                 <span className="flex items-center gap-1.5">
                   <RoundDot tone={tone} />
-                  <span className="sm:hidden">{roundCode(r.round)}</span>
-                  <span className="hidden sm:inline">
+                  <span className="min-w-0 truncate">
                     {roundCode(r.round)} · {shortName(r)}
                   </span>
                 </span>

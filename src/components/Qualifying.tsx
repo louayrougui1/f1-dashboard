@@ -24,6 +24,7 @@ export function Qualifying({
   loading,
   error,
   hasData,
+  upcoming,
   onRetry,
 }: {
   raceName: string | null
@@ -32,6 +33,7 @@ export function Qualifying({
   loading: boolean
   error: Error | null
   hasData: boolean
+  upcoming?: boolean
   onRetry: () => void
 }) {
   if (loading && !hasData) {
@@ -52,7 +54,11 @@ export function Qualifying({
     return (
       <div className="flex flex-col items-start gap-1 rounded-lg border border-line bg-surface px-4 py-6">
         <p className="label text-text">Qualifying</p>
-        <p className="text-xs text-muted">Qualifying data is not available for this round.</p>
+        <p className="text-xs text-muted">
+          {upcoming
+            ? 'Qualifying has not taken place yet for this round.'
+            : 'Qualifying data is not available for this round.'}
+        </p>
       </div>
     )
   }

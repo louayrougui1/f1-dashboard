@@ -51,6 +51,7 @@ export interface DashboardState {
   nextRace: Race | null
   featuredRound: number | null
   featuredRace: Race | null
+  featuredUpcoming: boolean
   schedule: SliceState<Race[]>
   featuredDetail: SliceState<RaceDetail | null>
   driverStandings: SliceState<DriverStandingRow[]>
@@ -102,6 +103,7 @@ export function useDashboard(initial: DashboardInitial = { season: null, round: 
   const [refreshing, setRefreshing] = useState(false)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const [liveSeason, setLiveSeason] = useState<string | null>(null)
+  const [now, setNow] = useState(() => new Date())
   const firstRun = useRef(true)
   const mounted = useRef(false)
 
@@ -137,7 +139,6 @@ export function useDashboard(initial: DashboardInitial = { season: null, round: 
     return data ?? []
   }, [slices.schedule])
 
-  const now = useMemo(() => new Date(), [])
   const completedRaces = useMemo(
     () => calendar.filter((r) => r.start !== null && r.start.getTime() <= now.getTime()),
     [calendar, now],
@@ -163,6 +164,11 @@ export function useDashboard(initial: DashboardInitial = { season: null, round: 
     if (featuredRound === null) return lastRace
     return calendar.find((r) => r.round === featuredRound) ?? lastRace
   }, [featuredRound, calendar, lastRace])
+
+  const featuredUpcoming = useMemo(() => {
+    if (!featuredRace || featuredRace.start === null) return false
+    return featuredRace.start.getTime() > now.getTime()
+  }, [featuredRace, now])
 
   const seasonComplete = useMemo(
     () => calendar.length > 0 && upcoming.length === 0,
@@ -233,7 +239,7 @@ export function useDashboard(initial: DashboardInitial = { season: null, round: 
       },
     ]
 
-    if (featuredRound !== null && scheduleReady) {
+    if (featuredRound !== null && scheduleReady && !featuredUpcoming) {
       defs.push({
         key: 'results',
         cache: keyFor('results'),
@@ -248,6 +254,14 @@ export function useDashboard(initial: DashboardInitial = { season: null, round: 
         key: 'pitStops',
         cache: keyFor('pitStops'),
         run: (s) => fetchPitStops(seasonId, featuredRound, s),
+      })
+    } else if (featuredRound !== null && scheduleReady) {
+      setSlices((prev) => {
+        const next = { ...prev }
+        for (const k of ['results', 'qualifying', 'pitStops'] as DataKey[]) {
+          next[k] = { status: 'ready', data: null, error: null }
+        }
+        return next
       })
     }
 
@@ -302,10 +316,11 @@ export function useDashboard(initial: DashboardInitial = { season: null, round: 
 
     return () => controller.abort()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [version, seasonId, round, featuredRound, scheduleReady, keyFor, completedRounds])
+  }, [version, seasonId, round, featuredRound, scheduleReady, keyFor, completedRounds, featuredUpcoming])
 
   const refresh = useCallback(() => {
     cache.clear()
+    setNow(new Date())
     setVersion((prev) => {
       const next = { ...prev }
       for (const key of Object.keys(next) as DataKey[]) next[key] += 1
@@ -339,6 +354,7 @@ export function useDashboard(initial: DashboardInitial = { season: null, round: 
     nextRace,
     featuredRound,
     featuredRace,
+    featuredUpcoming,
     schedule: slices.schedule as SliceState<Race[]>,
     featuredDetail: slices.results as SliceState<RaceDetail | null>,
     driverStandings: slices.drivers as SliceState<DriverStandingRow[]>,

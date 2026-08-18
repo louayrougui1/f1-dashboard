@@ -13,6 +13,7 @@ export function FastestLap({
   loading,
   error,
   hasData,
+  upcoming,
   onRetry,
 }: {
   raceName: string | null
@@ -20,6 +21,7 @@ export function FastestLap({
   loading: boolean
   error: Error | null
   hasData: boolean
+  upcoming?: boolean
   onRetry: () => void
 }) {
   if (loading && !hasData) {
@@ -110,7 +112,9 @@ export function FastestLap({
           </div>
         </div>
       ) : (
-        <div className="px-6 py-8 text-sm text-muted">Fastest lap data not available.</div>
+        <div className="px-6 py-8 text-sm text-muted">
+          {upcoming ? 'Fastest lap data is not available yet.' : 'Fastest lap data not available.'}
+        </div>
       )}
     </Card>
   )

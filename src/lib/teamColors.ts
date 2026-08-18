@@ -63,7 +63,7 @@ const TEAM_COLORS: Record<string, string> = {
   alpine_f1: '#0093CC',
   rb_f1: '#6692FF',
   audi: '#A50F2D',
-  cadillac: '#2E66D0',
+  cadillac: '#C0C0C0',
 }
 
 const FALLBACK = '#8C96A6'

@@ -32,6 +32,7 @@ export function PitStops({
   loading,
   error,
   hasData,
+  upcoming,
   onRetry,
 }: {
   raceName: string | null
@@ -41,6 +42,7 @@ export function PitStops({
   loading: boolean
   error: Error | null
   hasData: boolean
+  upcoming?: boolean
   onRetry: () => void
 }) {
   const byDriver = useMemo(() => {
@@ -82,7 +84,11 @@ export function PitStops({
     return (
       <div className="flex flex-col items-start gap-1 rounded-lg border border-line bg-surface px-4 py-6">
         <p className="label text-text">Pit Stop Data</p>
-        <p className="text-xs text-muted">Pit stop telemetry is not available for this round.</p>
+        <p className="text-xs text-muted">
+          {upcoming
+            ? 'Pit stop telemetry is not available until the race has run.'
+            : 'Pit stop telemetry is not available for this round.'}
+        </p>
       </div>
     )
   }

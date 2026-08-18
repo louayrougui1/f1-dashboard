@@ -306,6 +306,7 @@ export default function App() {
                         loading={qualifyingLoading}
                         error={qualifyingError}
                         hasData={qualifyingRows.length > 0}
+                        upcoming={dashboard.featuredUpcoming}
                         onRetry={() => dashboard.retry('qualifying')}
                       />
                     </div>
@@ -320,6 +321,7 @@ export default function App() {
                         loading={resultsLoading}
                         error={resultsError}
                         hasData={featuredResults.length > 0}
+                        upcoming={dashboard.featuredUpcoming}
                         onRetry={() => dashboard.retry('results')}
                       />
                     </div>
@@ -338,6 +340,7 @@ export default function App() {
                         loading={resultsLoading}
                         error={resultsError}
                         hasData={featuredResults.length > 0}
+                        upcoming={dashboard.featuredUpcoming}
                         onRetry={() => dashboard.retry('results')}
                         onPrev={prevRound !== null ? () => dashboard.setRound(prevRound) : undefined}
                         onNext={nextRound !== null ? () => dashboard.setRound(nextRound) : undefined}
@@ -361,6 +364,7 @@ export default function App() {
                         loading={pitStopsLoading}
                         error={pitStopsError}
                         hasData={pitStopRows.length > 0}
+                        upcoming={dashboard.featuredUpcoming}
                         onRetry={() => dashboard.retry('pitStops')}
                       />
                     </div>
