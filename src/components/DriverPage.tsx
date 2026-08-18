@@ -14,6 +14,7 @@ import { TableSkeleton } from './Skeleton'
 import { ErrorState } from './ErrorState'
 import { HeadToHead } from './HeadToHead'
 import { PointsChart } from './PointsChart'
+import { DriverNumber } from './DriverNumber'
 
 function PositionMark({ position }: { position: number }) {
   const cls =
@@ -129,6 +130,7 @@ export function DriverPage({
                 </span>
               </span>
               {driver?.nationality ? <span className="text-muted">{driver.nationality}</span> : null}
+              {driver ? <DriverNumber driver={driver} className="text-[11px] font-bold" /> : null}
               {driver ? (
                 <Badge className="hidden h-auto rounded-sm border-line bg-bg/60 px-1.5 py-px mono-num text-[10px] tracking-[0.18em] text-muted sm:inline-flex">
                   {driverCode(driver)}

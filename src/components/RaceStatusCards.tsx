@@ -21,6 +21,7 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Countdown } from './Countdown'
 import { RaceCardSkeleton } from './Skeleton'
+import { DriverNumber } from './DriverNumber'
 
 function PodiumRow({ result, position }: { result: RaceResultRow; position: number }) {
   const tone =
@@ -41,6 +42,7 @@ function PodiumRow({ result, position }: { result: RaceResultRow; position: numb
       <span className="mono-num w-9 shrink-0 text-xs font-bold tracking-widest text-text">
         {driverCode(result.driver)}
       </span>
+      <DriverNumber driver={result.driver} className="text-[11px] font-bold" />
       <span
         className="min-w-0 flex-1 truncate text-base"
         style={{ color: teamColor(result.constructor.constructorId) }}
@@ -197,6 +199,7 @@ function ChampionshipStatus({
                   className="h-4 w-1 shrink-0 rounded-full"
                   style={{ backgroundColor: teamColor(row.constructor.constructorId) }}
                 />
+                <DriverNumber driver={row.driver} className="text-[11px] font-bold" />
                 <span className="min-w-0 flex-1 truncate text-sm text-text">{driverFullName(row.driver)}</span>
                 <span className="mono-num shrink-0 text-xs font-semibold text-text">
                   {formatPoints(row.points)}

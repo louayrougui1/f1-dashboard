@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ErrorState } from './ErrorState'
+import { DriverNumber } from './DriverNumber'
 
 export function FastestLap({
   raceName,
@@ -75,7 +76,7 @@ export function FastestLap({
           </div>
           <div className="min-w-0 text-left lg:text-right">
             <p className="truncate text-xl font-semibold tracking-wide text-text uppercase">
-              {driverFullName(fl.driver)}
+              <DriverNumber driver={fl.driver} className="text-base font-bold text-muted" /> {driverFullName(fl.driver)}
             </p>
             <p className="mt-0.5 flex items-center justify-start gap-1.5 truncate text-sm lg:justify-end">
               <span

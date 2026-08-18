@@ -44,6 +44,7 @@ interface RawDriver {
   givenName?: string
   familyName?: string
   nationality?: string
+  permanentNumber?: string
 }
 
 interface RawConstructor {
@@ -118,6 +119,7 @@ function normalizeDriver(raw: RawDriver | undefined): Driver | null {
     givenName: givenName ?? familyName ?? '',
     familyName: familyName ?? '',
     nationality: str(raw.nationality) ?? '',
+    permanentNumber: str(raw.permanentNumber),
   }
 }
 

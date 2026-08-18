@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/badge'
 import { TableSkeleton } from './Skeleton'
 import { ErrorState } from './ErrorState'
 import { PointsChart } from './PointsChart'
+import { DriverNumber } from './DriverNumber'
 
 function PositionMark({ position }: { position: number }) {
   const cls =
@@ -180,8 +181,9 @@ export function TeamPage({
                 <div className="min-w-0">
                   <p className="label text-[10px] text-muted/70">Driver</p>
                   <p className="mt-1 truncate font-medium text-text">{driverFullName(d)}</p>
-                  <p className="mono-num mt-0.5 text-[11px] font-bold tracking-widest" style={{ color }}>
+                  <p className="mono-num mt-0.5 flex items-center gap-2 text-[11px] font-bold tracking-widest" style={{ color }}>
                     {driverCode(d)}
+                    <DriverNumber driver={d} className="text-[10px] font-bold" />
                   </p>
                 </div>
                 {s ? (
@@ -268,6 +270,7 @@ export function TeamPage({
                               <span className="mono-num text-[11px] font-bold tracking-widest" style={{ color }}>
                                 {driverCode(row.driver)}
                               </span>
+                              <DriverNumber driver={row.driver} className="text-[10px] font-bold" />
                               <span className="block max-w-[8rem] truncate text-xs text-text">
                                 {driverFullName(row.driver)}
                               </span>

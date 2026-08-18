@@ -4,6 +4,7 @@ export interface Driver {
   givenName: string
   familyName: string
   nationality: string
+  permanentNumber: string | null
 }
 
 export interface Constructor {

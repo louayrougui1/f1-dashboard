@@ -7,6 +7,7 @@ import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { TableSkeleton } from './Skeleton'
 import { ErrorState } from './ErrorState'
+import { DriverNumber } from './DriverNumber'
 
 function PositionMark({ position }: { position: number }) {
   const cls =
@@ -119,6 +120,7 @@ export function DriverTable({
                     <span className="mono-num hidden w-8 shrink-0 text-[11px] font-bold tracking-widest text-muted sm:inline">
                       {display(driverCode(row.driver))}
                     </span>
+                    <DriverNumber driver={row.driver} className="text-[11px] font-bold" />
                     <span className="min-w-0">
                       <span className="block max-w-[7.5rem] truncate font-medium text-text sm:max-w-none">
                         {driverFullName(row.driver)}

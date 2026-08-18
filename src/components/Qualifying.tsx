@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { TableSkeleton } from './Skeleton'
 import { ErrorState } from './ErrorState'
+import { DriverNumber } from './DriverNumber'
 
 function headClass(extra = '') {
   return cn(
@@ -111,6 +112,7 @@ export function Qualifying({
                     <span className="mono-num w-8 shrink-0 text-[11px] font-bold tracking-widest text-muted">
                       {driverCode(row.driver)}
                     </span>
+                    <DriverNumber driver={row.driver} className="text-[11px] font-bold" />
                     <span
                       className="max-w-[9.5rem] truncate font-medium sm:max-w-none"
                       style={{ color: teamColor(row.constructor.constructorId) }}

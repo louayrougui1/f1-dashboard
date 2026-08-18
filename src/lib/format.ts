@@ -29,6 +29,12 @@ export function driverCode(driver: Driver): string {
   return display(driver.code)
 }
 
+export function driverNumber(driver: Driver): string | null {
+  const n = driver.permanentNumber?.trim()
+  if (!n) return null
+  return n
+}
+
 function pad(n: number, len = 2): string {
   return String(n).padStart(len, '0')
 }
