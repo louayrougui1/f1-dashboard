@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils'
 export function CircuitTrack({
   track,
   className,
-  stroke = '#5E6C7E',
+  stroke = 'var(--color-accent)',
   startColor = 'var(--color-gold)',
 }: {
   track: Track | null
