@@ -35,13 +35,8 @@ function isTransient(err: unknown): boolean {
   return status >= 500
 }
 
-const MAX_ATTEMPTS = 5
+const MAX_ATTEMPTS = 3
 const RETRY_BASE_MS = 400
-
-function retryDelayMs(attempt: number): number {
-  const base = RETRY_BASE_MS * 2 ** attempt
-  return Math.min(base, 3200) + Math.random() * 200
-}
 
 interface RawDriver {
   driverId?: string
@@ -334,7 +329,7 @@ async function request<T>(path: string, signal?: AbortSignal): Promise<T> {
       if (signal?.aborted || !isTransient(lastError) || attempt >= MAX_ATTEMPTS - 1) {
         throw lastError
       }
-      await new Promise((resolve) => setTimeout(resolve, retryDelayMs(attempt)))
+      await new Promise((resolve) => setTimeout(resolve, RETRY_BASE_MS * 2 ** attempt))
     } finally {
       clearTimeout(timer)
       signal?.removeEventListener('abort', onOuterAbort)
