@@ -52,11 +52,7 @@ export function FastestLap({
       <div
         className="hero-wash-rule absolute inset-x-0 top-0 h-0.5"
         aria-hidden="true"
-        style={
-          flColor
-            ? { background: `linear-gradient(90deg, var(--color-accent) 0%, ${flColor} 100%)` }
-            : undefined
-        }
+        style={flColor ? { background: flColor } : undefined}
       />
       {fl && flTime ? (
         <div className="flex flex-wrap items-center justify-between gap-x-10 gap-y-5 px-6 py-6 lg:px-8">

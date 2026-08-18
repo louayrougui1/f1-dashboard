@@ -16,9 +16,7 @@ export const NAV_GROUPS: NavGroup[] = [
     label: 'Racing',
     items: [
       { id: 'calendar', label: 'Calendar', target: 'calendar' },
-      { id: 'results', label: 'Results', target: 'results' },
-      { id: 'qualifying', label: 'Qualifying', target: 'qualifying' },
-      { id: 'pitstops', label: 'Pit Stops', target: 'pitstops' },
+      { id: 'results', label: 'Race Data', target: 'results' },
     ],
   },
   {

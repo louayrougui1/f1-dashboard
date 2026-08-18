@@ -52,33 +52,25 @@ export function formatDateShort(date: string | null | undefined): string {
 
 export function formatRaceDateTime(start: Date | null): { date: string; time: string } {
   if (!start || Number.isNaN(start.getTime())) return { date: NA, time: NA }
-  const day = start.getUTCDate()
-  const month = start
-    .toLocaleString('en-GB', { month: 'short', timeZone: 'UTC' })
-    .toUpperCase()
+  const day = start.getDate()
+  const month = start.toLocaleString('en-GB', { month: 'short' }).toUpperCase()
   return {
-    date: `${day} ${month} ${start.getUTCFullYear()}`,
-    time: start.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'UTC' }) + ' UTC',
+    date: `${day} ${month} ${start.getFullYear()}`,
+    time: start.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false }),
   }
 }
 
 export function formatBroadcastDate(start: Date | null): string {
   if (!start || Number.isNaN(start.getTime())) return NA
-  const weekday = start
-    .toLocaleString('en-GB', { weekday: 'short', timeZone: 'UTC' })
-    .toUpperCase()
-  const day = start.getUTCDate()
-  const month = start
-    .toLocaleString('en-GB', { month: 'short', timeZone: 'UTC' })
-    .toUpperCase()
+  const weekday = start.toLocaleString('en-GB', { weekday: 'short' }).toUpperCase()
+  const day = start.getDate()
+  const month = start.toLocaleString('en-GB', { month: 'short' }).toUpperCase()
   return `${weekday} ${pad(day)} ${month}`
 }
 
 export function formatBroadcastTime(start: Date | null): string {
   if (!start || Number.isNaN(start.getTime())) return NA
-  return (
-    start.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'UTC' }) + ' UTC'
-  )
+  return start.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false })
 }
 
 export function roundLabel(round: number | null | undefined): string {

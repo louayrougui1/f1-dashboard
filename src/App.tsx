@@ -3,6 +3,7 @@ import { useDashboard } from './lib/useDashboard'
 import { buildHash, useHashRoute } from './lib/router'
 import { CIRCUIT_TRACKS } from './lib/circuitTracks'
 import { display, roundLabel } from './lib/format'
+import { cn } from '@/lib/utils'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { TopBar } from './components/Header'
 import { MobileNavSheet, Sidebar, useNavActive } from './components/Sidebar'
@@ -24,6 +25,14 @@ import { SectionHeading } from './components/Card'
 import { ErrorState } from './components/ErrorState'
 
 const SEASON_FLOOR = 2000
+
+const RACE_TABS = [
+  { key: 'results', label: 'Race Results' },
+  { key: 'qualifying', label: 'Qualifying' },
+  { key: 'pitstops', label: 'Pit Stops' },
+] as const
+
+type RaceTab = (typeof RACE_TABS)[number]['key']
 
 function parseSeasonParam(v: string | null): string | null {
   if (!v) return null
@@ -54,6 +63,7 @@ export default function App() {
   const dashboard = useDashboard(initial)
   const { active, onNavigate } = useNavActive()
   const [navOpen, setNavOpen] = useState(false)
+  const [raceTab, setRaceTab] = useState<RaceTab>('results')
   const { season, calendar, lastRace, nextRace, featuredRound } = dashboard
   const effectiveActive =
     route.name === 'standings' ? 'standings' : route.name === 'driver' ? 'driver' : route.name === 'team' ? 'team' : active
@@ -282,65 +292,79 @@ export default function App() {
                     </div>
                   </section>
 
-                  <section id="results" aria-label="Race results" className="scroll-mt-14">
+                  <section id="results" aria-label="Race data" className="scroll-mt-14">
                     <SectionHeading
-                      label="Race Results"
-                      meta={featuredRound !== null ? `${roundLabel(featuredRound)} · Timing` : undefined}
+                      label="Race Data"
+                      meta={
+                        featuredRound !== null
+                          ? `${roundLabel(featuredRound)} · ${raceTab === 'results' ? 'Timing' : raceTab === 'qualifying' ? 'Q1/Q2/Q3' : 'Pit Stops'}`
+                          : undefined
+                      }
                     />
                     <div className="mt-3">
-                      <LastRaceResults
-                        raceName={featuredDetail.data?.race.raceName ?? null}
-                        round={featuredDetail.data?.round ?? featuredRound}
-                        rows={featuredResults}
-                        loading={resultsLoading}
-                        error={resultsError}
-                        hasData={featuredResults.length > 0}
-                        upcoming={dashboard.featuredUpcoming}
-                        onRetry={() => dashboard.retry('results')}
-                        onPrev={prevRound !== null ? () => dashboard.setRound(prevRound) : undefined}
-                        onNext={nextRound !== null ? () => dashboard.setRound(nextRound) : undefined}
-                        canPrev={prevRound !== null}
-                        canNext={nextRound !== null}
-                      />
-                    </div>
-                  </section>
-
-                  <section id="qualifying" aria-label="Qualifying" className="scroll-mt-14">
-                    <SectionHeading
-                      label="Qualifying"
-                      meta={featuredRound !== null ? `${roundLabel(featuredRound)} · Q1/Q2/Q3` : undefined}
-                    />
-                    <div className="mt-3">
-                      <Qualifying
-                        raceName={qualifyingRace?.raceName ?? null}
-                        round={qualifying?.round ?? featuredRound}
-                        rows={qualifyingRows}
-                        loading={qualifyingLoading}
-                        error={qualifyingError}
-                        hasData={qualifyingRows.length > 0}
-                        upcoming={dashboard.featuredUpcoming}
-                        onRetry={() => dashboard.retry('qualifying')}
-                      />
-                    </div>
-                  </section>
-
-                  <section id="pitstops" aria-label="Pit stops" className="scroll-mt-14">
-                    <SectionHeading
-                      label="Pit Stops"
-                      meta={featuredRound !== null ? roundLabel(featuredRound) : undefined}
-                    />
-                    <div className="mt-3">
-                      <PitStops
-                        raceName={pitStopsRace?.raceName ?? null}
-                        round={pitStops?.round ?? featuredRound}
-                        stops={pitStopRows}
-                        resultRows={featuredResults}
-                        loading={pitStopsLoading}
-                        error={pitStopsError}
-                        hasData={pitStopRows.length > 0}
-                        upcoming={dashboard.featuredUpcoming}
-                        onRetry={() => dashboard.retry('pitStops')}
-                      />
+                      <div className="flex flex-wrap gap-1 rounded-lg border border-line bg-surface p-1">
+                        {RACE_TABS.map((t) => {
+                          const isActive = raceTab === t.key
+                          return (
+                            <button
+                              key={t.key}
+                              type="button"
+                              aria-pressed={isActive}
+                              onClick={() => setRaceTab(t.key)}
+                              className={cn(
+                                'h-8 rounded-md px-3 text-xs font-semibold tracking-[0.15em] uppercase transition-colors',
+                                isActive
+                                  ? 'bg-accent text-bg'
+                                  : 'text-muted hover:bg-surface-2 hover:text-text',
+                              )}
+                            >
+                              {t.label}
+                            </button>
+                          )
+                        })}
+                      </div>
+                      <div className="mt-3">
+                        {raceTab === 'results' ? (
+                          <LastRaceResults
+                            raceName={featuredDetail.data?.race.raceName ?? null}
+                            round={featuredDetail.data?.round ?? featuredRound}
+                            rows={featuredResults}
+                            maxRows={featuredResults.length || undefined}
+                            loading={resultsLoading}
+                            error={resultsError}
+                            hasData={featuredResults.length > 0}
+                            upcoming={dashboard.featuredUpcoming}
+                            onRetry={() => dashboard.retry('results')}
+                            onPrev={prevRound !== null ? () => dashboard.setRound(prevRound) : undefined}
+                            onNext={nextRound !== null ? () => dashboard.setRound(nextRound) : undefined}
+                            canPrev={prevRound !== null}
+                            canNext={nextRound !== null}
+                          />
+                        ) : raceTab === 'qualifying' ? (
+                          <Qualifying
+                            raceName={qualifyingRace?.raceName ?? null}
+                            round={qualifying?.round ?? featuredRound}
+                            rows={qualifyingRows}
+                            loading={qualifyingLoading}
+                            error={qualifyingError}
+                            hasData={qualifyingRows.length > 0}
+                            upcoming={dashboard.featuredUpcoming}
+                            onRetry={() => dashboard.retry('qualifying')}
+                          />
+                        ) : (
+                          <PitStops
+                            raceName={pitStopsRace?.raceName ?? null}
+                            round={pitStops?.round ?? featuredRound}
+                            stops={pitStopRows}
+                            resultRows={featuredResults}
+                            loading={pitStopsLoading}
+                            error={pitStopsError}
+                            hasData={pitStopRows.length > 0}
+                            upcoming={dashboard.featuredUpcoming}
+                            onRetry={() => dashboard.retry('pitStops')}
+                          />
+                        )}
+                      </div>
                     </div>
                   </section>
 

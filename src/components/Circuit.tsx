@@ -1,6 +1,6 @@
 import type { Race, RaceResultRow } from '../lib/types'
 import type { CircuitTrack as Track } from '../lib/circuitTracks'
-import { display, formatBroadcastDate, formatNumber, roundLabel } from '../lib/format'
+import { display, formatBroadcastDate, formatBroadcastTime, formatNumber, roundLabel } from '../lib/format'
 import { CircuitTrack } from './CircuitTrack'
 import { WeekendSchedule } from './WeekendSchedule'
 import { Card } from '@/components/ui/card'
@@ -84,7 +84,10 @@ export function Circuit({
             </div>
             <div className="rounded-md border border-line bg-bg/40 px-3 py-2.5">
               <p className="label text-[10px] text-muted/70">Race Date</p>
-              <p className="mono-num mt-1 text-base font-semibold text-text">{formatBroadcastDate(race.start)}</p>
+              <p className="mono-num mt-1 text-base font-semibold text-text">
+                {formatBroadcastDate(race.start)}
+                {race.start ? <span className="text-muted"> · {formatBroadcastTime(race.start)}</span> : null}
+              </p>
             </div>
           </div>
         </div>

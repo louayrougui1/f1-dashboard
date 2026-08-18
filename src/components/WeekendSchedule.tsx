@@ -35,7 +35,7 @@ export function WeekendSchedule({ race, compact }: { race: Race | null; compact?
       <div>
         <div className="flex items-baseline justify-between gap-3">
           <p className="label text-[10px] text-muted/70">Weekend Schedule</p>
-          <p className="label text-[10px] text-muted/40">All times UTC</p>
+          <p className="label text-[10px] text-muted/40">All times local</p>
         </div>
         <div
           className="mt-2 grid gap-px overflow-hidden rounded-md border border-line bg-line"
@@ -61,7 +61,7 @@ export function WeekendSchedule({ race, compact }: { race: Race | null; compact?
     <div className="border-t border-line">
       <div className="flex items-baseline justify-between gap-3 px-6 pt-5 sm:px-7">
         <p className="label text-[10px] text-muted/70">Weekend Schedule</p>
-        <p className="label text-[10px] text-muted/40">All times UTC</p>
+        <p className="label text-[10px] text-muted/40">All times local</p>
       </div>
       <div
         className="mt-3 grid gap-px bg-line"
