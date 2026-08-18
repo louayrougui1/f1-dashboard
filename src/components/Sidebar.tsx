@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { NAV_GROUPS, navTargets } from '../lib/nav'
+import { parseHash } from '../lib/router'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
@@ -57,6 +58,9 @@ function NavList({
                       if (item.route) {
                         window.location.hash = `#${item.route}`
                       } else {
+                        if (parseHash(window.location.hash).name !== 'dashboard') {
+                          window.location.hash = '#/'
+                        }
                         scrollToTarget(item.target)
                       }
                       onNavigate(item.id)
