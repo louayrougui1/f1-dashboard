@@ -149,29 +149,23 @@ export function MobileNavSheet({
 
 export function useScrollSpy(ids: string[]): string {
   const [active, setActive] = useState<string>(ids[0] ?? 'overview')
-  const raf = useRef(0)
 
   useEffect(() => {
-    const onScroll = () => {
-      if (raf.current) return
-      raf.current = requestAnimationFrame(() => {
-        raf.current = 0
-        const pos = window.scrollY + 120
-        let current = ids[0]
-        for (const id of ids) {
-          const el = document.getElementById(id)
-          if (el && el.offsetTop <= pos) current = id
-        }
-        setActive((prev) => (prev === current ? prev : current))
-      })
+    const compute = () => {
+      const pos = window.scrollY + 120
+      let current = ids[0]
+      for (const id of ids) {
+        const el = document.getElementById(id)
+        if (el && el.offsetTop <= pos) current = id
+      }
+      const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 8
+      if (atBottom) current = ids[ids.length - 1]
+      setActive((prev) => (prev === current ? prev : current))
     }
-    window.addEventListener('scroll', onScroll, { passive: true })
-    onScroll()
+    window.addEventListener('scroll', compute, { passive: true })
+    compute()
 
-    return () => {
-      window.removeEventListener('scroll', onScroll)
-      if (raf.current) cancelAnimationFrame(raf.current)
-    }
+    return () => window.removeEventListener('scroll', compute)
   }, [ids])
 
   return active

@@ -19,22 +19,22 @@ export const NAV_GROUPS: NavGroup[] = [
       { id: 'results', label: 'Race Data', target: 'results' },
       { id: 'fastest', label: 'Fastest Lap', target: 'fastest' },
       { id: 'lapchart', label: 'Lap Chart', target: 'lapchart' },
+      { id: 'circuit', label: 'Circuit', target: 'circuit' },
     ],
   },
   {
     label: 'Championship',
     items: [
-      { id: 'drivers', label: 'Drivers', target: 'drivers' },
-      { id: 'constructors', label: 'Constructors', target: 'constructors' },
+      { id: 'championship', label: 'Drivers · Constructors', target: 'championship' },
       { id: 'standings', label: 'Standings', target: 'standings', route: '/standings' },
     ],
   },
   {
     label: 'Analysis',
     items: [
-      { id: 'circuit', label: 'Circuit', target: 'circuit' },
       { id: 'headtohead', label: 'Head-to-Head', target: 'headtohead' },
       { id: 'progression', label: 'Progression', target: 'progression' },
+      { id: 'watchlive', label: 'Watch Live', target: 'watchlive' },
     ],
   },
 ]
