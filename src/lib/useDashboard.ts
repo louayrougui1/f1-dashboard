@@ -284,6 +284,10 @@ export function useDashboard(initial: DashboardInitial = { season: null, round: 
         if (completed === total) setRefreshing(false)
         continue
       }
+      setSlices((prev) => {
+        const existing = prev[f.key]
+        return { ...prev, [f.key]: { status: 'loading', data: existing?.data ?? null, error: null } }
+      })
       f.run(controller.signal)
         .then((value) => {
           writeCache(f.cache, value)
@@ -301,7 +305,7 @@ export function useDashboard(initial: DashboardInitial = { season: null, round: 
           setSlices((prev) => {
             const existing = prev[f.key]
             if (existing?.data !== null && existing?.data !== undefined) {
-              return { ...prev, [f.key]: { ...existing, error } }
+              return { ...prev, [f.key]: { status: 'ready', data: existing.data, error } }
             }
             return { ...prev, [f.key]: { status: 'error', data: null, error } }
           })

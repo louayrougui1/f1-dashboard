@@ -3,6 +3,7 @@ import type { CircuitTrack as Track } from '../lib/circuitTracks'
 import { display, formatBroadcastDate, formatBroadcastTime, formatNumber, roundLabel } from '../lib/format'
 import { CircuitTrack } from './CircuitTrack'
 import { WeekendSchedule } from './WeekendSchedule'
+import { Skeleton } from './Skeleton'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 
@@ -11,14 +12,19 @@ function km(value: number | null | undefined): string {
   return `${(value / 1000).toFixed(3)} km`
 }
 
+const MIN_RACE_KM = 305
+const MONACO_KM = 260
+
 export function Circuit({
   race,
   track,
   rows,
+  loading = false,
 }: {
   race: Race | null
   track: Track | null
   rows: RaceResultRow[]
+  loading?: boolean
 }) {
   if (!race) {
     return (
@@ -29,8 +35,14 @@ export function Circuit({
     )
   }
 
-  const winnerLaps = rows[0]?.laps ?? null
-  const raceDistance = winnerLaps && track?.lengthM ? (winnerLaps * track.lengthM) / 1000 : null
+  const trackKm = track?.lengthM ? track.lengthM / 1000 : null
+  const targetKm = race.circuitId === 'monaco' ? MONACO_KM : MIN_RACE_KM
+  const actualLaps = rows[0]?.laps ?? null
+  const scheduledLaps = trackKm !== null ? Math.ceil(targetKm / trackKm) : null
+  const laps = actualLaps ?? scheduledLaps
+  const distanceKm = laps !== null && trackKm !== null ? laps * trackKm : null
+  const hasResults = rows.length > 0
+  const statsLoading = loading && !hasResults
 
   return (
     <Card className="rounded-lg p-0 gap-0">
@@ -74,13 +86,21 @@ export function Circuit({
             </div>
             <div className="rounded-md border border-line bg-bg/40 px-3 py-2.5">
               <p className="label text-[10px] text-muted/70">Total Laps</p>
-              <p className="mono-num mt-1 text-base font-semibold text-text">{formatNumber(winnerLaps)}</p>
+              {statsLoading ? (
+                <Skeleton className="mt-1 h-4 w-16" />
+              ) : (
+                <p className="mono-num mt-1 text-base font-semibold text-text">{formatNumber(laps)}</p>
+              )}
             </div>
             <div className="rounded-md border border-line bg-bg/40 px-3 py-2.5">
               <p className="label text-[10px] text-muted/70">Race Distance</p>
-              <p className="mono-num mt-1 text-base font-semibold text-text">
-                {raceDistance !== null ? `${raceDistance.toFixed(3)} km` : '—'}
-              </p>
+              {statsLoading ? (
+                <Skeleton className="mt-1 h-4 w-20" />
+              ) : (
+                <p className="mono-num mt-1 text-base font-semibold text-text">
+                  {distanceKm !== null ? `${distanceKm.toFixed(3)} km` : '—'}
+                </p>
+              )}
             </div>
             <div className="rounded-md border border-line bg-bg/40 px-3 py-2.5">
               <p className="label text-[10px] text-muted/70">Race Date</p>
