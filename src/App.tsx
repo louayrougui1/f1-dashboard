@@ -107,7 +107,6 @@ export default function App() {
   const nextTrack = nextRace?.circuitId ? (CIRCUIT_TRACKS[nextRace.circuitId] ?? null) : null
   const resultsLoading = featuredDetail.status === 'loading' && featuredResults.length === 0
   const resultsError = featuredDetail.status === 'error' ? featuredDetail.error : null
-  const resultsPending = !dashboard.featuredUpcoming && resultsLoading
 
   const qualifying = dashboard.qualifying.data
   const qualifyingRows = qualifying?.rows ?? []
@@ -260,7 +259,6 @@ export default function App() {
                         nextTrack={nextTrack}
                         driverRows={driverRows}
                         constructorRows={constructorRows}
-                        resultsPending={resultsPending}
                       />
                     )}
                     <div className="mt-4">
@@ -408,12 +406,7 @@ export default function App() {
                       meta={featuredRound !== null ? roundLabel(featuredRound) : undefined}
                     />
                     <div className="mt-3">
-                      <Circuit
-                        race={featuredRace}
-                        track={featuredTrack}
-                        rows={featuredResults}
-                        loading={resultsLoading}
-                      />
+                      <Circuit race={featuredRace} track={featuredTrack} rows={featuredResults} />
                     </div>
                   </section>
 

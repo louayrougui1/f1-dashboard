@@ -3,7 +3,6 @@ import type { CircuitTrack as Track } from '../lib/circuitTracks'
 import { display, formatBroadcastDate, formatBroadcastTime, formatNumber, roundLabel } from '../lib/format'
 import { CircuitTrack } from './CircuitTrack'
 import { WeekendSchedule } from './WeekendSchedule'
-import { Skeleton } from './Skeleton'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 
@@ -19,12 +18,10 @@ export function Circuit({
   race,
   track,
   rows,
-  loading = false,
 }: {
   race: Race | null
   track: Track | null
   rows: RaceResultRow[]
-  loading?: boolean
 }) {
   if (!race) {
     return (
@@ -41,8 +38,6 @@ export function Circuit({
   const scheduledLaps = trackKm !== null ? Math.ceil(targetKm / trackKm) : null
   const laps = actualLaps ?? scheduledLaps
   const distanceKm = laps !== null && trackKm !== null ? laps * trackKm : null
-  const hasResults = rows.length > 0
-  const statsLoading = loading && !hasResults
 
   return (
     <Card className="rounded-lg p-0 gap-0">
@@ -86,21 +81,13 @@ export function Circuit({
             </div>
             <div className="rounded-md border border-line bg-bg/40 px-3 py-2.5">
               <p className="label text-[10px] text-muted/70">Total Laps</p>
-              {statsLoading ? (
-                <Skeleton className="mt-1 h-4 w-16" />
-              ) : (
-                <p className="mono-num mt-1 text-base font-semibold text-text">{formatNumber(laps)}</p>
-              )}
+              <p className="mono-num mt-1 text-base font-semibold text-text">{formatNumber(laps)}</p>
             </div>
             <div className="rounded-md border border-line bg-bg/40 px-3 py-2.5">
               <p className="label text-[10px] text-muted/70">Race Distance</p>
-              {statsLoading ? (
-                <Skeleton className="mt-1 h-4 w-20" />
-              ) : (
-                <p className="mono-num mt-1 text-base font-semibold text-text">
-                  {distanceKm !== null ? `${distanceKm.toFixed(3)} km` : '—'}
-                </p>
-              )}
+              <p className="mono-num mt-1 text-base font-semibold text-text">
+                {distanceKm !== null ? `${distanceKm.toFixed(3)} km` : '—'}
+              </p>
             </div>
             <div className="rounded-md border border-line bg-bg/40 px-3 py-2.5">
               <p className="label text-[10px] text-muted/70">Race Date</p>

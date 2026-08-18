@@ -20,7 +20,7 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Countdown } from './Countdown'
-import { RaceCardSkeleton, PodiumSkeleton } from './Skeleton'
+import { RaceCardSkeleton } from './Skeleton'
 import { DriverNumber } from './DriverNumber'
 
 function PodiumRow({ result, position }: { result: RaceResultRow; position: number }) {
@@ -267,7 +267,6 @@ export function RaceStatusCards({
   nextTrack,
   driverRows,
   constructorRows,
-  resultsPending,
 }: {
   featuredRace: Race | null
   featuredResults: RaceResultRow[]
@@ -284,7 +283,6 @@ export function RaceStatusCards({
   nextTrack: Track | null
   driverRows: DriverStandingRow[]
   constructorRows: ConstructorStandingRow[]
-  resultsPending: boolean
 }) {
   if (loading && !featuredRace) {
     return (
@@ -322,11 +320,7 @@ export function RaceStatusCards({
               </span>
               <div className="relative flex items-center justify-between gap-3">
                 <span className="label-lg text-accent">
-                  {hasResults || resultsPending
-                    ? 'Race Result'
-                    : isFeaturedNext
-                      ? 'Next Event'
-                      : 'Upcoming Round'}
+                  {hasResults ? 'Race Result' : isFeaturedNext ? 'Next Event' : 'Upcoming Round'}
                 </span>
                 <Badge
                   variant="outline"
@@ -356,7 +350,7 @@ export function RaceStatusCards({
                 ) : null}
               </div>
               <div className="relative mt-7 flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
-                {hasResults || resultsPending ? (
+                {hasResults ? (
                   <div>
                     <p className="label text-muted/70">Race Date</p>
                     <p className="mono-num mt-1 text-lg font-semibold text-text">
@@ -371,7 +365,7 @@ export function RaceStatusCards({
                     </p>
                   </div>
                 )}
-                {!hasResults && !resultsPending ? <Countdown target={featuredRace.start} large /> : null}
+                {!hasResults ? <Countdown target={featuredRace.start} large /> : null}
               </div>
               {hasResults ? (
                 <>
@@ -382,13 +376,6 @@ export function RaceStatusCards({
                     ) : (
                       <p className="py-2 text-xs text-muted">Podium data unavailable.</p>
                     )}
-                  </div>
-                </>
-              ) : resultsPending ? (
-                <>
-                  <Separator className="mt-4 bg-line" />
-                  <div className="mt-2">
-                    <PodiumSkeleton />
                   </div>
                 </>
               ) : null}
@@ -410,7 +397,7 @@ export function RaceStatusCards({
               championDriver={championDriver}
               championConstructor={championConstructor}
             />
-          ) : (hasResults || resultsPending) && nextRace ? (
+          ) : hasResults && nextRace ? (
             <div className="flex h-full flex-col">
               <div className="flex items-center justify-between gap-3">
                 <span className="label-lg text-accent">Next Event</span>
