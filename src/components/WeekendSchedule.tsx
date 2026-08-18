@@ -37,7 +37,10 @@ export function WeekendSchedule({ race, compact }: { race: Race | null; compact?
           <p className="label text-[10px] text-muted/70">Weekend Schedule</p>
           <p className="label text-[10px] text-muted/40">All times UTC</p>
         </div>
-        <div className="mt-2 grid grid-cols-2 gap-px overflow-hidden rounded-md border border-line bg-line sm:grid-cols-3">
+        <div
+          className="mt-2 grid gap-px overflow-hidden rounded-md border border-line bg-line"
+          style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(6rem, 1fr))' }}
+        >
           {sessions.map((s) => (
             <div key={s.key} className="min-w-0 bg-bg/40 px-3 py-2">
               <p className="label text-[10px] tracking-[0.2em] text-accent">{s.label}</p>
@@ -60,7 +63,10 @@ export function WeekendSchedule({ race, compact }: { race: Race | null; compact?
         <p className="label text-[10px] text-muted/70">Weekend Schedule</p>
         <p className="label text-[10px] text-muted/40">All times UTC</p>
       </div>
-      <div className="mt-3 grid grid-cols-2 gap-px bg-line sm:grid-cols-3 lg:grid-cols-6">
+      <div
+        className="mt-3 grid gap-px bg-line"
+        style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(7rem, 1fr))' }}
+      >
         {sessions.map((s) => (
           <div key={s.key} className="min-w-0 bg-surface px-4 py-3.5">
             <p className="label text-[10px] tracking-[0.2em] text-accent">{s.label}</p>

@@ -266,63 +266,18 @@ export default function App() {
                     </div>
                   </section>
 
-                  <section aria-label="Championship standings" className="scroll-mt-14">
-                    <SectionHeading label="Championship" meta={`${display(season)} Season`} />
+                  <section id="calendar" aria-label="Season calendar" className="scroll-mt-14">
+                    <SectionHeading label="Season" meta="Race calendar" />
                     <div className="mt-3">
-                      <Standings
-                        drivers={driverRows}
-                        constructors={constructorRows}
-                        loading={dashboard.driverStandings.status === 'loading'}
-                        driverError={dashboard.driverStandings.error}
-                        constructorError={dashboard.constructorStandings.error}
-                        onRetryDrivers={() => dashboard.retry('drivers')}
-                        onRetryConstructors={() => dashboard.retry('constructors')}
-                        onSelectDriver={navigate.toDriver}
-                        onSelectConstructor={navigate.toConstructor}
-                      />
-                    </div>
-                  </section>
-
-                  <section id="circuit" aria-label="Circuit" className="scroll-mt-14">
-                    <SectionHeading
-                      label="Circuit"
-                      meta={featuredRound !== null ? roundLabel(featuredRound) : undefined}
-                    />
-                    <div className="mt-3">
-                      <Circuit race={featuredRace} track={featuredTrack} rows={featuredResults} />
-                    </div>
-                  </section>
-
-                  <section id="qualifying" aria-label="Qualifying" className="scroll-mt-14">
-                    <SectionHeading
-                      label="Qualifying"
-                      meta={featuredRound !== null ? `${roundLabel(featuredRound)} · Q1/Q2/Q3` : undefined}
-                    />
-                    <div className="mt-3">
-                      <Qualifying
-                        raceName={qualifyingRace?.raceName ?? null}
-                        round={qualifying?.round ?? featuredRound}
-                        rows={qualifyingRows}
-                        loading={qualifyingLoading}
-                        error={qualifyingError}
-                        hasData={qualifyingRows.length > 0}
-                        upcoming={dashboard.featuredUpcoming}
-                        onRetry={() => dashboard.retry('qualifying')}
-                      />
-                    </div>
-                  </section>
-
-                  <section id="fastest" aria-label="Fastest lap" className="scroll-mt-14">
-                    <SectionHeading label="Fastest Lap" meta={featuredRound !== null ? roundLabel(featuredRound) : undefined} />
-                    <div className="mt-3">
-                      <FastestLap
-                        raceName={featuredDetail.data?.race.raceName ?? null}
-                        rows={featuredResults}
-                        loading={resultsLoading}
-                        error={resultsError}
-                        hasData={featuredResults.length > 0}
-                        upcoming={dashboard.featuredUpcoming}
-                        onRetry={() => dashboard.retry('results')}
+                      <Visualizations
+                        calendar={calendar}
+                        lastRound={lastRace?.round ?? null}
+                        nextRound={nextRace?.round ?? null}
+                        selectedRound={featuredRound}
+                        onSelectRound={dashboard.setRound}
+                        loading={scheduleLoading}
+                        error={scheduleError}
+                        onRetry={() => dashboard.retry('schedule')}
                       />
                     </div>
                   </section>
@@ -350,6 +305,25 @@ export default function App() {
                     </div>
                   </section>
 
+                  <section id="qualifying" aria-label="Qualifying" className="scroll-mt-14">
+                    <SectionHeading
+                      label="Qualifying"
+                      meta={featuredRound !== null ? `${roundLabel(featuredRound)} · Q1/Q2/Q3` : undefined}
+                    />
+                    <div className="mt-3">
+                      <Qualifying
+                        raceName={qualifyingRace?.raceName ?? null}
+                        round={qualifying?.round ?? featuredRound}
+                        rows={qualifyingRows}
+                        loading={qualifyingLoading}
+                        error={qualifyingError}
+                        hasData={qualifyingRows.length > 0}
+                        upcoming={dashboard.featuredUpcoming}
+                        onRetry={() => dashboard.retry('qualifying')}
+                      />
+                    </div>
+                  </section>
+
                   <section id="pitstops" aria-label="Pit stops" className="scroll-mt-14">
                     <SectionHeading
                       label="Pit Stops"
@@ -370,6 +344,23 @@ export default function App() {
                     </div>
                   </section>
 
+                  <section aria-label="Championship standings" className="scroll-mt-14">
+                    <SectionHeading label="Championship" meta={`${display(season)} Season`} />
+                    <div className="mt-3">
+                      <Standings
+                        drivers={driverRows}
+                        constructors={constructorRows}
+                        loading={dashboard.driverStandings.status === 'loading'}
+                        driverError={dashboard.driverStandings.error}
+                        constructorError={dashboard.constructorStandings.error}
+                        onRetryDrivers={() => dashboard.retry('drivers')}
+                        onRetryConstructors={() => dashboard.retry('constructors')}
+                        onSelectDriver={navigate.toDriver}
+                        onSelectConstructor={navigate.toConstructor}
+                      />
+                    </div>
+                  </section>
+
                   <section id="progression" aria-label="Championship progression" className="scroll-mt-14">
                     <SectionHeading
                       label="Championship Progression"
@@ -381,6 +372,31 @@ export default function App() {
                         loading={seasonResultsLoading}
                         error={seasonResultsError}
                         onRetry={() => dashboard.retry('seasonResults')}
+                      />
+                    </div>
+                  </section>
+
+                  <section id="circuit" aria-label="Circuit" className="scroll-mt-14">
+                    <SectionHeading
+                      label="Circuit"
+                      meta={featuredRound !== null ? roundLabel(featuredRound) : undefined}
+                    />
+                    <div className="mt-3">
+                      <Circuit race={featuredRace} track={featuredTrack} rows={featuredResults} />
+                    </div>
+                  </section>
+
+                  <section id="fastest" aria-label="Fastest lap" className="scroll-mt-14">
+                    <SectionHeading label="Fastest Lap" meta={featuredRound !== null ? roundLabel(featuredRound) : undefined} />
+                    <div className="mt-3">
+                      <FastestLap
+                        raceName={featuredDetail.data?.race.raceName ?? null}
+                        rows={featuredResults}
+                        loading={resultsLoading}
+                        error={resultsError}
+                        hasData={featuredResults.length > 0}
+                        upcoming={dashboard.featuredUpcoming}
+                        onRetry={() => dashboard.retry('results')}
                       />
                     </div>
                   </section>
@@ -397,22 +413,6 @@ export default function App() {
                         loading={seasonResultsLoading}
                         error={seasonResultsError}
                         onRetry={() => dashboard.retry('seasonResults')}
-                      />
-                    </div>
-                  </section>
-
-                  <section id="calendar" aria-label="Season calendar" className="scroll-mt-14">
-                    <SectionHeading label="Season" meta="Race calendar" />
-                    <div className="mt-3">
-                      <Visualizations
-                        calendar={calendar}
-                        lastRound={lastRace?.round ?? null}
-                        nextRound={nextRace?.round ?? null}
-                        selectedRound={featuredRound}
-                        onSelectRound={dashboard.setRound}
-                        loading={scheduleLoading}
-                        error={scheduleError}
-                        onRetry={() => dashboard.retry('schedule')}
                       />
                     </div>
                   </section>
