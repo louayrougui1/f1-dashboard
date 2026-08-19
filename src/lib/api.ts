@@ -38,7 +38,7 @@ function isTransient(err: unknown): boolean {
   return status >= 500
 }
 
-const MAX_ATTEMPTS = 3
+const MAX_ATTEMPTS = 4
 const RETRY_BASE_MS = 400
 
 interface RawDriver {

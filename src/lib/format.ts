@@ -1,4 +1,4 @@
-import type { Driver } from './types'
+import type { Driver, Race } from './types'
 
 const NA = 'N/A'
 
@@ -71,6 +71,21 @@ export function formatBroadcastDate(start: Date | null): string {
 export function formatBroadcastTime(start: Date | null): string {
   if (!start || Number.isNaN(start.getTime())) return NA
   return start.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false })
+}
+
+export function raceDateRange(race: Race | null | undefined): string {
+  if (!race) return NA
+  const sessionDates = [
+    race.weekend?.sprintQualifying?.date,
+    race.weekend?.firstPractice?.date,
+    race.weekend?.sprint?.date,
+    race.weekend?.secondPractice?.date,
+    race.weekend?.thirdPractice?.date,
+    race.weekend?.qualifying?.date,
+  ].filter((d): d is string => Boolean(d))
+  const first = sessionDates.length > 0 ? sessionDates.sort()[0] : race.date
+  if (!first || first === race.date) return formatDateShort(race.date)
+  return `${formatDateShort(first)} – ${formatDateShort(race.date)}`
 }
 
 export function roundLabel(round: number | null | undefined): string {

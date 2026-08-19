@@ -5,6 +5,7 @@ export type Route =
   | { name: 'standings' }
   | { name: 'driver'; driverId: string }
   | { name: 'team'; constructorId: string }
+  | { name: 'race'; round: string }
 
 export interface RouteParams {
   season: string | null
@@ -17,6 +18,7 @@ export function parseHash(hash: string): Route {
   if (parts[0] === 'standings') return { name: 'standings' }
   if (parts[0] === 'driver' && parts[1]) return { name: 'driver', driverId: decodeURIComponent(parts[1]) }
   if (parts[0] === 'team' && parts[1]) return { name: 'team', constructorId: decodeURIComponent(parts[1]) }
+  if (parts[0] === 'race' && parts[1]) return { name: 'race', round: decodeURIComponent(parts[1]) }
   return { name: 'dashboard' }
 }
 
@@ -37,6 +39,7 @@ export function buildHash(route: Route, params: RouteParams): string {
   if (route.name === 'standings') path = 'standings'
   else if (route.name === 'driver') path = `driver/${encodeURIComponent(route.driverId)}`
   else if (route.name === 'team') path = `team/${encodeURIComponent(route.constructorId)}`
+  else if (route.name === 'race') path = `race/${encodeURIComponent(route.round)}`
   const query: string[] = []
   if (params.season) query.push(`season=${encodeURIComponent(params.season)}`)
   if (params.round) query.push(`round=${encodeURIComponent(params.round)}`)

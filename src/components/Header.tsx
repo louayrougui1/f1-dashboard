@@ -2,7 +2,7 @@ import { Menu, RefreshCw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { formatLastUpdated } from '../lib/format'
-import { NAV_GROUPS } from '../lib/nav'
+import { NAV_GROUPS, STANDINGS_GROUPS } from '../lib/nav'
 import { SeasonRoundControls } from './Selectors'
 import type { Race } from '../lib/types'
 
@@ -11,9 +11,14 @@ export function viewLabel(activeId: string): string {
     const found = g.items.find((i) => i.id === activeId)
     if (found) return found.label.toUpperCase()
   }
-  if (activeId === 'standings') return 'STANDINGS'
+  for (const g of STANDINGS_GROUPS) {
+    const found = g.items.find((i) => i.id === activeId)
+    if (found) return found.label.toUpperCase()
+  }
+  if (activeId === 'dashboard') return 'RACES'
   if (activeId === 'driver') return 'DRIVER'
   if (activeId === 'team') return 'TEAM'
+  if (activeId === 'race') return 'RACE'
   return 'OVERVIEW'
 }
 

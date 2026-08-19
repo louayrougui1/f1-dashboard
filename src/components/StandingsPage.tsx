@@ -1,7 +1,10 @@
-import type { ConstructorStandingRow, DriverStandingRow, RaceDetail } from '../lib/types'
-import { display, roundLabel } from '../lib/format'
+import type { ConstructorStandingRow, DriverStandingRow, Race, SeasonRoundResults } from '../lib/types'
+import { display } from '../lib/format'
 import { DriverTable, ConstructorTable } from './Standings'
-import { LastRaceResults } from './LastRaceResults'
+import { Progression } from './Progression'
+import { HeadToHead } from './HeadToHead'
+import { RaceArchive } from './RaceArchive'
+import { WatchLive } from './WatchLive'
 import { SectionHeading } from './Card'
 
 export function StandingsPage({
@@ -14,17 +17,14 @@ export function StandingsPage({
   constructorLoading,
   constructorError,
   onRetryConstructors,
-  featuredDetail,
-  featuredRound,
-  resultsLoading,
-  resultsError,
-  onRetryResults,
-  onPrev,
-  onNext,
-  canPrev,
-  canNext,
+  calendar,
+  rounds,
+  roundsLoading,
+  roundsError,
+  onRetryRounds,
   onSelectDriver,
   onSelectConstructor,
+  onSelectRace,
 }: {
   season: string | null
   drivers: DriverStandingRow[]
@@ -35,24 +35,20 @@ export function StandingsPage({
   constructorLoading: boolean
   constructorError: Error | null
   onRetryConstructors: () => void
-  featuredDetail: RaceDetail | null
-  featuredRound: number | null
-  resultsLoading: boolean
-  resultsError: Error | null
-  onRetryResults: () => void
-  onPrev?: () => void
-  onNext?: () => void
-  canPrev?: boolean
-  canNext?: boolean
+  calendar: Race[]
+  rounds: SeasonRoundResults[]
+  roundsLoading: boolean
+  roundsError: Error | null
+  onRetryRounds: () => void
   onSelectDriver?: (driverId: string) => void
   onSelectConstructor?: (constructorId: string) => void
+  onSelectRace: (round: number) => void
 }) {
-  const results = featuredDetail?.results ?? []
   const meta = `${display(season)} · All Positions`
 
   return (
     <div className="space-y-10">
-      <section>
+      <section id="drivers" aria-label="Driver standings" className="scroll-mt-14">
         <SectionHeading label="Driver Standings" meta={meta} />
         <div className="mt-3">
           <DriverTable
@@ -66,7 +62,7 @@ export function StandingsPage({
         </div>
       </section>
 
-      <section>
+      <section id="constructors" aria-label="Constructor standings" className="scroll-mt-14">
         <SectionHeading label="Constructor Standings" meta={meta} />
         <div className="mt-3">
           <ConstructorTable
@@ -80,26 +76,50 @@ export function StandingsPage({
         </div>
       </section>
 
-      <section>
-        <SectionHeading
-          label="Race Results"
-          meta={featuredRound !== null ? `${roundLabel(featuredRound)} · Full Grid` : undefined}
-        />
+      <section id="progression" aria-label="Championship progression" className="scroll-mt-14">
+        <SectionHeading label="Championship Progression" meta={`${display(season)} · Cumulative`} />
         <div className="mt-3">
-          <LastRaceResults
-            raceName={featuredDetail?.race.raceName ?? null}
-            round={featuredDetail?.round ?? featuredRound}
-            rows={results}
-            maxRows={results.length || undefined}
-            loading={resultsLoading}
-            error={resultsError}
-            hasData={results.length > 0}
-            onRetry={onRetryResults}
-            onPrev={onPrev}
-            onNext={onNext}
-            canPrev={canPrev}
-            canNext={canNext}
+          <Progression
+            rounds={rounds}
+            loading={roundsLoading}
+            error={roundsError}
+            onRetry={onRetryRounds}
           />
+        </div>
+      </section>
+
+      <section id="headtohead" aria-label="Head to head" className="scroll-mt-14">
+        <SectionHeading label="Head-to-Head" meta={`${display(season)} · Teammates`} />
+        <div className="mt-3">
+          <HeadToHead
+            rounds={rounds}
+            drivers={drivers}
+            loading={roundsLoading}
+            error={roundsError}
+            onRetry={onRetryRounds}
+            onSelectDriver={onSelectDriver}
+          />
+        </div>
+      </section>
+
+      <section id="races" aria-label="Race archive" className="scroll-mt-14">
+        <SectionHeading label="Race Archive" meta={`${display(season)} · Completed`} />
+        <div className="mt-3">
+          <RaceArchive
+            calendar={calendar}
+            rounds={rounds}
+            loading={roundsLoading}
+            error={roundsError}
+            onRetry={onRetryRounds}
+            onSelectRace={onSelectRace}
+          />
+        </div>
+      </section>
+
+      <section id="watchlive" aria-label="Watch live" className="scroll-mt-14">
+        <SectionHeading label="Watch" meta="Live F1 streams" />
+        <div className="mt-3">
+          <WatchLive />
         </div>
       </section>
     </div>

@@ -1,26 +1,25 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useDashboard } from "./lib/useDashboard";
 import { buildHash, useHashRoute } from "./lib/router";
+import { standingsTargets } from "./lib/nav";
 import { CIRCUIT_TRACKS } from "./lib/circuitTracks";
 import { display, roundLabel } from "./lib/format";
 import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { TopBar } from "./components/Header";
-import { MobileNavSheet, Sidebar, useNavActive } from "./components/Sidebar";
+import { MobileNavSheet, Sidebar, useNavActive, useScrollSpy } from "./components/Sidebar";
 import { RaceStatusCards } from "./components/RaceStatusCards";
 import { StatStrip } from "./components/StatStrip";
-import { Standings } from "./components/Standings";
 import { LastRaceResults } from "./components/LastRaceResults";
 import { FastestLap } from "./components/FastestLap";
 import { Visualizations } from "./components/Visualizations";
 import { Circuit } from "./components/Circuit";
 import { Qualifying } from "./components/Qualifying";
 import { PitStops } from "./components/PitStops";
-import { Progression } from "./components/Progression";
-import { HeadToHead } from "./components/HeadToHead";
 import { LapChart } from "./components/LapChart";
 import { WatchLive } from "./components/WatchLive";
 import { StandingsPage } from "./components/StandingsPage";
+import { RacePage } from "./components/RacePage";
 import { DriverPage } from "./components/DriverPage";
 import { TeamPage } from "./components/TeamPage";
 import { SectionHeading } from "./components/Card";
@@ -64,18 +63,22 @@ export default function App() {
     [hash.params.season, hash.params.round],
   );
   const dashboard = useDashboard(initial);
-  const { active, onNavigate } = useNavActive();
+  const { active, manual, onNavigate, resetManual } = useNavActive();
+  const standingsIds = useMemo(() => standingsTargets(), []);
+  const standingsSpy = useScrollSpy(standingsIds);
   const [navOpen, setNavOpen] = useState(false);
   const [raceTab, setRaceTab] = useState<RaceTab>("results");
   const { season, calendar, lastRace, nextRace, featuredRound } = dashboard;
   const effectiveActive =
     route.name === "standings"
-      ? "standings"
+      ? (manual ?? standingsSpy)
       : route.name === "driver"
         ? "driver"
         : route.name === "team"
           ? "team"
-          : active;
+          : route.name === "race"
+            ? "race"
+            : active;
 
   useEffect(() => {
     const seasonParam = dashboard.seasonId;
@@ -91,12 +94,19 @@ export default function App() {
     if (route.name !== "dashboard" && prevRoute.current !== route.name)
       window.scrollTo(0, 0);
     prevRoute.current = route.name;
-  }, [route.name]);
+    resetManual();
+  }, [route.name, resetManual]);
 
   const navigate = useMemo(
     () => ({
       toDashboard: () => {
         window.location.hash = "#/";
+      },
+      toStandings: () => {
+        window.location.hash = "#/standings";
+      },
+      toRace: (round: number) => {
+        window.location.hash = `#/race/${round}`;
       },
       toDriver: (driverId: string) => {
         window.location.hash = `#/driver/${encodeURIComponent(driverId)}`;
@@ -195,7 +205,7 @@ export default function App() {
     <TooltipProvider>
       <div className="min-h-screen bg-bg text-text">
         <div className="flex min-h-screen">
-          <Sidebar active={effectiveActive} onNavigate={onNavigate} />
+          <Sidebar navMode={route.name === "dashboard" ? "dashboard" : "standings"} active={effectiveActive} onNavigate={onNavigate} />
 
           <div className="flex min-w-0 flex-1 flex-col">
             <TopBar
@@ -217,6 +227,7 @@ export default function App() {
             <MobileNavSheet
               open={navOpen}
               onOpenChange={setNavOpen}
+              navMode={route.name === "dashboard" ? "dashboard" : "standings"}
               active={effectiveActive}
               onNavigate={onNavigate}
             />
@@ -240,25 +251,27 @@ export default function App() {
                     }
                     constructorError={dashboard.constructorStandings.error}
                     onRetryConstructors={() => dashboard.retry("constructors")}
-                    featuredDetail={featuredDetail.data}
-                    featuredRound={featuredRound}
-                    resultsLoading={resultsLoading}
-                    resultsError={resultsError}
-                    onRetryResults={() => dashboard.retry("results")}
-                    onPrev={
-                      prevRound !== null
-                        ? () => dashboard.setRound(prevRound)
-                        : undefined
-                    }
-                    onNext={
-                      nextRound !== null
-                        ? () => dashboard.setRound(nextRound)
-                        : undefined
-                    }
-                    canPrev={prevRound !== null}
-                    canNext={nextRound !== null}
+                    calendar={calendar}
+                    rounds={seasonResults}
+                    roundsLoading={seasonResultsLoading}
+                    roundsError={seasonResultsError}
+                    onRetryRounds={() => dashboard.retry("seasonResults")}
                     onSelectDriver={navigate.toDriver}
                     onSelectConstructor={navigate.toConstructor}
+                    onSelectRace={navigate.toRace}
+                  />
+                </div>
+              ) : route.name === "race" ? (
+                <div className="mx-auto max-w-[1560px]">
+                  <RacePage
+                    round={Number(route.round)}
+                    seasonLabel={season}
+                    calendar={calendar}
+                    rounds={seasonResults}
+                    roundsLoading={seasonResultsLoading}
+                    roundsError={seasonResultsError}
+                    onRetryRounds={() => dashboard.retry("seasonResults")}
+                    onBack={navigate.toStandings}
                   />
                 </div>
               ) : route.name === "driver" ? (
@@ -278,7 +291,7 @@ export default function App() {
                     roundsLoading={seasonResultsLoading}
                     roundsError={seasonResultsError}
                     onRetryRounds={() => dashboard.retry("seasonResults")}
-                    onBack={navigate.toDashboard}
+                    onBack={navigate.toStandings}
                     onSelectDriver={navigate.toDriver}
                   />
                 </div>
@@ -300,7 +313,7 @@ export default function App() {
                     roundsLoading={seasonResultsLoading}
                     roundsError={seasonResultsError}
                     onRetryRounds={() => dashboard.retry("seasonResults")}
-                    onBack={navigate.toDashboard}
+                    onBack={navigate.toStandings}
                     onSelectDriver={navigate.toDriver}
                   />
                 </div>
@@ -561,71 +574,6 @@ export default function App() {
                         race={featuredRace}
                         track={featuredTrack}
                         rows={featuredResults}
-                      />
-                    </div>
-                  </section>
-
-                  <section
-                    id="championship"
-                    aria-label="Championship standings"
-                    className="scroll-mt-14"
-                  >
-                    <SectionHeading
-                      label="Championship"
-                      meta={`${display(season)} Season`}
-                    />
-                    <div className="mt-3">
-                      <Standings
-                        drivers={driverRows}
-                        constructors={constructorRows}
-                        loading={dashboard.driverStandings.status === "loading"}
-                        driverError={dashboard.driverStandings.error}
-                        constructorError={dashboard.constructorStandings.error}
-                        onRetryDrivers={() => dashboard.retry("drivers")}
-                        onRetryConstructors={() =>
-                          dashboard.retry("constructors")
-                        }
-                        onSelectDriver={navigate.toDriver}
-                        onSelectConstructor={navigate.toConstructor}
-                      />
-                    </div>
-                  </section>
-
-                  <section
-                    id="headtohead"
-                    aria-label="Head to head"
-                    className="scroll-mt-14"
-                  >
-                    <SectionHeading
-                      label="Head-to-Head"
-                      meta={`${display(season)} · Teammates`}
-                    />
-                    <div className="mt-3">
-                      <HeadToHead
-                        rounds={seasonResults}
-                        drivers={driverRows}
-                        loading={seasonResultsLoading}
-                        error={seasonResultsError}
-                        onRetry={() => dashboard.retry("seasonResults")}
-                      />
-                    </div>
-                  </section>
-
-                  <section
-                    id="progression"
-                    aria-label="Championship progression"
-                    className="scroll-mt-14"
-                  >
-                    <SectionHeading
-                      label="Championship Progression"
-                      meta={`${display(season)} · Cumulative`}
-                    />
-                    <div className="mt-3">
-                      <Progression
-                        rounds={seasonResults}
-                        loading={seasonResultsLoading}
-                        error={seasonResultsError}
-                        onRetry={() => dashboard.retry("seasonResults")}
                       />
                     </div>
                   </section>

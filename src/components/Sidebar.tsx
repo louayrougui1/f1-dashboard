@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { NAV_GROUPS, navTargets } from '../lib/nav'
+import { NAV_GROUPS, STANDINGS_GROUPS, navTargets, type NavGroup } from '../lib/nav'
 import { parseHash } from '../lib/router'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+
+export type NavMode = 'dashboard' | 'standings'
 
 function scrollToTarget(id: string, attempts = 0) {
   const el = document.getElementById(id)
@@ -31,65 +33,100 @@ function BrandMark() {
 }
 
 function NavList({
+  groups,
+  navMode,
   active,
   onNavigate,
   onNavigateEnd,
 }: {
+  groups: NavGroup[]
+  navMode: NavMode
   active: string
   onNavigate: (id: string) => void
   onNavigateEnd?: () => void
 }) {
   return (
     <nav aria-label="Primary" className="px-3">
-      {NAV_GROUPS.map((group, gi) => (
-        <div key={group.label ?? `g${gi}`} className={gi > 0 ? 'mt-4' : ''}>
-          {group.label ? (
-            <p className="label px-2 pb-1.5 text-[10px] text-muted/70">{group.label}</p>
-          ) : null}
-          <ul className="space-y-0.5">
-            {group.items.map((item) => {
-              const isActive = active === item.id
-              return (
-                <li key={item.id}>
-                  <a
-                    href={item.route ? `#${item.route}` : `#${item.target}`}
-                    onClick={(e) => {
-                      e.preventDefault()
-                      if (item.route) {
-                        window.location.hash = `#${item.route}`
-                      } else {
-                        if (parseHash(window.location.hash).name !== 'dashboard') {
-                          window.location.hash = '#/'
+      {groups.map((group, gi) => {
+        const isRow = group.row === true
+        return (
+          <div key={group.label ?? `g${gi}`} className={gi > 0 ? (group.label ? 'mt-4' : 'mt-1') : ''}>
+            {group.label ? (
+              <p className="label px-2 pb-1.5 text-[10px] text-muted/70">{group.label}</p>
+            ) : null}
+            <ul className={isRow ? 'grid grid-cols-2 gap-1.5' : 'space-y-0.5'}>
+              {group.items.map((item) => {
+                const isActive = active === item.id
+                const rowPressed =
+                  isRow &&
+                  ((item.id === 'dashboard' && navMode === 'dashboard') ||
+                    (item.id === 'standings' && navMode === 'standings'))
+                const rowActive = isRow ? isActive || rowPressed : isActive
+                return (
+                  <li key={item.id}>
+                    <a
+                      href={item.route ? `#${item.route}` : `#${item.target}`}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        if (item.route) {
+                          window.location.hash = `#${item.route}`
+                        } else {
+                          const home = item.page ?? 'dashboard'
+                          if (
+                            !document.getElementById(item.target) &&
+                            parseHash(window.location.hash).name !== home
+                          ) {
+                            window.location.hash = home === 'standings' ? '#/standings' : '#/'
+                          }
+                          scrollToTarget(item.target)
                         }
-                        scrollToTarget(item.target)
-                      }
-                      onNavigate(item.id)
-                      onNavigateEnd?.()
-                    }}
-                    aria-current={isActive ? 'page' : undefined}
-                    className={`group relative flex items-center gap-2.5 rounded px-2.5 py-2 text-sm font-medium tracking-wide transition-colors duration-150 ${
-                      isActive ? 'text-text' : 'text-muted hover:bg-surface/60 hover:text-text'
-                    }`}
-                  >
-                    <span
-                      aria-hidden="true"
-                      className={`h-3.5 w-0.5 rounded-full transition-colors duration-75 ${
-                        isActive ? 'bg-accent' : 'bg-transparent group-hover:bg-line-strong'
+                        onNavigate(item.id)
+                        onNavigateEnd?.()
+                      }}
+                      aria-current={rowActive ? 'page' : undefined}
+                      className={`group relative flex items-center gap-2.5 rounded px-2.5 py-2 text-sm font-medium tracking-wide transition-colors duration-150 ${
+                        isRow ? 'justify-center ' : ''
+                      }${
+                        isRow
+                          ? rowActive
+                            ? 'bg-surface-hover text-text'
+                            : 'bg-surface text-muted hover:bg-surface-hover hover:text-text'
+                          : isActive
+                            ? 'bg-surface/60 text-text'
+                            : 'text-muted hover:bg-surface/60 hover:text-text'
                       }`}
-                    />
-                    {item.label}
-                  </a>
-                </li>
-              )
-            })}
-          </ul>
-        </div>
-      ))}
+                    >
+                      {!isRow && (
+                        <span
+                          aria-hidden="true"
+                          className={`h-3.5 w-0.5 rounded-full transition-colors duration-75 ${
+                            isActive ? 'bg-accent' : 'bg-transparent group-hover:bg-line-strong'
+                          }`}
+                        />
+                      )}
+                      {item.label}
+                    </a>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+        )
+      })}
     </nav>
   )
 }
 
-export function Sidebar({ active, onNavigate }: { active: string; onNavigate?: (id: string) => void }) {
+export function Sidebar({
+  navMode,
+  active,
+  onNavigate,
+}: {
+  navMode: NavMode
+  active: string
+  onNavigate?: (id: string) => void
+}) {
+  const groups = navMode === 'standings' ? STANDINGS_GROUPS : NAV_GROUPS
   return (
     <aside className="sticky top-0 hidden h-screen w-[13.5rem] shrink-0 flex-col border-r border-line bg-bg-secondary lg:flex">
       <div className="px-5 pt-5 pb-4">
@@ -97,7 +134,7 @@ export function Sidebar({ active, onNavigate }: { active: string; onNavigate?: (
       </div>
 
       <ScrollArea className="min-h-0 flex-1">
-        <NavList active={active} onNavigate={(id) => onNavigate?.(id)} />
+        <NavList groups={groups} navMode={navMode} active={active} onNavigate={(id) => onNavigate?.(id)} />
       </ScrollArea>
 
       <div className="border-t border-line px-5 py-3">
@@ -111,14 +148,17 @@ export function Sidebar({ active, onNavigate }: { active: string; onNavigate?: (
 export function MobileNavSheet({
   open,
   onOpenChange,
+  navMode,
   active,
   onNavigate,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
+  navMode: NavMode
   active: string
   onNavigate: (id: string) => void
 }) {
+  const groups = navMode === 'standings' ? STANDINGS_GROUPS : NAV_GROUPS
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
@@ -131,7 +171,7 @@ export function MobileNavSheet({
         </div>
         <Separator className="bg-line" />
         <ScrollArea className="min-h-0 flex-1 py-4">
-          <NavList active={active} onNavigate={onNavigate} onNavigateEnd={() => onOpenChange(false)} />
+          <NavList groups={groups} navMode={navMode} active={active} onNavigate={onNavigate} onNavigateEnd={() => onOpenChange(false)} />
         </ScrollArea>
         <Separator className="bg-line" />
         <div className="px-5 py-3">
@@ -171,7 +211,12 @@ export function useScrollSpy(ids: string[]): string {
   return active
 }
 
-export function useNavActive(): { active: string; onNavigate: (id: string) => void } {
+export function useNavActive(): {
+  active: string
+  manual: string | null
+  onNavigate: (id: string) => void
+  resetManual: () => void
+} {
   const targets = useMemo(() => navTargets(), [])
   const spy = useScrollSpy(targets)
   const [manual, setManual] = useState<string | null>(null)
@@ -205,5 +250,5 @@ export function useNavActive(): { active: string; onNavigate: (id: string) => vo
     [clearManual],
   )
 
-  return { active: manual ?? spy, onNavigate }
+  return { active: manual ?? spy, manual, onNavigate, resetManual: clearManual }
 }

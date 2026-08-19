@@ -3,10 +3,10 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 
 const WATCH_LINKS = [
-  { id: "1", name: "Stream 1", url: "https://example.co/f1/1" },
-  { id: "2", name: "Stream 2", url: "https://example.com/f1/2" },
-  { id: "3", name: "Stream 3", url: "https://example.net/f1/3" },
-  { id: "4", name: "Stream 4", url: "https://example.org/f1/4" },
+  { id: "1", name: "pitsport.xyz", url: "https://pitsport.xyz" },
+  { id: "2", name: "streamed.pk", url: "https://streamed.pk/" },
+  { id: "3", name: "ppv.to", url: "https://ppv.to/" },
+  { id: "4", name: "acestrlms.pages.dev", url: "https://acestrlms.pages.dev/f11/" },
 ] as const;
 
 export function WatchLive() {
@@ -45,10 +45,7 @@ export function WatchLive() {
             {link.name}
           </p>
           <p className="text-[11px] text-muted/70">External stream</p>
-          <div className="mt-auto flex items-center justify-between w-full pt-2 border-t border-line/40">
-            <span className="text-[10px] text-muted/60">
-              {new URL(link.url).hostname}
-            </span>
+          <div className="mt-auto flex items-center justify-end w-full pt-2 border-t border-line/40">
             <ExternalLink
               className="h-3.5 w-3.5 text-muted group-hover:text-accent transition-colors"
               aria-hidden="true"

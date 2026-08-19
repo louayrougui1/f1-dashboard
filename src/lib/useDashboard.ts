@@ -239,7 +239,12 @@ export function useDashboard(initial: DashboardInitial = { season: null, round: 
     if (!firstRun.current) setRefreshing(true)
     firstRun.current = false
 
-    const defs: Array<{ key: DataKey; cache: string; run: (s?: AbortSignal) => Promise<unknown> }> = [
+    const defs: Array<{
+      key: DataKey
+      cache: string
+      run: (s?: AbortSignal) => Promise<unknown>
+      delayMs?: number
+    }> = [
       { key: 'schedule', cache: keyFor('schedule'), run: (s) => fetchSchedule(seasonId, s) },
       { key: 'drivers', cache: keyFor('drivers'), run: (s) => fetchDriverStandings(seasonId, s) },
       {
@@ -278,6 +283,7 @@ export function useDashboard(initial: DashboardInitial = { season: null, round: 
         key: 'laps',
         cache: keyFor('laps'),
         run: (s) => fetchLaps(seasonId, featuredRound, s),
+        delayMs: 300,
       })
     } else if (featuredRound !== null && scheduleReady) {
       setSlices((prev) => {
@@ -294,11 +300,13 @@ export function useDashboard(initial: DashboardInitial = { season: null, round: 
         key: 'seasonResults',
         cache: keyFor('seasonResults'),
         run: (s) => fetchSeasonResults(seasonId, completedRounds, s),
+        delayMs: 600,
       })
     }
 
     let completed = 0
     const total = defs.length
+    const timers: number[] = []
 
     for (const f of defs) {
       const cached = readCache(f.cache)
@@ -308,37 +316,47 @@ export function useDashboard(initial: DashboardInitial = { season: null, round: 
         if (completed === total) setRefreshing(false)
         continue
       }
-      f.run(controller.signal)
-        .then((value) => {
-          writeCache(f.cache, value)
-          setSlices((prev) => ({ ...prev, [f.key]: { status: 'ready', data: value, error: null } }))
-          if (seasonId === 'current' && f.key === 'schedule') {
-            const first = (value as Race[])?.[0]
-            const year = first?.date?.slice(0, 4)
-            if (year) setLiveSeason(year)
-          }
-          setLastUpdated(new Date())
-        })
-        .catch((err: unknown) => {
-          if (controller.signal.aborted) return
-          const error = err instanceof Error ? err : new Error(String(err))
-          setSlices((prev) => {
-            const existing = prev[f.key]
-            if (existing?.data !== null && existing?.data !== undefined) {
-              return { ...prev, [f.key]: { ...existing, error } }
+      const start = () => {
+        f.run(controller.signal)
+          .then((value) => {
+            writeCache(f.cache, value)
+            setSlices((prev) => ({ ...prev, [f.key]: { status: 'ready', data: value, error: null } }))
+            if (seasonId === 'current' && f.key === 'schedule') {
+              const first = (value as Race[])?.[0]
+              const year = first?.date?.slice(0, 4)
+              if (year) setLiveSeason(year)
             }
-            return { ...prev, [f.key]: { status: 'error', data: null, error } }
+            setLastUpdated(new Date())
           })
-        })
-        .finally(() => {
-          completed += 1
-          if (completed === total) setRefreshing(false)
-        })
+          .catch((err: unknown) => {
+            if (controller.signal.aborted) return
+            const error = err instanceof Error ? err : new Error(String(err))
+            setSlices((prev) => {
+              const existing = prev[f.key]
+              if (existing?.data !== null && existing?.data !== undefined) {
+                return { ...prev, [f.key]: { ...existing, error } }
+              }
+              return { ...prev, [f.key]: { status: 'error', data: null, error } }
+            })
+          })
+          .finally(() => {
+            completed += 1
+            if (completed === total) setRefreshing(false)
+          })
+      }
+      if (f.delayMs !== undefined && f.delayMs > 0) {
+        timers.push(window.setTimeout(start, f.delayMs))
+      } else {
+        start()
+      }
     }
 
     if (total === 0) setRefreshing(false)
 
-    return () => controller.abort()
+    return () => {
+      for (const t of timers) window.clearTimeout(t)
+      controller.abort()
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [version, seasonId, round, featuredRound, scheduleReady, keyFor, completedRounds, featuredUpcoming])
 
