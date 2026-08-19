@@ -344,6 +344,10 @@ export function useDashboard(initial: DashboardInitial = { season: null, round: 
             if (completed === total) setRefreshing(false)
           })
       }
+      setSlices((prev) => ({
+        ...prev,
+        [f.key]: { status: 'loading', data: prev[f.key]?.data ?? null, error: null },
+      }))
       if (f.delayMs !== undefined && f.delayMs > 0) {
         timers.push(window.setTimeout(start, f.delayMs))
       } else {

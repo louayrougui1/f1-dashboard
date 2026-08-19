@@ -21,6 +21,7 @@ import type {
 
 const BASE = 'https://api.jolpi.ca/ergast/f1'
 const TIMEOUT_MS = 20000
+const MAX_CONCURRENT = 5
 
 export class ApiError extends Error {
   readonly status: number | null
@@ -41,6 +42,49 @@ function isTransient(err: unknown): boolean {
 
 const MAX_ATTEMPTS = 4
 const RETRY_BASE_MS = 400
+
+let inFlight = 0
+const waiters: Array<() => void> = []
+
+function wake(): void {
+  while (waiters.length > 0 && inFlight < MAX_CONCURRENT) {
+    const go = waiters.shift()
+    go?.()
+  }
+}
+
+function acquire(signal?: AbortSignal): Promise<() => void> {
+  if (inFlight < MAX_CONCURRENT) {
+    inFlight += 1
+    return Promise.resolve(() => {
+      inFlight -= 1
+      wake()
+    })
+  }
+  return new Promise<() => void>((resolve, reject) => {
+    let done = false
+    const onAbort = () => {
+      if (done) return
+      done = true
+      const i = waiters.indexOf(go)
+      if (i >= 0) waiters.splice(i, 1)
+      signal?.removeEventListener('abort', onAbort)
+      reject(new ApiError('Request aborted'))
+    }
+    const go = () => {
+      if (done) return
+      done = true
+      signal?.removeEventListener('abort', onAbort)
+      inFlight += 1
+      resolve(() => {
+        inFlight -= 1
+        wake()
+      })
+    }
+    waiters.push(go)
+    signal?.addEventListener('abort', onAbort, { once: true })
+  })
+}
 
 interface RawDriver {
   driverId?: string
@@ -315,6 +359,7 @@ async function request<T>(path: string, signal?: AbortSignal): Promise<T> {
   let lastError: unknown
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
     if (signal?.aborted) throw new ApiError('Request aborted')
+    const release = await acquire(signal)
     const controller = new AbortController()
     const timer = setTimeout(() => controller.abort(), TIMEOUT_MS)
     const onOuterAbort = () => controller.abort()
@@ -349,6 +394,7 @@ async function request<T>(path: string, signal?: AbortSignal): Promise<T> {
     } finally {
       clearTimeout(timer)
       signal?.removeEventListener('abort', onOuterAbort)
+      release()
     }
   }
   throw lastError
