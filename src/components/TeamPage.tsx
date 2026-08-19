@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import type {
   ConstructorStandingRow,
   Driver,
@@ -16,6 +16,12 @@ import { TableSkeleton } from './Skeleton'
 import { ErrorState } from './ErrorState'
 import { PointsChart } from './PointsChart'
 import { DriverNumber } from './DriverNumber'
+import { TeamRecordView } from './TeamRecord'
+import { CareerStat } from './CareerStat'
+import { useConstructorRecord } from '../lib/useCareer'
+
+const TEAM_MODES = ['season', 'record'] as const
+type TeamMode = (typeof TEAM_MODES)[number]
 
 function PositionMark({ position }: { position: number }) {
   const cls =
@@ -64,6 +70,8 @@ export function TeamPage({
     () => standings.find((s) => s.constructor.constructorId === constructorId) ?? null,
     [standings, constructorId],
   )
+  const [mode, setMode] = useState<TeamMode>('season')
+  const record = useConstructorRecord(constructorId, true)
   const lastRound = rounds[rounds.length - 1]
   const lastRow = lastRound?.results.find((x) => x.constructor.constructorId === constructorId) ?? null
   const constructor = standing?.constructor ?? lastRow?.constructor ?? null
@@ -144,29 +152,77 @@ export function TeamPage({
               <p className="mt-2 text-xs text-muted">{constructor.nationality}</p>
             ) : null}
           </div>
-          {standing ? (
-            <div className="flex shrink-0 items-end gap-6 sm:flex-col sm:items-end sm:gap-3">
-              <div className="flex items-baseline gap-2">
-                <span className={cn('text-4xl font-bold', standing.position === 1 ? 'text-gold' : standing.position === 2 ? 'text-silver' : standing.position === 3 ? 'text-bronze' : 'text-text')}>
-                  P{standing.position}
-                </span>
-                <span className="label text-[10px] text-muted/70">CHAMPIONSHIP</span>
-              </div>
-              <div className="flex items-center gap-5">
-                <div>
-                  <p className="mono-num text-xl font-semibold text-text">{formatPoints(standing.points)}</p>
-                  <p className="label text-[10px] text-muted/70">Points</p>
+          <div className="flex shrink-0 flex-col items-start gap-5 sm:items-end">
+            {standing ? (
+              <div className="flex items-end gap-6 sm:flex-col sm:items-end sm:gap-3">
+                <div className="flex items-baseline gap-2">
+                  <span className={cn('text-4xl font-bold', standing.position === 1 ? 'text-gold' : standing.position === 2 ? 'text-silver' : standing.position === 3 ? 'text-bronze' : 'text-text')}>
+                    P{standing.position}
+                  </span>
+                  <span className="label text-[10px] text-muted/70">CHAMPIONSHIP</span>
                 </div>
-                <div>
-                  <p className="mono-num text-xl font-semibold text-text">{standing.wins}</p>
-                  <p className="label text-[10px] text-muted/70">Wins</p>
+                <div className="flex items-center gap-5">
+                  <div>
+                    <p className="mono-num text-xl font-semibold text-text">{formatPoints(standing.points)}</p>
+                    <p className="label text-[10px] text-muted/70">Points</p>
+                  </div>
+                  <div>
+                    <p className="mono-num text-xl font-semibold text-text">{standing.wins}</p>
+                    <p className="label text-[10px] text-muted/70">Wins</p>
+                  </div>
                 </div>
               </div>
+            ) : null}
+            <div className="flex flex-wrap items-end gap-x-5 gap-y-2 sm:justify-end">
+              <CareerStat
+                label="Seasons"
+                status={record.status}
+                value={record.data?.seasonsCount ?? null}
+                onRetry={record.retry}
+              />
+              <CareerStat
+                label="Constructors Titles"
+                status={record.status}
+                value={record.data?.constructorTitles ?? null}
+                onRetry={record.retry}
+                skeletonClassName="h-7 w-9"
+              />
+              <CareerStat
+                label="Drivers Titles"
+                status={record.status}
+                value={record.data?.driverTitles ?? null}
+                onRetry={record.retry}
+                skeletonClassName="h-7 w-9"
+              />
             </div>
-          ) : null}
+          </div>
         </div>
       </Card>
 
+      <div className="flex gap-1 rounded-lg border border-line bg-surface p-1">
+        {TEAM_MODES.map((m) => {
+          const isActive = mode === m
+          return (
+            <button
+              key={m}
+              type="button"
+              aria-pressed={isActive}
+              onClick={() => setMode(m)}
+              className={cn(
+                'h-8 rounded-md px-3 text-xs font-semibold tracking-[0.15em] uppercase transition-colors',
+                isActive ? 'bg-accent text-bg' : 'text-muted hover:bg-surface-2 hover:text-text',
+              )}
+            >
+              {m === 'season' ? 'Season' : 'Record'}
+            </button>
+          )
+        })}
+      </div>
+
+      {mode === 'record' ? (
+        <TeamRecordView record={record} />
+      ) : (
+        <>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {teamDrivers.map((d) => {
           const s = driverStandingFor(d.driverId)
@@ -341,6 +397,8 @@ export function TeamPage({
           DRIVER ROSTER
         </Badge>
       ) : null}
+        </>
+      )}
     </div>
   )
 }

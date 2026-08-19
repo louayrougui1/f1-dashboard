@@ -164,45 +164,35 @@ export function LastRaceResults({
                   </span>
                 </TableCell>
                 <TableCell className="min-w-0 border-b border-line/60 px-2 py-2.5">
-                  <div className="flex min-w-0 flex-col gap-0.5">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <span
-                        aria-hidden="true"
-                        className="h-4 w-1 shrink-0 rounded-full"
-                        style={{ backgroundColor: teamColor(row.constructor.constructorId) }}
-                      />
-                      <span className="mono-num w-8 shrink-0 text-[11px] font-bold tracking-widest text-muted">
-                        {driverCode(row.driver)}
-                      </span>
-                      <DriverNumber driver={row.driver} className="text-[11px] font-bold" />
-                      <span
-                        className="max-w-[9.5rem] truncate font-medium sm:max-w-none"
-                        style={{ color: teamColor(row.constructor.constructorId) }}
-                      >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span
+                      aria-hidden="true"
+                      className="h-4 w-1 shrink-0 rounded-full"
+                      style={{ backgroundColor: teamColor(row.constructor.constructorId) }}
+                    />
+                    <span className="mono-num hidden w-8 shrink-0 text-[11px] font-bold tracking-widest text-muted sm:inline">
+                      {driverCode(row.driver)}
+                    </span>
+                    <DriverNumber driver={row.driver} className="text-[11px] font-bold" />
+                    <span className="min-w-0">
+                      <span className="block max-w-[9.5rem] truncate font-medium text-text sm:max-w-none">
                         {driverFullName(row.driver)}
                       </span>
-                      {row.fastestLap?.rank === 1 ? (
-                        <Badge
-                          className="h-auto shrink-0 rounded bg-accent/15 px-1 py-px text-[9px] font-bold tracking-widest text-accent"
-                          variant="outline"
-                        >
-                          FL
-                        </Badge>
-                      ) : null}
-                    </div>
-                    <span className="flex min-w-0 items-center gap-1.5 pl-3">
                       <span
-                        aria-hidden="true"
-                        className="h-2 w-1 shrink-0 rounded-full"
-                        style={{ backgroundColor: teamColor(row.constructor.constructorId) }}
-                      />
-                      <span
-                        className="truncate text-[11px]"
+                        className="block truncate text-[11px]"
                         style={{ color: teamColor(row.constructor.constructorId) }}
                       >
                         {display(row.constructor.name)}
                       </span>
                     </span>
+                    {row.fastestLap?.rank === 1 ? (
+                      <Badge
+                        className="h-auto shrink-0 rounded bg-accent/15 px-1 py-px text-[9px] font-bold tracking-widest text-accent"
+                        variant="outline"
+                      >
+                        FL
+                      </Badge>
+                    ) : null}
                   </div>
                 </TableCell>
                 <TableCell className="mono-num border-b border-line/60 px-2 py-2.5 text-right text-muted">

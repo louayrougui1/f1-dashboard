@@ -131,3 +131,55 @@ export interface LapChartDetail {
   race: Race
   laps: Lap[]
 }
+
+export interface CareerRace {
+  season: string
+  round: number
+  row: RaceResultRow
+}
+
+export interface CareerSeasonStats {
+  season: string
+  races: number
+  wins: number
+  podiums: number
+  poles: number
+  championshipPosition: number | null
+}
+
+export interface CareerTeamStint {
+  constructor: Constructor
+  startSeason: string
+  endSeason: string
+  totals: {
+    races: number
+    wins: number
+    podiums: number
+    poles: number
+  }
+  seasons: CareerSeasonStats[]
+}
+
+export interface DriverCareer {
+  driver: Driver | null
+  stints: CareerTeamStint[]
+  titles: number
+  seasonsCount: number
+}
+
+export interface RecordSeason {
+  season: string
+  races: number
+  wins: number
+  podiums: number
+  poles: number
+  championshipPosition: number | null
+}
+
+export interface ConstructorRecord {
+  constructor: Constructor | null
+  seasons: RecordSeason[]
+  seasonsCount: number
+  constructorTitles: number
+  driverTitles: number
+}

@@ -108,7 +108,6 @@ export function PitStops({
           <TableRow className="border-0">
             <TableHead className={cn(headClass(), 'pl-4')}>POS</TableHead>
             <TableHead className={headClass()}>DRIVER</TableHead>
-            <TableHead className={cn(headClass(), 'hidden md:table-cell')}>TEAM</TableHead>
             <TableHead className={cn(headClass(), 'text-right')}>STOPS</TableHead>
             <TableHead className={cn(headClass(), 'text-right')}>FASTEST</TableHead>
             <TableHead className={cn(headClass(), 'text-right')}>TOTAL</TableHead>
@@ -141,22 +140,22 @@ export function PitStops({
                       className="h-4 w-1 shrink-0 rounded-full"
                       style={{ backgroundColor: teamColor(result.constructor.constructorId) }}
                     />
-                    <span className="mono-num w-8 shrink-0 text-[11px] font-bold tracking-widest text-muted">
+                    <span className="mono-num hidden w-8 shrink-0 text-[11px] font-bold tracking-widest text-muted sm:inline">
                       {driverCode(result.driver)}
                     </span>
                     <DriverNumber driver={result.driver} className="text-[11px] font-bold" />
-                    <span
-                      className="max-w-[9.5rem] truncate font-medium sm:max-w-none"
-                      style={{ color: teamColor(result.constructor.constructorId) }}
-                    >
-                      {driverFullName(result.driver)}
+                    <span className="min-w-0">
+                      <span className="block max-w-[9.5rem] truncate font-medium text-text sm:max-w-none">
+                        {driverFullName(result.driver)}
+                      </span>
+                      <span
+                        className="block truncate text-[11px]"
+                        style={{ color: teamColor(result.constructor.constructorId) }}
+                      >
+                        {display(result.constructor.name)}
+                      </span>
                     </span>
                   </div>
-                </TableCell>
-                <TableCell className="hidden border-b border-line/60 px-2 py-2.5 text-xs md:table-cell">
-                  <span style={{ color: teamColor(result.constructor.constructorId) }}>
-                    {display(result.constructor.name)}
-                  </span>
                 </TableCell>
                 <TableCell className="mono-num border-b border-line/60 px-2 py-2.5 text-right text-xs text-text">
                   {ds.length}

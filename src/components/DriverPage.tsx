@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import type {
   DriverStandingRow,
   Race,
@@ -15,6 +15,12 @@ import { ErrorState } from './ErrorState'
 import { HeadToHead } from './HeadToHead'
 import { PointsChart } from './PointsChart'
 import { DriverNumber } from './DriverNumber'
+import { DriverCareerView } from './DriverCareer'
+import { CareerStat } from './CareerStat'
+import { useDriverCareer } from '../lib/useCareer'
+
+const DRIVER_MODES = ['season', 'career'] as const
+type DriverMode = (typeof DRIVER_MODES)[number]
 
 function PositionMark({ position }: { position: number }) {
   const cls =
@@ -42,6 +48,7 @@ export function DriverPage({
   onRetryRounds,
   onBack,
   onSelectDriver,
+  onSelectConstructor,
 }: {
   driverId: string
   seasonLabel: string | null
@@ -56,8 +63,11 @@ export function DriverPage({
   onRetryRounds: () => void
   onBack: () => void
   onSelectDriver: (driverId: string) => void
+  onSelectConstructor: (constructorId: string) => void
 }) {
   const standing = useMemo(() => standings.find((s) => s.driver.driverId === driverId) ?? null, [standings, driverId])
+  const [mode, setMode] = useState<DriverMode>('season')
+  const career = useDriverCareer(driverId, true)
   const lastRound = rounds[rounds.length - 1]
   const lastRow = lastRound?.results.find((x) => x.driver.driverId === driverId) ?? null
   const driver = standing?.driver ?? lastRow?.driver ?? null
@@ -138,29 +148,49 @@ export function DriverPage({
               ) : null}
             </div>
           </div>
-          {standing ? (
-            <div className="flex shrink-0 items-end gap-6 sm:flex-col sm:items-end sm:gap-3">
+          <div className="flex shrink-0 flex-col items-start gap-5 sm:items-end">
+            {standing ? (
               <div className="flex items-baseline gap-2">
                 <span className={cn('text-4xl font-bold', standing.position === 1 ? 'text-gold' : standing.position === 2 ? 'text-silver' : standing.position === 3 ? 'text-bronze' : 'text-text')}>
                   P{standing.position}
                 </span>
                 <span className="label text-[10px] text-muted/70">CHAMPIONSHIP</span>
               </div>
-              <div className="flex items-center gap-5">
-                <div>
-                  <p className="mono-num text-xl font-semibold text-text">{formatPoints(standing.points)}</p>
-                  <p className="label text-[10px] text-muted/70">Points</p>
-                </div>
-                <div>
-                  <p className="mono-num text-xl font-semibold text-text">{standing.wins}</p>
-                  <p className="label text-[10px] text-muted/70">Wins</p>
-                </div>
-              </div>
-            </div>
-          ) : null}
+            ) : null}
+            <CareerStat
+              label="Championships"
+              status={career.status}
+              value={career.data?.titles ?? null}
+              onRetry={career.retry}
+            />
+          </div>
         </div>
       </Card>
 
+      <div className="flex gap-1 rounded-lg border border-line bg-surface p-1">
+        {DRIVER_MODES.map((m) => {
+          const isActive = mode === m
+          return (
+            <button
+              key={m}
+              type="button"
+              aria-pressed={isActive}
+              onClick={() => setMode(m)}
+              className={cn(
+                'h-8 rounded-md px-3 text-xs font-semibold tracking-[0.15em] uppercase transition-colors',
+                isActive ? 'bg-accent text-bg' : 'text-muted hover:bg-surface-2 hover:text-text',
+              )}
+            >
+              {m === 'season' ? 'Season' : 'Career'}
+            </button>
+          )
+        })}
+      </div>
+
+      {mode === 'career' ? (
+        <DriverCareerView career={career} onSelectConstructor={onSelectConstructor} />
+      ) : (
+        <>
       {roundsLoading && rounds.length === 0 ? (
         <div className="rounded-lg border border-line bg-surface">
           <TableSkeleton rows={7} cols={5} />
@@ -283,6 +313,8 @@ export function DriverPage({
           <ErrorState onRetry={onRetryStandings} />
         </div>
       ) : null}
+        </>
+      )}
     </div>
   )
 }

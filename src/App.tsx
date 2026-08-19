@@ -3,7 +3,7 @@ import { useDashboard } from "./lib/useDashboard";
 import { buildHash, useHashRoute } from "./lib/router";
 import { standingsTargets } from "./lib/nav";
 import { CIRCUIT_TRACKS } from "./lib/circuitTracks";
-import { display, roundLabel } from "./lib/format";
+import { display, driverFullName, roundLabel } from "./lib/format";
 import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { TopBar } from "./components/Header";
@@ -181,9 +181,7 @@ export default function App() {
   const driverRows = dashboard.driverStandings.data ?? [];
   const constructorRows = dashboard.constructorStandings.data ?? [];
   const pointsLeader = driverRows[0] ?? null;
-  const winner = featuredResults[0] ?? null;
-  const fastestLapRow =
-    featuredResults.find((r) => r.fastestLap?.rank === 1) ?? null;
+  const constructorLeader = constructorRows[0] ?? null;
   const completed = lastRace?.round ?? null;
   const roundsCompleted = lastRace?.round ?? null;
   const totalRounds = calendar.length || null;
@@ -293,6 +291,7 @@ export default function App() {
                     onRetryRounds={() => dashboard.retry("seasonResults")}
                     onBack={navigate.toStandings}
                     onSelectDriver={navigate.toDriver}
+                    onSelectConstructor={navigate.toConstructor}
                   />
                 </div>
               ) : route.name === "team" ? (
@@ -356,17 +355,21 @@ export default function App() {
                         season={season}
                         rounds={totalRounds}
                         completed={completed}
-                        raceRound={
-                          featuredRound !== null
-                            ? roundLabel(featuredRound)
-                            : null
+                        leader={
+                          pointsLeader ? driverFullName(pointsLeader.driver) : null
                         }
-                        nextRound={nextRace ? roundLabel(nextRace.round) : null}
-                        winner={winner?.driver.code ?? null}
-                        fastestLap={fastestLapRow?.fastestLap?.time ?? null}
-                        leader={pointsLeader?.driver.code ?? null}
                         leaderPoints={
                           pointsLeader ? display(pointsLeader.points) : null
+                        }
+                        constructorLeader={
+                          constructorLeader
+                            ? display(constructorLeader.constructor.name)
+                            : null
+                        }
+                        constructorLeaderPoints={
+                          constructorLeader
+                            ? display(constructorLeader.points)
+                            : null
                         }
                       />
                     </div>

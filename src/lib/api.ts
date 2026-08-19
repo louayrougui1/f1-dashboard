@@ -1,4 +1,5 @@
 import type {
+  CareerRace,
   Constructor,
   ConstructorStandingRow,
   Driver,
@@ -81,6 +82,7 @@ interface RawSession {
 }
 
 interface RawRace {
+  season?: string
   round?: string
   raceName?: string
   Circuit?: {
@@ -253,6 +255,7 @@ interface RawStandingsResponse {
 
 interface RawResultsResponse {
   MRData?: {
+    total?: string
     RaceTable?: {
       season?: string
       round?: string
@@ -573,6 +576,99 @@ export async function fetchPitStops(season: string, round: number, signal?: Abor
 
 const SEASON_CHUNK = 6
 const CHUNK_DELAY_MS = 120
+
+const RESULTS_PAGE = 100
+
+async function fetchEntityResults(
+  kind: 'drivers' | 'constructors',
+  id: string,
+  signal?: AbortSignal,
+): Promise<CareerRace[]> {
+  const out: CareerRace[] = []
+  let offset = 0
+  let total = 0
+  do {
+    const json = await request<RawResultsResponse>(
+      `/${kind}/${id}/results.json?limit=${RESULTS_PAGE}&offset=${offset}`,
+      signal,
+    )
+    const table = json.MRData?.RaceTable
+    total = Number(json.MRData?.total ?? 0)
+    const races = table?.Races ?? []
+    for (const raw of races) {
+      const season = str(raw.season) ?? ''
+      const round = num(raw.round)
+      if (round === null) continue
+      for (const res of raw.Results ?? []) {
+        const row = normalizeResult(res)
+        if (row) out.push({ season, round, row })
+      }
+    }
+    if (races.length === 0 || signal?.aborted || offset + RESULTS_PAGE >= total) break
+    offset += RESULTS_PAGE
+  } while (offset < total)
+  return out
+}
+
+export function fetchDriverResultsAll(driverId: string, signal?: AbortSignal): Promise<CareerRace[]> {
+  return fetchEntityResults('drivers', driverId, signal)
+}
+
+export function fetchConstructorResultsAll(constructorId: string, signal?: AbortSignal): Promise<CareerRace[]> {
+  return fetchEntityResults('constructors', constructorId, signal)
+}
+
+export interface SeasonStanding {
+  position: number | null
+  points: number
+  wins: number
+}
+
+export async function fetchDriverSeasonStanding(
+  driverId: string,
+  season: string,
+  signal?: AbortSignal,
+): Promise<SeasonStanding | null> {
+  const json = await request<RawStandingsResponse>(`/${season}/drivers/${driverId}/driverstandings.json`, signal)
+  const raw = json.MRData?.StandingsTable?.StandingsLists?.[0]?.DriverStandings?.[0]
+  if (!raw) return null
+  return {
+    position: num(raw.position),
+    points: num(raw.points) ?? 0,
+    wins: num(raw.wins) ?? 0,
+  }
+}
+
+export async function fetchConstructorSeasonStanding(
+  constructorId: string,
+  season: string,
+  signal?: AbortSignal,
+): Promise<SeasonStanding | null> {
+  const json = await request<RawStandingsResponse>(`/${season}/constructors/${constructorId}/constructorstandings.json`, signal)
+  const raw = json.MRData?.StandingsTable?.StandingsLists?.[0]?.ConstructorStandings?.[0]
+  if (!raw) return null
+  return {
+    position: num(raw.position),
+    points: num(raw.points) ?? 0,
+    wins: num(raw.wins) ?? 0,
+  }
+}
+
+export interface SeasonChampion {
+  driverId: string
+  constructorIds: string[]
+}
+
+export async function fetchSeasonDriverChampion(season: string, signal?: AbortSignal): Promise<SeasonChampion | null> {
+  const json = await request<RawStandingsResponse>(`/${season}/driverstandings.json?limit=1`, signal)
+  const raw = json.MRData?.StandingsTable?.StandingsLists?.[0]?.DriverStandings?.[0]
+  const driverId = str(raw?.Driver?.driverId)
+  if (!driverId) return null
+  const constructorIds = (raw?.Constructors ?? [])
+    .map((c) => str(c.constructorId))
+    .filter((c): c is string => c !== null)
+  return { driverId, constructorIds }
+}
 
 export async function fetchSeasonResults(
   season: string,

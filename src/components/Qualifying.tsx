@@ -77,7 +77,6 @@ export function Qualifying({
           <TableRow className="border-0">
             <TableHead className={cn(headClass(), 'pl-4')}>POS</TableHead>
             <TableHead className={headClass()}>DRIVER</TableHead>
-            <TableHead className={cn(headClass(), 'hidden sm:table-cell')}>TEAM</TableHead>
             <TableHead className={cn(headClass(), 'text-right')}>Q1</TableHead>
             <TableHead className={cn(headClass(), 'text-right')}>Q2</TableHead>
             <TableHead className={cn(headClass(), 'pr-4 text-right')}>Q3</TableHead>
@@ -109,29 +108,22 @@ export function Qualifying({
                       className="h-4 w-1 shrink-0 rounded-full"
                       style={{ backgroundColor: teamColor(row.constructor.constructorId) }}
                     />
-                    <span className="mono-num w-8 shrink-0 text-[11px] font-bold tracking-widest text-muted">
+                    <span className="mono-num hidden w-8 shrink-0 text-[11px] font-bold tracking-widest text-muted sm:inline">
                       {driverCode(row.driver)}
                     </span>
                     <DriverNumber driver={row.driver} className="text-[11px] font-bold" />
-                    <span
-                      className="max-w-[9.5rem] truncate font-medium sm:max-w-none"
-                      style={{ color: teamColor(row.constructor.constructorId) }}
-                    >
-                      {driverFullName(row.driver)}
+                    <span className="min-w-0">
+                      <span className="block max-w-[9.5rem] truncate font-medium text-text sm:max-w-none">
+                        {driverFullName(row.driver)}
+                      </span>
+                      <span
+                        className="block truncate text-[11px]"
+                        style={{ color: teamColor(row.constructor.constructorId) }}
+                      >
+                        {display(row.constructor.name)}
+                      </span>
                     </span>
                   </div>
-                </TableCell>
-                <TableCell className="hidden border-b border-line/60 px-2 py-2.5 text-xs sm:table-cell">
-                  <span className="flex items-center gap-1.5">
-                    <span
-                      aria-hidden="true"
-                      className="h-2 w-2 shrink-0 rounded-full"
-                      style={{ backgroundColor: teamColor(row.constructor.constructorId) }}
-                    />
-                    <span style={{ color: teamColor(row.constructor.constructorId) }}>
-                      {display(row.constructor.name)}
-                    </span>
-                  </span>
                 </TableCell>
                 <TableCell className="mono-num border-b border-line/60 px-2 py-2.5 text-right text-xs text-text">
                   {qTime(row.q1)}
