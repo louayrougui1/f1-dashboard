@@ -21,9 +21,12 @@ function scrollToTarget(id: string, attempts = 0) {
 function BrandMark() {
   return (
     <div className="flex items-center gap-2.5">
-      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-accent text-xs font-bold tracking-tight text-white">
-        F1
-      </span>
+      <img
+        src="/f1.jpg"
+        alt="Formula 1"
+        draggable={false}
+        className="h-7 w-auto shrink-0 object-contain"
+      />
       <div className="leading-tight">
         <p className="label-lg text-text">Formula 1</p>
         <p className="text-[11px] tracking-[0.2em] text-muted">DATA CENTER</p>

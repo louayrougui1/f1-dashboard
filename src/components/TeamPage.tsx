@@ -7,7 +7,7 @@ import type {
   RaceResultRow,
   SeasonRoundResults,
 } from '../lib/types'
-import { display, driverCode, driverFullName, formatPoints, posTwo, roundLabel } from '../lib/format'
+import { display, driverCode, driverFullName, formatPoints, posTwo, resultMark, roundLabel } from '../lib/format'
 import { teamColor } from '../lib/teamColors'
 import { cn } from '@/lib/utils'
 import { Card } from '@/components/ui/card'
@@ -240,10 +240,15 @@ export function TeamPage({
                   {cells.map((c) =>
                     c.rows.map((row, i) => {
                       const isLeader = row.position === 1
+                      const mark = resultMark(row.status)
                       return (
                         <tr
                           key={`${c.round}-${row.driver.driverId}`}
-                          className={cn('hover:bg-surface-hover', isLeader ? 'bg-gold/[0.06]' : '')}
+                          className={cn(
+                            'hover:bg-surface-hover',
+                            mark ? 'bg-surface-2/60' : '',
+                            isLeader ? 'bg-gold/[0.06]' : '',
+                          )}
                         >
                           {i === 0 ? (
                             <td
@@ -276,9 +281,15 @@ export function TeamPage({
                               </span>
                             </button>
                           </td>
-                          <td className="border-b border-line/60 px-2 py-2.5 text-right">
-                            {row.position > 0 ? <PositionMark position={row.position} /> : <span className="text-muted/60">—</span>}
-                          </td>
+<td className="border-b border-line/60 px-2 py-2.5 text-right">
+  {mark ? (
+    <span className="mono-num text-[10px] font-bold tracking-widest text-muted">{mark}</span>
+  ) : row.position > 0 ? (
+    <PositionMark position={row.position} />
+  ) : (
+    <span className="text-muted/60">—</span>
+  )}
+</td>
                           <td className="mono-num border-b border-line/60 px-4 py-2.5 text-right text-xs font-semibold text-text">
                             {formatPoints(row.points)}
                           </td>

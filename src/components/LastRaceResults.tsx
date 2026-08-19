@@ -1,5 +1,5 @@
 import type { RaceResultRow } from '../lib/types'
-import { display, driverCode, driverFullName, formatPoints, posTwo, roundLabel } from '../lib/format'
+import { display, driverCode, driverFullName, formatPoints, posTwo, resultMark, roundLabel } from '../lib/format'
 import { teamColor } from '../lib/teamColors'
 import { cn } from '@/lib/utils'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
@@ -9,30 +9,6 @@ import { Badge } from '@/components/ui/badge'
 import { TableSkeleton } from './Skeleton'
 import { ErrorState } from './ErrorState'
 import { DriverNumber } from './DriverNumber'
-
-function StatusBadge({ status }: { status: string }) {
-  const s = display(status).toLowerCase()
-  const isRetired = s.includes('retired') || s.includes('dnf') || s.includes('accident') || s.includes('damage')
-  const isFinished = s === 'finished' || s === 'completed'
-  const tone = isRetired
-    ? 'border-error/30 bg-error/10 text-error'
-    : isFinished
-      ? 'border-good/30 bg-good/10 text-good'
-      : 'border-line bg-bg text-muted'
-  const icon = isRetired ? '●' : isFinished ? '' : '◐'
-  return (
-    <Badge
-      variant="outline"
-      className={cn(
-        'h-auto gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-medium tracking-wide whitespace-nowrap',
-        tone,
-      )}
-    >
-      {icon ? <span aria-hidden="true">{icon}</span> : null}
-      {display(status).toUpperCase()}
-    </Badge>
-  )
-}
 
 function headClass(extra = '') {
   return cn(
@@ -75,7 +51,7 @@ export function LastRaceResults({
   if (loading && !hasData) {
     return (
       <div className="rounded-lg border border-line bg-surface">
-        <TableSkeleton rows={8} cols={6} />
+        <TableSkeleton rows={8} cols={5} />
       </div>
     )
   }
@@ -138,17 +114,15 @@ export function LastRaceResults({
           <p className="label text-[10px] text-muted/70">{fullTiming ? 'Full Timing' : 'Top 12 · Timing'}</p>
         </div>
       </div>
-      <Table className="min-w-[37rem] border-separate border-spacing-0 text-sm">
+      <Table className="min-w-[30rem] border-separate border-spacing-0 text-sm">
         <TableHeader>
           <TableRow className="border-0">
             <TableHead className={cn(headClass(), 'pl-4')}>POS</TableHead>
             <TableHead className={headClass()}>DRIVER</TableHead>
-            <TableHead className={cn(headClass(), 'hidden sm:table-cell')}>TEAM</TableHead>
             <TableHead className={cn(headClass(), 'text-right')}>GRID</TableHead>
             <TableHead className={cn(headClass(), 'text-right')} aria-label="Grid to flag change">
               Δ
             </TableHead>
-            <TableHead className={headClass()}>STATUS</TableHead>
             <TableHead className={cn(headClass(), 'text-right')}>TIME / GAP</TableHead>
             <TableHead className={cn(headClass(), 'pr-4 text-right')}>PTS</TableHead>
           </TableRow>
@@ -158,11 +132,13 @@ export function LastRaceResults({
             const gapOrTime = row.position === 1 ? row.time : row.gap
             const isP1 = row.position === 1
             const podium = row.position <= 3
+            const mark = resultMark(row.status)
             return (
               <TableRow
                 key={`${row.driver.driverId}-${row.position}`}
                 className={cn(
                   'border-0 hover:bg-surface-hover',
+                  mark ? 'bg-surface-2/60' : '',
                   isP1 ? 'bg-accent/[0.05]' : podium ? 'bg-surface-2/40' : '',
                 )}
               >
@@ -184,47 +160,50 @@ export function LastRaceResults({
                             : 'text-muted',
                     )}
                   >
-                    {posTwo(row.positionText)}
+                    {mark ?? posTwo(row.positionText)}
                   </span>
                 </TableCell>
                 <TableCell className="min-w-0 border-b border-line/60 px-2 py-2.5">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <span
-                      aria-hidden="true"
-                      className="h-4 w-1 shrink-0 rounded-full"
-                      style={{ backgroundColor: teamColor(row.constructor.constructorId) }}
-                    />
-                    <span className="mono-num w-8 shrink-0 text-[11px] font-bold tracking-widest text-muted">
-                      {driverCode(row.driver)}
-                    </span>
-                    <DriverNumber driver={row.driver} className="text-[11px] font-bold" />
-                    <span
-                      className="max-w-[9.5rem] truncate font-medium sm:max-w-none"
-                      style={{ color: teamColor(row.constructor.constructorId) }}
-                    >
-                      {driverFullName(row.driver)}
-                    </span>
-                    {row.fastestLap?.rank === 1 ? (
-                      <Badge
-                        className="h-auto shrink-0 rounded bg-accent/15 px-1 py-px text-[9px] font-bold tracking-widest text-accent"
-                        variant="outline"
+                  <div className="flex min-w-0 flex-col gap-0.5">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span
+                        aria-hidden="true"
+                        className="h-4 w-1 shrink-0 rounded-full"
+                        style={{ backgroundColor: teamColor(row.constructor.constructorId) }}
+                      />
+                      <span className="mono-num w-8 shrink-0 text-[11px] font-bold tracking-widest text-muted">
+                        {driverCode(row.driver)}
+                      </span>
+                      <DriverNumber driver={row.driver} className="text-[11px] font-bold" />
+                      <span
+                        className="max-w-[9.5rem] truncate font-medium sm:max-w-none"
+                        style={{ color: teamColor(row.constructor.constructorId) }}
                       >
-                        FL
-                      </Badge>
-                    ) : null}
-                  </div>
-                </TableCell>
-                <TableCell className="hidden border-b border-line/60 px-2 py-2.5 text-xs sm:table-cell">
-                  <span className="flex items-center gap-1.5">
-                    <span
-                      aria-hidden="true"
-                      className="h-2 w-2 shrink-0 rounded-full"
-                      style={{ backgroundColor: teamColor(row.constructor.constructorId) }}
-                    />
-                    <span style={{ color: teamColor(row.constructor.constructorId) }}>
-                      {display(row.constructor.name)}
+                        {driverFullName(row.driver)}
+                      </span>
+                      {row.fastestLap?.rank === 1 ? (
+                        <Badge
+                          className="h-auto shrink-0 rounded bg-accent/15 px-1 py-px text-[9px] font-bold tracking-widest text-accent"
+                          variant="outline"
+                        >
+                          FL
+                        </Badge>
+                      ) : null}
+                    </div>
+                    <span className="flex min-w-0 items-center gap-1.5 pl-3">
+                      <span
+                        aria-hidden="true"
+                        className="h-2 w-1 shrink-0 rounded-full"
+                        style={{ backgroundColor: teamColor(row.constructor.constructorId) }}
+                      />
+                      <span
+                        className="truncate text-[11px]"
+                        style={{ color: teamColor(row.constructor.constructorId) }}
+                      >
+                        {display(row.constructor.name)}
+                      </span>
                     </span>
-                  </span>
+                  </div>
                 </TableCell>
                 <TableCell className="mono-num border-b border-line/60 px-2 py-2.5 text-right text-muted">
                   {display(row.grid)}
@@ -248,9 +227,6 @@ export function LastRaceResults({
                       )
                     })()
                   )}
-                </TableCell>
-                <TableCell className="border-b border-line/60 px-2 py-2.5">
-                  <StatusBadge status={row.status} />
                 </TableCell>
                 <TableCell className="mono-num border-b border-line/60 px-2 py-2.5 text-right text-xs text-text">
                   {display(gapOrTime)}

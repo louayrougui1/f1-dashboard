@@ -102,6 +102,22 @@ export function posTwo(position: number | string): string {
   return s
 }
 
+export function isRetiredStatus(status: string | null | undefined): boolean {
+  const s = display(status).toLowerCase()
+  return s.includes('retired') || s.includes('dnf') || s.includes('accident') || s.includes('damage')
+}
+
+export function isDnsStatus(status: string | null | undefined): boolean {
+  const s = display(status).toLowerCase()
+  return s.includes('did not start') || s.includes('dns')
+}
+
+export function resultMark(status: string | null | undefined): 'DNF' | 'DNS' | null {
+  if (isRetiredStatus(status)) return 'DNF'
+  if (isDnsStatus(status)) return 'DNS'
+  return null
+}
+
 export function splitGrandPrix(raceName: string | null | undefined): { line1: string; line2: string } {
   const name = display(raceName)
   if (name === NA) return { line1: NA, line2: NA }
