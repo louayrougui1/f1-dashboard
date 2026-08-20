@@ -1,20 +1,24 @@
 import { useCallback, useEffect, useState } from 'react'
 import {
   fetchConstructorResultsAll,
+  fetchConstructorSeasonResults,
   fetchConstructorSeasonStanding,
   fetchDriverResultsAll,
+  fetchDriverSeasonResults,
   fetchDriverSeasonStanding,
   fetchSchedule,
   fetchSeasonDriverChampion,
   type SeasonChampion,
   type SeasonStanding,
 } from './api'
+import { loadConstructorRecordBundle, loadDriverCareerBundle } from './careerData'
 import type {
   CareerRace,
   CareerSeasonStats,
   CareerTeamStint,
   Constructor,
   ConstructorRecord,
+  Driver,
   DriverCareer,
   RecordSeason,
 } from './types'
@@ -34,17 +38,21 @@ export type CareerResult<T> = CareerState<T> & { retry: () => void }
 const CHUNK = 6
 const DELAY_MS = 120
 
+function currentYear(): number {
+  return new Date().getFullYear()
+}
+
 async function finishedSeasonsFor(seasons: string[], signal?: AbortSignal): Promise<Set<string>> {
   const finished = new Set(seasons)
-  const currentYear = String(new Date().getFullYear())
-  if (!finished.has(currentYear)) return finished
+  const current = String(currentYear())
+  if (!finished.has(current)) return finished
   try {
-    const schedule = await fetchSchedule(currentYear, signal)
+    const schedule = await fetchSchedule(current, signal)
     const lastStart = schedule.length > 0 ? schedule[schedule.length - 1].start : null
     if (lastStart !== null && lastStart < new Date()) return finished
-    finished.delete(currentYear)
+    finished.delete(current)
   } catch {
-    finished.delete(currentYear)
+    finished.delete(current)
   }
   return finished
 }
@@ -85,11 +93,13 @@ async function fetchKeyed<T>(
   return { map, complete: failed.size === 0 }
 }
 
-function buildDriverCareer(
-  races: CareerRace[],
-  standings: Map<string, SeasonStanding>,
-  finishedSeasons: Set<string>,
-): DriverCareer {
+interface DriverRecord {
+  season: string
+  constructor: Constructor
+  stats: CareerSeasonStats
+}
+
+function buildRecordsFromRaces(races: CareerRace[], standings: Map<string, SeasonStanding>): DriverRecord[] {
   interface TeamAccum {
     constructor: Constructor
     seasons: Map<string, CareerSeasonStats>
@@ -120,15 +130,22 @@ function buildDriverCareer(
     if (row.grid === 1) stats.poles += 1
   }
 
-  const records: Array<{ season: string; constructor: Constructor; stats: CareerSeasonStats }> = []
+  const records: DriverRecord[] = []
   for (const acc of byTeam.values()) {
     for (const stats of acc.seasons.values()) records.push({ season: stats.season, constructor: acc.constructor, stats })
   }
-  records.sort((a, b) => a.season.localeCompare(b.season))
+  return records.sort((a, b) => a.season.localeCompare(b.season))
+}
 
+function buildDriverCareerFromRecords(
+  driver: Driver | null,
+  records: DriverRecord[],
+  finishedSeasons: Set<string>,
+): DriverCareer {
+  const sorted = [...records].sort((a, b) => a.season.localeCompare(b.season))
   const stints: CareerTeamStint[] = []
   let current: CareerTeamStint | null = null
-  for (const rec of records) {
+  for (const rec of sorted) {
     const year = Number(rec.season)
     const lastYear = current ? Number(current.seasons[current.seasons.length - 1].season) : 0
     const sameTeam = current !== null && current.constructor.constructorId === rec.constructor.constructorId
@@ -165,7 +182,35 @@ function buildDriverCareer(
     }
   }
 
-  return { driver: races[0]?.row.driver ?? null, stints, titles, seasonsCount: seasons.size }
+  return { driver, stints, titles, seasonsCount: seasons.size }
+}
+
+function buildDriverCareer(
+  races: CareerRace[],
+  standings: Map<string, SeasonStanding>,
+  finishedSeasons: Set<string>,
+): DriverCareer {
+  return buildDriverCareerFromRecords(races[0]?.row.driver ?? null, buildRecordsFromRaces(races, standings), finishedSeasons)
+}
+
+function buildConstructorRecordFromSeasons(
+  constructor: Constructor | null,
+  seasons: RecordSeason[],
+  champions: Map<string, SeasonChampion>,
+  finishedSeasons: Set<string>,
+): ConstructorRecord {
+  const constructorId = constructor?.constructorId ?? ''
+  const constructorTitles = seasons.filter((s) => finishedSeasons.has(s.season) && s.championshipPosition === 1).length
+  const driverTitles = seasons.filter(
+    (s) => finishedSeasons.has(s.season) && champions.get(s.season)?.constructorIds.includes(constructorId),
+  ).length
+  return {
+    constructor,
+    seasons,
+    seasonsCount: seasons.length,
+    constructorTitles,
+    driverTitles,
+  }
 }
 
 function buildConstructorRecord(
@@ -199,16 +244,29 @@ function buildConstructorRecord(
     if (row.grid === 1) rs.poles += 1
   }
   const seasons = [...bySeason.values()].sort((a, b) => b.season.localeCompare(a.season))
-  const constructorId = races[0]?.row.constructor.constructorId ?? ''
-  const constructorTitles = seasons.filter((s) => finishedSeasons.has(s.season) && s.championshipPosition === 1).length
-  const driverTitles = seasons.filter((s) => finishedSeasons.has(s.season) && champions.get(s.season)?.constructorIds.includes(constructorId)).length
-  return {
-    constructor: races[0]?.row.constructor ?? null,
-    seasons,
-    seasonsCount: seasons.length,
-    constructorTitles,
-    driverTitles,
+  return buildConstructorRecordFromSeasons(races[0]?.row.constructor ?? null, seasons, champions, finishedSeasons)
+}
+
+function buildRecordFromRaces(races: CareerRace[], season: string, standing: SeasonStanding | null): RecordSeason {
+  const roundsSeen = new Set<number>()
+  const rs: RecordSeason = {
+    season,
+    races: 0,
+    wins: 0,
+    podiums: 0,
+    poles: 0,
+    championshipPosition: standing?.position ?? null,
   }
+  for (const { round, row } of races) {
+    if (!roundsSeen.has(round)) {
+      roundsSeen.add(round)
+      rs.races += 1
+    }
+    if (row.position === 1) rs.wins += 1
+    if (row.position >= 1 && row.position <= 3) rs.podiums += 1
+    if (row.grid === 1) rs.poles += 1
+  }
+  return rs
 }
 
 function useCareerEntity<T>(
@@ -256,6 +314,44 @@ export function useDriverCareer(driverId: string, enabled: boolean): CareerResul
     cacheKey,
     enabled,
     async (signal) => {
+      try {
+        const bundle = await loadDriverCareerBundle()
+        const stored = bundle.drivers[driverId]
+        const lastSeason = Number(bundle.lastSeason)
+        const year = currentYear()
+        if (stored && lastSeason >= year - 1) {
+          const records: DriverRecord[] = stored.seasons.map((s) => ({
+            season: s.stats.season,
+            constructor: s.constructor,
+            stats: s.stats,
+          }))
+          let liveSuccess = true
+          if (year > lastSeason) {
+            const yearStr = String(year)
+            try {
+              const [liveRaces, liveStanding] = await Promise.all([
+                fetchDriverSeasonResults(driverId, yearStr, signal),
+                fetchDriverSeasonStanding(driverId, yearStr, signal),
+              ])
+              const standings = new Map<string, SeasonStanding>()
+              if (liveStanding) standings.set(yearStr, liveStanding)
+              for (const rec of buildRecordsFromRaces(liveRaces, standings)) {
+                if (records.some((r) => r.season === rec.season && r.constructor.constructorId === rec.constructor.constructorId)) {
+                  continue
+                }
+                records.push(rec)
+              }
+            } catch {
+              liveSuccess = false
+            }
+          }
+          const finished = await finishedSeasonsFor([...new Set(records.map((r) => r.season))], signal)
+          const value = buildDriverCareerFromRecords(stored.driver, records, finished)
+          return { value, complete: year > lastSeason ? liveSuccess && finished.has(String(year)) : true }
+        }
+      } catch {
+        // Stored bundle missing/corrupt — fall through to the live path.
+      }
       const races = await fetchDriverResultsAll(driverId, signal)
       const seasons = [...new Set(races.map((r) => r.season))]
       const finished = await finishedSeasonsFor(seasons, signal)
@@ -278,6 +374,35 @@ export function useConstructorRecord(
     cacheKey,
     enabled,
     async (signal) => {
+      try {
+        const bundle = await loadConstructorRecordBundle()
+        const stored = bundle.constructors[constructorId]
+        const champions = new Map(Object.entries(bundle.champions))
+        const lastSeason = Number(bundle.lastSeason)
+        const year = currentYear()
+        if (stored && lastSeason >= year - 1) {
+          const seasons: RecordSeason[] = [...stored.seasons]
+          let liveSuccess = true
+          if (year > lastSeason) {
+            const yearStr = String(year)
+            try {
+              const [liveRaces, liveStanding] = await Promise.all([
+                fetchConstructorSeasonResults(constructorId, yearStr, signal),
+                fetchConstructorSeasonStanding(constructorId, yearStr, signal),
+              ])
+              seasons.push(buildRecordFromRaces(liveRaces, yearStr, liveStanding))
+              seasons.sort((a, b) => b.season.localeCompare(a.season))
+            } catch {
+              liveSuccess = false
+            }
+          }
+          const finished = await finishedSeasonsFor(seasons.map((s) => s.season), signal)
+          const value = buildConstructorRecordFromSeasons(stored.constructor, seasons, champions, finished)
+          return { value, complete: year > lastSeason ? liveSuccess && finished.has(String(year)) : true }
+        }
+      } catch {
+        // Stored bundle missing/corrupt — fall through to the live path.
+      }
       const races = await fetchConstructorResultsAll(constructorId, signal)
       const seasons = [...new Set(races.map((r) => r.season))]
       const finished = await finishedSeasonsFor(seasons, signal)

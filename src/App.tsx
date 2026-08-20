@@ -554,7 +554,6 @@ export default function App() {
                         loading={lapsLoading}
                         error={lapsError}
                         upcoming={dashboard.featuredUpcoming}
-                        onRetry={() => dashboard.retry("laps")}
                       />
                     </div>
                   </section>

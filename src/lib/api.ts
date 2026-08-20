@@ -42,6 +42,7 @@ function isTransient(err: unknown): boolean {
 
 const MAX_ATTEMPTS = 4
 const RETRY_BASE_MS = 400
+const MAX_BACKOFF_MS = 8000
 
 let inFlight = 0
 const waiters: Array<() => void> = []
@@ -355,9 +356,14 @@ interface RawPitStopsResponse {
   }
 }
 
-async function request<T>(path: string, signal?: AbortSignal): Promise<T> {
+async function request<T>(
+  path: string,
+  signal?: AbortSignal,
+  opts?: { maxAttempts?: number },
+): Promise<T> {
+  const maxAttempts = opts?.maxAttempts ?? MAX_ATTEMPTS
   let lastError: unknown
-  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
     if (signal?.aborted) throw new ApiError('Request aborted')
     const release = await acquire(signal)
     const controller = new AbortController()
@@ -387,10 +393,11 @@ async function request<T>(path: string, signal?: AbortSignal): Promise<T> {
       } else {
         lastError = new ApiError('Network error — could not reach the F1 data service', null, err)
       }
-      if (signal?.aborted || !isTransient(lastError) || attempt >= MAX_ATTEMPTS - 1) {
+      if (signal?.aborted || !isTransient(lastError) || attempt >= maxAttempts - 1) {
         throw lastError
       }
-      await new Promise((resolve) => setTimeout(resolve, RETRY_BASE_MS * 2 ** attempt))
+      const backoff = Math.min(RETRY_BASE_MS * 2 ** attempt, MAX_BACKOFF_MS)
+      await new Promise((resolve) => setTimeout(resolve, backoff))
     } finally {
       clearTimeout(timer)
       signal?.removeEventListener('abort', onOuterAbort)
@@ -520,6 +527,7 @@ export async function fetchLaps(season: string, round: number, signal?: AbortSig
     const json = await request<RawLapsResponse>(
       `/${seasonSegment(season)}/${round}/laps.json?limit=${LAPS_PAGE}&offset=${offset}`,
       signal,
+      { maxAttempts: 8 },
     )
     const raceTable = json.MRData?.RaceTable
     total = Number(json.MRData?.total ?? 0)
@@ -662,6 +670,49 @@ export function fetchDriverResultsAll(driverId: string, signal?: AbortSignal): P
 
 export function fetchConstructorResultsAll(constructorId: string, signal?: AbortSignal): Promise<CareerRace[]> {
   return fetchEntityResults('constructors', constructorId, signal)
+}
+
+async function fetchEntitySeasonResults(
+  kind: 'drivers' | 'constructors',
+  id: string,
+  season: string,
+  signal?: AbortSignal,
+): Promise<CareerRace[]> {
+  const out: CareerRace[] = []
+  let offset = 0
+  let total = 0
+  do {
+    const json = await request<RawResultsResponse>(
+      `/${seasonSegment(season)}/${kind}/${id}/results.json?limit=${RESULTS_PAGE}&offset=${offset}`,
+      signal,
+    )
+    const table = json.MRData?.RaceTable
+    total = Number(json.MRData?.total ?? 0)
+    const races = table?.Races ?? []
+    for (const raw of races) {
+      const round = num(raw.round)
+      if (round === null) continue
+      for (const res of raw.Results ?? []) {
+        const row = normalizeResult(res)
+        if (row) out.push({ season, round, row })
+      }
+    }
+    if (races.length === 0 || signal?.aborted || offset + RESULTS_PAGE >= total) break
+    offset += RESULTS_PAGE
+  } while (offset < total)
+  return out
+}
+
+export function fetchDriverSeasonResults(driverId: string, season: string, signal?: AbortSignal): Promise<CareerRace[]> {
+  return fetchEntitySeasonResults('drivers', driverId, season, signal)
+}
+
+export function fetchConstructorSeasonResults(
+  constructorId: string,
+  season: string,
+  signal?: AbortSignal,
+): Promise<CareerRace[]> {
+  return fetchEntitySeasonResults('constructors', constructorId, season, signal)
 }
 
 export interface SeasonStanding {

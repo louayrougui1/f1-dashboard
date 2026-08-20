@@ -2,7 +2,6 @@ import { useMemo } from 'react'
 import type { LapChartDetail, RaceResultRow } from '../lib/types'
 import { display, driverCode, roundLabel } from '../lib/format'
 import { teamColor } from '../lib/teamColors'
-import { ErrorState } from './ErrorState'
 import { TableSkeleton } from './Skeleton'
 
 const W = 760
@@ -32,7 +31,6 @@ export function LapChart({
   loading,
   error,
   upcoming,
-  onRetry,
 }: {
   raceName: string | null
   round: number | null
@@ -41,7 +39,6 @@ export function LapChart({
   loading: boolean
   error: Error | null
   upcoming: boolean
-  onRetry: () => void
 }) {
   const chart = useMemo(() => {
     const laps = detail?.laps ?? []
@@ -116,17 +113,10 @@ export function LapChart({
     return { series, x, y, innerW, lapLabels, posLabels }
   }, [detail, resultRows])
 
-  if (loading && !detail) {
+  if ((loading || error) && !detail) {
     return (
       <div className="rounded-lg border border-line bg-surface">
         <TableSkeleton rows={7} cols={3} />
-      </div>
-    )
-  }
-  if (error && !detail) {
-    return (
-      <div className="rounded-lg border border-line bg-surface">
-        <ErrorState onRetry={onRetry} />
       </div>
     )
   }

@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build:careers": "node scripts/build-career-data.mjs"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.3.0",
