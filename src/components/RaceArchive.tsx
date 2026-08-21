@@ -64,15 +64,15 @@ export function RaceArchive({
                 onClick={() => onSelectRace(race.round)}
                 className="group flex w-full cursor-pointer items-center gap-3 px-3 py-3 text-left transition-colors duration-150 hover:bg-surface-2/60 sm:gap-4 sm:px-4"
               >
-                <span className="mono-num shrink-0 text-xs text-muted">{String(race.round).padStart(2, '0')}</span>
+                <span className="mono-num shrink-0 text-sm text-muted">{String(race.round).padStart(2, '0')}</span>
                 <span className="shrink-0 text-base leading-none" aria-hidden="true">
                   {flag ?? ''}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-medium tracking-wide text-text">
+                  <span className="block truncate text-base font-medium tracking-wide text-text">
                     {display(race.raceName)}
                   </span>
-                  <span className="label mt-0.5 block text-[10px] text-muted">
+                  <span className="label mt-0.5 block text-[11px] text-muted">
                     {raceDateRange(race)}
                   </span>
                 </span>
@@ -80,7 +80,7 @@ export function RaceArchive({
                   {podium.map((row, i) => (
                     <span
                       key={row.driver.driverId}
-                      className="flex items-center gap-1 mono-num text-xs"
+                      className="flex items-center gap-1 mono-num text-sm"
                     >
                       <span className={cn('font-bold', PODIUM_TONES[i])}>P{i + 1}</span>
                       <span className="text-text">{driverCode(row.driver)}</span>
@@ -91,7 +91,7 @@ export function RaceArchive({
                   {podium.map((row, i) => (
                     <span
                       key={row.driver.driverId}
-                      className={cn('mono-num text-xs font-bold', PODIUM_TONES[i])}
+                      className={cn('mono-num text-sm font-bold', PODIUM_TONES[i])}
                     >
                       {driverCode(row.driver)}
                     </span>

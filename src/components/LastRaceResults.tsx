@@ -1,5 +1,5 @@
 import type { RaceResultRow } from '../lib/types'
-import { display, driverCode, driverFullName, formatPoints, posTwo, resultMark, roundLabel } from '../lib/format'
+import { display, driverCode, driverFullName, formatPoints, isLapped, posTwo, resultMark, roundLabel } from '../lib/format'
 import { teamColor } from '../lib/teamColors'
 import { cn } from '@/lib/utils'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
@@ -12,7 +12,7 @@ import { DriverNumber } from './DriverNumber'
 
 function headClass(extra = '') {
   return cn(
-    'h-auto border-b border-line bg-surface px-2 py-2.5 text-[11px] font-semibold tracking-[0.18em] text-muted',
+    'h-auto border-b border-line bg-surface px-2 py-2.5 text-xs font-semibold tracking-[0.18em] text-muted',
     extra,
   )
 }
@@ -111,7 +111,7 @@ export function LastRaceResults({
         </p>
         <div className="flex shrink-0 items-center gap-3">
           {headerBtns}
-          <p className="label text-[10px] text-muted/70">{fullTiming ? 'Full Timing' : 'Top 12 · Timing'}</p>
+          <p className="label text-[11px] text-muted/70">{fullTiming ? 'Full Timing' : 'Top 12 · Timing'}</p>
         </div>
       </div>
       <Table className="min-w-[30rem] border-separate border-spacing-0 text-sm">
@@ -120,8 +120,11 @@ export function LastRaceResults({
             <TableHead className={cn(headClass(), 'pl-4')}>POS</TableHead>
             <TableHead className={headClass()}>DRIVER</TableHead>
             <TableHead className={cn(headClass(), 'text-right')}>GRID</TableHead>
-            <TableHead className={cn(headClass(), 'text-right')} aria-label="Grid to flag change">
-              Δ
+            <TableHead
+              className="h-auto border-b border-line bg-surface px-2 py-2.5 text-right text-xs font-semibold tracking-normal text-muted"
+              aria-label="Grid to flag change"
+            >
+              GAIN/LOST
             </TableHead>
             <TableHead className={cn(headClass(), 'text-right')}>TIME / GAP</TableHead>
             <TableHead className={cn(headClass(), 'pr-4 text-right')}>PTS</TableHead>
@@ -170,16 +173,16 @@ export function LastRaceResults({
                       className="h-4 w-1 shrink-0 rounded-full"
                       style={{ backgroundColor: teamColor(row.constructor.constructorId) }}
                     />
-                    <span className="mono-num hidden w-8 shrink-0 text-[11px] font-bold tracking-widest text-muted sm:inline">
+                    <span className="mono-num hidden w-8 shrink-0 text-xs font-bold tracking-widest text-muted sm:inline">
                       {driverCode(row.driver)}
                     </span>
-                    <DriverNumber driver={row.driver} className="text-[11px] font-bold" />
+                    <DriverNumber driver={row.driver} className="text-xs font-bold" />
                     <span className="min-w-0">
                       <span className="block max-w-[9.5rem] truncate font-medium text-text sm:max-w-none">
                         {driverFullName(row.driver)}
                       </span>
                       <span
-                        className="block truncate text-[11px]"
+                        className="block truncate text-xs"
                         style={{ color: teamColor(row.constructor.constructorId) }}
                       >
                         {display(row.constructor.name)}
@@ -187,7 +190,7 @@ export function LastRaceResults({
                     </span>
                     {row.fastestLap?.rank === 1 ? (
                       <Badge
-                        className="h-auto shrink-0 rounded bg-accent/15 px-1 py-px text-[9px] font-bold tracking-widest text-accent"
+                        className="h-auto shrink-0 rounded bg-accent/15 px-1 py-px text-[10px] font-bold tracking-widest text-accent"
                         variant="outline"
                       >
                         FL
@@ -198,7 +201,7 @@ export function LastRaceResults({
                 <TableCell className="mono-num border-b border-line/60 px-2 py-2.5 text-right text-muted">
                   {display(row.grid)}
                 </TableCell>
-                <TableCell className="mono-num border-b border-line/60 px-2 py-2.5 text-right text-xs">
+                <TableCell className="mono-num border-b border-line/60 px-2 py-2.5 text-right text-sm">
                   {row.grid === null ? (
                     <span className="text-muted">--</span>
                   ) : (
@@ -218,8 +221,20 @@ export function LastRaceResults({
                     })()
                   )}
                 </TableCell>
-                <TableCell className="mono-num border-b border-line/60 px-2 py-2.5 text-right text-xs text-text">
-                  {display(gapOrTime)}
+                <TableCell className="mono-num border-b border-line/60 px-2 py-2.5 text-right text-sm">
+                  {isLapped(row.gap) ? (
+                    <span className="inline-flex items-center justify-end gap-1.5">
+                      <Badge
+                        className="h-auto shrink-0 rounded bg-warn/15 px-1 py-px text-[10px] font-bold tracking-widest text-warn"
+                        variant="outline"
+                      >
+                        LAPPED
+                      </Badge>
+                      <span className="font-semibold text-warn">{display(gapOrTime)}</span>
+                    </span>
+                  ) : (
+                    <span className="text-text">{display(gapOrTime)}</span>
+                  )}
                 </TableCell>
                 <TableCell className="mono-num border-b border-line/60 px-4 py-2.5 text-right text-sm font-semibold text-text">
                   {formatPoints(row.points)}

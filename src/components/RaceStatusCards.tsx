@@ -345,7 +345,7 @@ export function RaceStatusCards({
                 </p>
                 {featuredTrack ? (
                   <div className="shrink-0 rounded-md border border-line bg-bg/40 p-1.5">
-                    <CircuitTrack track={featuredTrack} className="h-20 w-28 sm:h-24 sm:w-36" />
+                    <CircuitTrack track={featuredTrack} className="h-24 w-32 sm:h-32 sm:w-48" />
                   </div>
                 ) : null}
               </div>

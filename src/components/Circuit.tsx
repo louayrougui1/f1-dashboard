@@ -48,11 +48,11 @@ export function Circuit({
             <CircuitTrack track={track} className="h-56 sm:h-72" />
           </div>
           {track ? (
-            <p className="mono-num mt-3 text-[10px] tracking-[0.2em] text-muted/70">
+            <p className="mono-num mt-3 text-[11px] tracking-[0.2em] text-muted/70">
               {track.name.toUpperCase()} · {km(track.lengthM)}
             </p>
           ) : (
-            <p className="label mt-3 text-[10px] text-muted/70">Track map unavailable for this circuit</p>
+            <p className="label mt-3 text-[11px] text-muted/70">Track map unavailable for this circuit</p>
           )}
         </div>
 
@@ -76,21 +76,21 @@ export function Circuit({
 
           <div className="mt-5 grid grid-cols-2 gap-2">
             <div className="rounded-md border border-line bg-bg/40 px-3 py-2.5">
-              <p className="label text-[10px] text-muted/70">Circuit Length</p>
+              <p className="label text-[11px] text-muted/70">Circuit Length</p>
               <p className="mono-num mt-1 text-base font-semibold text-text">{km(track?.lengthM)}</p>
             </div>
             <div className="rounded-md border border-line bg-bg/40 px-3 py-2.5">
-              <p className="label text-[10px] text-muted/70">Total Laps</p>
+              <p className="label text-[11px] text-muted/70">Total Laps</p>
               <p className="mono-num mt-1 text-base font-semibold text-text">{formatNumber(laps)}</p>
             </div>
             <div className="rounded-md border border-line bg-bg/40 px-3 py-2.5">
-              <p className="label text-[10px] text-muted/70">Race Distance</p>
+              <p className="label text-[11px] text-muted/70">Race Distance</p>
               <p className="mono-num mt-1 text-base font-semibold text-text">
                 {distanceKm !== null ? `${distanceKm.toFixed(3)} km` : '—'}
               </p>
             </div>
             <div className="rounded-md border border-line bg-bg/40 px-3 py-2.5">
-              <p className="label text-[10px] text-muted/70">Race Date</p>
+              <p className="label text-[11px] text-muted/70">Race Date</p>
               <p className="mono-num mt-1 text-base font-semibold text-text">
                 {formatBroadcastDate(race.start)}
                 {race.start ? <span className="text-muted"> · {formatBroadcastTime(race.start)}</span> : null}

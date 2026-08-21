@@ -118,6 +118,10 @@ export function resultMark(status: string | null | undefined): 'DNF' | 'DNS' | n
   return null
 }
 
+export function isLapped(gap: string | null | undefined): boolean {
+  return /^\+\d+\s*laps?$/i.test(display(gap))
+}
+
 export function splitGrandPrix(raceName: string | null | undefined): { line1: string; line2: string } {
   const name = display(raceName)
   if (name === NA) return { line1: NA, line2: NA }

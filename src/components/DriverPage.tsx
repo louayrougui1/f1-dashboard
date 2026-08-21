@@ -126,8 +126,8 @@ export function DriverPage({
         <div className="flex flex-col gap-5 px-5 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-7">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <span className="label text-[10px] text-muted/70">Driver</span>
-              <span className="label text-[10px] text-muted/40">{display(seasonLabel)}</span>
+              <span className="label text-[11px] text-muted/70">Driver</span>
+              <span className="label text-[11px] text-muted/70">{display(seasonLabel)}</span>
             </div>
             <h1 className="mt-1 truncate text-3xl leading-tight font-semibold tracking-tight text-text uppercase sm:text-4xl">
               {driver ? driverFullName(driver) : '—'}
@@ -140,9 +140,9 @@ export function DriverPage({
                 </span>
               </span>
               {driver?.nationality ? <span className="text-muted">{driver.nationality}</span> : null}
-              {driver ? <DriverNumber driver={driver} className="text-[11px] font-bold" /> : null}
+              {driver ? <DriverNumber driver={driver} className="text-xs font-bold" /> : null}
               {driver ? (
-                <Badge className="hidden h-auto rounded-sm border-line bg-bg/60 px-1.5 py-px mono-num text-[10px] tracking-[0.18em] text-muted sm:inline-flex">
+                <Badge className="hidden h-auto rounded-sm border-line bg-bg/60 px-1.5 py-px mono-num text-[11px] tracking-[0.18em] text-muted sm:inline-flex">
                   {driverCode(driver)}
                 </Badge>
               ) : null}
@@ -154,7 +154,7 @@ export function DriverPage({
                 <span className={cn('text-4xl font-bold', standing.position === 1 ? 'text-gold' : standing.position === 2 ? 'text-silver' : standing.position === 3 ? 'text-bronze' : 'text-text')}>
                   P{standing.position}
                 </span>
-                <span className="label text-[10px] text-muted/70">CHAMPIONSHIP</span>
+                <span className="label text-[11px] text-muted/70">CHAMPIONSHIP</span>
               </div>
             ) : null}
             <CareerStat
@@ -209,7 +209,7 @@ export function DriverPage({
           <Card className="rounded-lg p-0 gap-0">
             <div className="flex items-center justify-between gap-3 border-b border-line bg-bg-secondary/50 px-4 py-2.5 lg:px-5">
               <p className="label min-w-0 truncate text-text">Race Results</p>
-              <p className="label text-[10px] text-muted/70">
+              <p className="label text-[11px] text-muted/70">
                 {winCount} {winCount === 1 ? 'win' : 'wins'}
               </p>
             </div>
@@ -217,11 +217,11 @@ export function DriverPage({
               <table className="w-full border-separate border-spacing-0 text-sm">
                 <thead>
                   <tr className="border-b border-line bg-surface">
-                    <th className="h-auto border-b border-line bg-surface px-4 py-2 text-left text-[11px] font-semibold tracking-[0.18em] text-muted">ROUND</th>
-                    <th className="h-auto border-b border-line bg-surface px-2 py-2 text-left text-[11px] font-semibold tracking-[0.18em] text-muted">GRAND PRIX</th>
-                    <th className="h-auto border-b border-line bg-surface px-2 py-2 text-left text-[11px] font-semibold tracking-[0.18em] text-muted">TEAM</th>
-                    <th className="h-auto border-b border-line bg-surface px-2 py-2 text-right text-[11px] font-semibold tracking-[0.18em] text-muted">POS</th>
-                    <th className="h-auto border-b border-line bg-surface px-4 py-2 text-right text-[11px] font-semibold tracking-[0.18em] text-muted">PTS</th>
+                    <th className="h-auto border-b border-line bg-surface px-4 py-2 text-left text-xs font-semibold tracking-[0.18em] text-muted">ROUND</th>
+                    <th className="h-auto border-b border-line bg-surface px-2 py-2 text-left text-xs font-semibold tracking-[0.18em] text-muted">GRAND PRIX</th>
+                    <th className="h-auto border-b border-line bg-surface px-2 py-2 text-left text-xs font-semibold tracking-[0.18em] text-muted">TEAM</th>
+                    <th className="h-auto border-b border-line bg-surface px-2 py-2 text-right text-xs font-semibold tracking-[0.18em] text-muted">POS</th>
+                    <th className="h-auto border-b border-line bg-surface px-4 py-2 text-right text-xs font-semibold tracking-[0.18em] text-muted">PTS</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -238,7 +238,7 @@ export function DriverPage({
                           isLeader ? 'bg-gold/[0.06]' : '',
                         )}
                       >
-                        <td className="mono-num border-b border-line/60 px-4 py-2.5 text-xs text-muted">{roundLabel(c.round)}</td>
+                        <td className="mono-num border-b border-line/60 px-4 py-2.5 text-sm text-muted">{roundLabel(c.round)}</td>
                         <td className="min-w-0 border-b border-line/60 px-2 py-2.5">
                           <span className="block max-w-[11rem] truncate text-text">{display(raceName(c.round))}</span>
                         </td>
@@ -246,24 +246,24 @@ export function DriverPage({
                           {row ? (
                             <span className="flex items-center gap-1.5">
                               <span aria-hidden="true" className="h-2 w-1 shrink-0 rounded-full" style={{ backgroundColor: teamColor(row.constructor.constructorId) }} />
-                              <span className="block max-w-[9rem] truncate text-xs" style={{ color: teamColor(row.constructor.constructorId) }}>
+                              <span className="block max-w-[9rem] truncate text-sm" style={{ color: teamColor(row.constructor.constructorId) }}>
                                 {display(row.constructor.name)}
                               </span>
                             </span>
                           ) : (
-                            <span className="text-muted/60">—</span>
+                            <span className="text-muted/80">—</span>
                           )}
                         </td>
 <td className="border-b border-line/60 px-2 py-2.5 text-right">
   {mark ? (
-    <span className="mono-num text-[10px] font-bold tracking-widest text-muted">{mark}</span>
+    <span className="mono-num text-xs font-bold tracking-widest text-muted">{mark}</span>
   ) : row && row.position > 0 ? (
     <PositionMark position={row.position} />
   ) : (
-    <span className="text-muted/60">—</span>
+    <span className="text-muted/80">—</span>
   )}
 </td>
-                        <td className="mono-num border-b border-line/60 px-4 py-2.5 text-right text-xs font-semibold text-text">
+                        <td className="mono-num border-b border-line/60 px-4 py-2.5 text-right text-sm font-semibold text-text">
                           {row ? formatPoints(row.points) : '—'}
                         </td>
                       </tr>
@@ -277,7 +277,7 @@ export function DriverPage({
           <Card className="rounded-lg p-0 gap-0">
             <div className="flex items-center justify-between gap-3 border-b border-line bg-bg-secondary/50 px-4 py-2.5 lg:px-5">
               <p className="label min-w-0 truncate text-text">Points Progression</p>
-              <p className="label text-[10px] text-muted/70">Cumulative</p>
+              <p className="label text-[11px] text-muted/70">Cumulative</p>
             </div>
             <div className="px-3 pt-3 pb-2">
               <PointsChart

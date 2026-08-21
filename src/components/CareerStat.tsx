@@ -31,7 +31,7 @@ export function CareerStat({
       ) : (
         <p className="mono-num text-xl font-semibold text-text">{value ?? '—'}</p>
       )}
-      <p className="label text-[10px] text-muted/70">{label}</p>
+      <p className="label text-[11px] text-muted/70">{label}</p>
     </div>
   )
 }

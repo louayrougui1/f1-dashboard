@@ -34,8 +34,8 @@ export function WeekendSchedule({ race, compact }: { race: Race | null; compact?
     return (
       <div>
         <div className="flex items-baseline justify-between gap-3">
-          <p className="label text-[10px] text-muted/70">Weekend Schedule</p>
-          <p className="label text-[10px] text-muted/40">All times local</p>
+          <p className="label text-[11px] text-muted/70">Weekend Schedule</p>
+          <p className="label text-[10px] text-muted/70">All times local</p>
         </div>
         <div
           className="mt-2 grid gap-px overflow-hidden rounded-md border border-line bg-line"
@@ -43,11 +43,11 @@ export function WeekendSchedule({ race, compact }: { race: Race | null; compact?
         >
           {sessions.map((s) => (
             <div key={s.key} className="min-w-0 bg-bg/40 px-3 py-2">
-              <p className="label text-[10px] tracking-[0.2em] text-muted">{s.label}</p>
-              <p className="mono-num mt-1 truncate text-xs font-semibold text-text">
+              <p className="label text-[11px] tracking-[0.2em] text-muted">{s.label}</p>
+              <p className="mono-num mt-1 truncate text-sm font-semibold text-text">
                 {dateLabel(s.session?.date ?? null)}
               </p>
-              <p className="mono-num mt-0.5 truncate text-[10px] text-muted">
+              <p className="mono-num mt-0.5 truncate text-xs text-muted">
                 {display(formatBroadcastTime(s.session?.start ?? null))}
               </p>
             </div>
@@ -60,8 +60,8 @@ export function WeekendSchedule({ race, compact }: { race: Race | null; compact?
   return (
     <div className="border-t border-line">
       <div className="flex items-baseline justify-between gap-3 px-6 pt-5 sm:px-7">
-        <p className="label text-[10px] text-muted/70">Weekend Schedule</p>
-        <p className="label text-[10px] text-muted/40">All times local</p>
+        <p className="label text-[11px] text-muted/70">Weekend Schedule</p>
+        <p className="label text-[10px] text-muted/70">All times local</p>
       </div>
       <div
         className="mt-3 grid gap-px bg-line"
@@ -69,11 +69,11 @@ export function WeekendSchedule({ race, compact }: { race: Race | null; compact?
       >
         {sessions.map((s) => (
           <div key={s.key} className="min-w-0 bg-surface px-4 py-3.5">
-            <p className="label text-[10px] tracking-[0.2em] text-muted">{s.label}</p>
-            <p className="mono-num mt-1.5 truncate text-sm font-semibold text-text">
+            <p className="label text-[11px] tracking-[0.2em] text-muted">{s.label}</p>
+            <p className="mono-num mt-1.5 truncate text-base font-semibold text-text">
               {dateLabel(s.session?.date ?? null)}
             </p>
-            <p className="mono-num mt-0.5 truncate text-[10px] text-muted">
+            <p className="mono-num mt-0.5 truncate text-sm text-muted">
               {display(formatBroadcastTime(s.session?.start ?? null))}
             </p>
           </div>

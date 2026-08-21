@@ -143,7 +143,7 @@ export function LapChart({
     <div className="rounded-lg border border-line bg-surface">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line bg-bg-secondary/50 px-4 py-2.5 lg:px-5">
         <p className="label min-w-0 truncate text-text">Lap Chart</p>
-        <p className="label text-[10px] text-muted/70">
+        <p className="label text-[11px] text-muted/70">
           {raceName ? `${display(raceName)} · ${display(roundLabel(round))}` : 'Position over race distance'}
         </p>
       </div>
@@ -230,7 +230,7 @@ export function LapChart({
           </span>
         ))}
       </div>
-      <p className="px-4 pb-3 text-[10px] text-muted/60 lg:px-5">
+      <p className="px-4 pb-3 text-[11px] text-muted/80 lg:px-5">
         Top {series.length} classified drivers · Line ends where a driver retires
       </p>
     </div>

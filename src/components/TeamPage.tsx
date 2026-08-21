@@ -141,8 +141,8 @@ export function TeamPage({
         <div className="flex flex-col gap-5 px-5 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-7">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <span className="label text-[10px] text-muted/70">Constructor</span>
-              <span className="label text-[10px] text-muted/40">{display(seasonLabel)}</span>
+              <span className="label text-[11px] text-muted/70">Constructor</span>
+              <span className="label text-[11px] text-muted/70">{display(seasonLabel)}</span>
             </div>
             <h1 className="mt-1 flex items-center gap-3 truncate text-3xl leading-tight font-semibold tracking-tight uppercase sm:text-4xl" style={{ color }}>
               <span aria-hidden="true" className="h-6 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: color }} />
@@ -159,16 +159,16 @@ export function TeamPage({
                   <span className={cn('text-4xl font-bold', standing.position === 1 ? 'text-gold' : standing.position === 2 ? 'text-silver' : standing.position === 3 ? 'text-bronze' : 'text-text')}>
                     P{standing.position}
                   </span>
-                  <span className="label text-[10px] text-muted/70">CHAMPIONSHIP</span>
+                  <span className="label text-[11px] text-muted/70">CHAMPIONSHIP</span>
                 </div>
                 <div className="flex items-center gap-5">
                   <div>
                     <p className="mono-num text-xl font-semibold text-text">{formatPoints(standing.points)}</p>
-                    <p className="label text-[10px] text-muted/70">Points</p>
+                    <p className="label text-[11px] text-muted/70">Points</p>
                   </div>
                   <div>
                     <p className="mono-num text-xl font-semibold text-text">{standing.wins}</p>
-                    <p className="label text-[10px] text-muted/70">Wins</p>
+                    <p className="label text-[11px] text-muted/70">Wins</p>
                   </div>
                 </div>
               </div>
@@ -235,12 +235,12 @@ export function TeamPage({
             >
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="label text-[10px] text-muted/70">Driver</p>
+                  <p className="label text-[11px] text-muted/70">Driver</p>
                   <p className="mt-1 truncate font-medium text-text">{driverFullName(d)}</p>
-                  <p className="mono-num mt-0.5 flex items-center gap-2 text-[11px] font-bold tracking-widest" style={{ color }}>
-                    {driverCode(d)}
-                    <DriverNumber driver={d} className="text-[10px] font-bold" />
-                  </p>
+<p className="mono-num mt-0.5 flex items-center gap-2 text-xs font-bold tracking-widest" style={{ color }}>
+  {driverCode(d)}
+  <DriverNumber driver={d} className="text-xs font-bold" />
+</p>
                 </div>
                 {s ? (
                   <div className="shrink-0 text-right">
@@ -251,7 +251,7 @@ export function TeamPage({
                   </div>
                 ) : null}
               </div>
-              <p className="label mt-3 text-[10px] text-muted/70 opacity-0 transition-opacity duration-150 group-hover:opacity-100">
+              <p className="label mt-3 text-[11px] text-muted/70 opacity-0 transition-opacity duration-150 group-hover:opacity-100">
                 View driver ›
               </p>
             </button>
@@ -277,7 +277,7 @@ export function TeamPage({
           <Card className="rounded-lg p-0 gap-0">
             <div className="flex items-center justify-between gap-3 border-b border-line bg-bg-secondary/50 px-4 py-2.5 lg:px-5">
               <p className="label min-w-0 truncate text-text">Race Results</p>
-              <p className="label text-[10px] text-muted/70">
+              <p className="label text-[11px] text-muted/70">
                 {wins} {wins === 1 ? 'win' : 'wins'}
               </p>
             </div>
@@ -285,11 +285,11 @@ export function TeamPage({
               <table className="w-full border-separate border-spacing-0 text-sm">
                 <thead>
                   <tr className="border-b border-line bg-surface">
-                    <th className="h-auto border-b border-line bg-surface px-4 py-2 text-left text-[11px] font-semibold tracking-[0.18em] text-muted">ROUND</th>
-                    <th className="h-auto border-b border-line bg-surface px-2 py-2 text-left text-[11px] font-semibold tracking-[0.18em] text-muted">GRAND PRIX</th>
-                    <th className="h-auto border-b border-line bg-surface px-2 py-2 text-left text-[11px] font-semibold tracking-[0.18em] text-muted">DRIVER</th>
-                    <th className="h-auto border-b border-line bg-surface px-2 py-2 text-right text-[11px] font-semibold tracking-[0.18em] text-muted">POS</th>
-                    <th className="h-auto border-b border-line bg-surface px-4 py-2 text-right text-[11px] font-semibold tracking-[0.18em] text-muted">PTS</th>
+                    <th className="h-auto border-b border-line bg-surface px-4 py-2 text-left text-xs font-semibold tracking-[0.18em] text-muted">ROUND</th>
+                    <th className="h-auto border-b border-line bg-surface px-2 py-2 text-left text-xs font-semibold tracking-[0.18em] text-muted">GRAND PRIX</th>
+                    <th className="h-auto border-b border-line bg-surface px-2 py-2 text-left text-xs font-semibold tracking-[0.18em] text-muted">DRIVER</th>
+                    <th className="h-auto border-b border-line bg-surface px-2 py-2 text-right text-xs font-semibold tracking-[0.18em] text-muted">POS</th>
+                    <th className="h-auto border-b border-line bg-surface px-4 py-2 text-right text-xs font-semibold tracking-[0.18em] text-muted">PTS</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -309,7 +309,7 @@ export function TeamPage({
                           {i === 0 ? (
                             <td
                               rowSpan={c.rows.length}
-                              className="mono-num border-b border-line/60 px-4 py-2.5 align-top text-xs text-muted"
+                              className="mono-num border-b border-line/60 px-4 py-2.5 align-top text-sm text-muted"
                             >
                               {roundLabel(c.round)}
                             </td>
@@ -328,25 +328,25 @@ export function TeamPage({
                               onClick={() => onSelectDriver(row.driver.driverId)}
                               className="flex items-center gap-1.5 hover:underline"
                             >
-                              <span className="mono-num text-[11px] font-bold tracking-widest" style={{ color }}>
-                                {driverCode(row.driver)}
-                              </span>
-                              <DriverNumber driver={row.driver} className="text-[10px] font-bold" />
-                              <span className="block max-w-[8rem] truncate text-xs text-text">
+<span className="mono-num text-xs font-bold tracking-widest" style={{ color }}>
+  {driverCode(row.driver)}
+</span>
+<DriverNumber driver={row.driver} className="text-xs font-bold" />
+                              <span className="block max-w-[8rem] truncate text-sm text-text">
                                 {driverFullName(row.driver)}
                               </span>
                             </button>
                           </td>
 <td className="border-b border-line/60 px-2 py-2.5 text-right">
   {mark ? (
-    <span className="mono-num text-[10px] font-bold tracking-widest text-muted">{mark}</span>
+    <span className="mono-num text-xs font-bold tracking-widest text-muted">{mark}</span>
   ) : row.position > 0 ? (
     <PositionMark position={row.position} />
   ) : (
-    <span className="text-muted/60">—</span>
+    <span className="text-muted/80">—</span>
   )}
 </td>
-                          <td className="mono-num border-b border-line/60 px-4 py-2.5 text-right text-xs font-semibold text-text">
+                          <td className="mono-num border-b border-line/60 px-4 py-2.5 text-right text-sm font-semibold text-text">
                             {formatPoints(row.points)}
                           </td>
                         </tr>
@@ -361,7 +361,7 @@ export function TeamPage({
           <Card className="rounded-lg p-0 gap-0">
             <div className="flex items-center justify-between gap-3 border-b border-line bg-bg-secondary/50 px-4 py-2.5 lg:px-5">
               <p className="label min-w-0 truncate text-text">Points Progression</p>
-              <p className="label text-[10px] text-muted/70">Cumulative Constructor Points</p>
+              <p className="label text-[11px] text-muted/70">Cumulative Constructor Points</p>
             </div>
             <div className="px-3 pt-3 pb-2">
               <PointsChart
@@ -393,7 +393,7 @@ export function TeamPage({
       ) : null}
 
       {teamDrivers.length > 0 && standings.length === 0 ? (
-        <Badge className="h-auto rounded-sm border-line bg-surface px-2 py-0.5 text-[10px] tracking-[0.18em] text-muted">
+        <Badge className="h-auto rounded-sm border-line bg-surface px-2 py-0.5 text-[11px] tracking-[0.18em] text-muted">
           DRIVER ROSTER
         </Badge>
       ) : null}

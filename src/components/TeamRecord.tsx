@@ -16,7 +16,7 @@ const STAT_COLS = [
 
 function ChampMark({ position }: { position: number | null }) {
   if (position === null || position <= 0) {
-    return <span className="mono-num text-xs text-muted/60">—</span>
+    return <span className="mono-num text-sm text-muted/80">—</span>
   }
   const cls =
     position === 1
@@ -26,12 +26,12 @@ function ChampMark({ position }: { position: number | null }) {
         : position === 3
           ? 'text-bronze'
           : 'text-text'
-  return <span className={cn('mono-num text-xs font-bold', cls)}>{positionLabel(position)}</span>
+  return <span className={cn('mono-num text-sm font-bold', cls)}>{positionLabel(position)}</span>
 }
 
 function StatHeader({ short, long }: { short: string; long: string }) {
   return (
-    <span className="label w-7 shrink-0 text-right text-[10px] text-muted/70">
+    <span className="label w-7 shrink-0 text-right text-[11px] text-muted/70">
       <span className="sm:hidden">{short}</span>
       <span className="hidden sm:inline">{long}</span>
     </span>
@@ -42,7 +42,7 @@ function StatValues({ values }: { values: [number, number, number, number] }) {
   return (
     <div className="grid shrink-0 grid-cols-4 gap-6 sm:gap-10">
       {values.map((v, i) => (
-        <span key={i} className="mono-num w-7 shrink-0 text-right text-xs text-text">
+        <span key={i} className="mono-num w-7 shrink-0 text-right text-sm text-text">
           {v}
         </span>
       ))}
@@ -61,7 +61,7 @@ function SeasonRow({ season }: { season: RecordSeason }) {
           : ''
   return (
     <div className={cn('flex items-center gap-2 border-b border-line/60 px-4 py-2.5 last:border-b-0 sm:gap-3 lg:px-5', rowTone)}>
-      <span className="mono-num w-14 shrink-0 text-xs font-semibold text-text">{season.season}</span>
+      <span className="mono-num w-14 shrink-0 text-sm font-semibold text-text">{season.season}</span>
       <span className="w-12 shrink-0 sm:w-20">
         <ChampMark position={season.championshipPosition} />
       </span>
@@ -109,11 +109,11 @@ export function TeamRecordView({ record }: { record: CareerResult<ConstructorRec
   return (
     <Card className="rounded-lg p-0 gap-0">
       <div className="flex items-center gap-2 border-b border-line px-4 py-2 sm:gap-3 lg:px-5">
-        <span className="label w-14 shrink-0 text-[10px] text-muted/70">
+        <span className="label w-14 shrink-0 text-[11px] text-muted/70">
           <span className="sm:hidden">YR</span>
           <span className="hidden sm:inline">Season</span>
         </span>
-        <span className="label w-12 shrink-0 text-[10px] text-muted/70 sm:w-20">Pos</span>
+        <span className="label w-12 shrink-0 text-[11px] text-muted/70 sm:w-20">Pos</span>
         <div className="flex-1" />
         <div className="flex shrink-0 items-center gap-6 sm:gap-10">
           {STAT_COLS.map((c) => (
@@ -122,9 +122,9 @@ export function TeamRecordView({ record }: { record: CareerResult<ConstructorRec
         </div>
       </div>
       <div className="flex items-center gap-2 border-b border-line bg-bg-secondary/40 px-4 py-2.5 sm:gap-3 lg:px-5">
-        <span className="label w-14 shrink-0 text-[10px] text-muted/70">Total</span>
+        <span className="label w-14 shrink-0 text-[11px] text-muted/70">Total</span>
         <span className="w-12 shrink-0 sm:w-20">
-          <span className="mono-num text-xs text-muted/60">—</span>
+          <span className="mono-num text-sm text-muted/80">—</span>
         </span>
         <div className="flex-1" />
         <StatValues values={totals} />

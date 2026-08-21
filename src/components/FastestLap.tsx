@@ -58,7 +58,7 @@ export function FastestLap({
         <div className="flex flex-wrap items-center justify-between gap-x-10 gap-y-5 px-6 py-6 lg:px-8">
           <div className="min-w-0">
             <div className="flex items-center gap-2.5">
-              <Badge className="h-auto rounded-sm bg-accent px-2 py-1 text-[11px] font-bold tracking-[0.2em] text-bg">
+              <Badge className="h-auto rounded-sm bg-accent px-2 py-1 text-xs font-bold tracking-[0.2em] text-bg">
                 FL
               </Badge>
               <p className="label-lg text-muted">Fastest Lap</p>
@@ -67,14 +67,14 @@ export function FastestLap({
               {display(flTime)}
             </p>
             {raceName ? (
-              <p className="label mt-2 text-[9px] text-muted/70">{display(raceName)}</p>
+              <p className="label mt-2 text-[10px] text-muted/70">{display(raceName)}</p>
             ) : null}
           </div>
           <div className="min-w-0 text-left lg:text-right">
-            <p className="truncate text-xl font-semibold tracking-wide text-text uppercase">
-              <DriverNumber driver={fl.driver} className="text-base font-bold text-muted" /> {driverFullName(fl.driver)}
+            <p className="truncate text-2xl font-semibold tracking-wide text-text uppercase sm:text-3xl">
+              <DriverNumber driver={fl.driver} className="text-xl font-bold text-muted" /> {driverFullName(fl.driver)}
             </p>
-            <p className="mt-0.5 flex items-center justify-start gap-1.5 truncate text-sm lg:justify-end">
+            <p className="mt-0.5 flex items-center justify-start gap-1.5 truncate text-base lg:justify-end">
               <span
                 aria-hidden="true"
                 className="h-2 w-2 shrink-0 rounded-full"
@@ -87,20 +87,20 @@ export function FastestLap({
             <div className="mt-3 flex flex-wrap gap-2">
               <Badge
                 variant="outline"
-                className="h-auto gap-1 rounded-md border-accent/40 bg-accent/10 px-2.5 py-1 text-[11px] font-bold tracking-widest text-accent"
+                className="h-auto gap-1 rounded-md border-accent/40 bg-bg-secondary px-2.5 py-1 text-xs font-bold tracking-widest text-accent"
               >
                 LAP {display(fl.fastestLap?.lap)}
               </Badge>
               <Badge
                 variant="outline"
-                className="h-auto rounded-md border-line bg-bg-secondary px-2.5 py-1 text-[11px] font-semibold tracking-widest text-muted"
+                className="h-auto rounded-md border-line bg-bg-secondary px-2.5 py-1 text-xs font-semibold tracking-widest text-muted"
               >
                 {positionLabel(fl.position)}
               </Badge>
               <Badge
                 variant="outline"
                 className={cn(
-                  'h-auto rounded-md border-line bg-bg-secondary px-2.5 py-1 text-[11px] font-semibold tracking-widest text-muted',
+                  'h-auto rounded-md border-line bg-bg-secondary px-2.5 py-1 text-xs font-semibold tracking-widest text-muted',
                 )}
               >
                 {formatPoints(fl.points)} PTS

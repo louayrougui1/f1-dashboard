@@ -15,7 +15,7 @@
   --color-accent: #E10600;
   --color-accent-hover: #b80500;
   --color-text: #E1E6ED;
-  --color-muted: #8C96A6;
+  --color-muted: #9CA6B6;
   --color-gold: #e6c068;
   --color-silver: #aeb9c7;
   --color-bronze: #b07a45;
@@ -87,7 +87,7 @@
 
 html {
   scroll-behavior: smooth;
-  font-size: 17px;
+  font-size: 18px;
 }
 
 body {

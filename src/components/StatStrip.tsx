@@ -17,11 +17,11 @@ function Stat({
 }) {
   return (
     <div className={cn('min-w-[7.5rem] flex-1 bg-surface px-4 py-3', hairline && 'border-l-2 border-l-accent pl-3.5')}>
-      <p className="label text-[10px] text-muted/70">{label}</p>
-      <p className={cn('mt-1 flex items-center gap-1.5 truncate text-base font-semibold text-text')}>
+      <p className="label text-[11px] text-muted/70">{label}</p>
+      <p className={cn('mt-1 flex items-center gap-1.5 truncate text-lg font-semibold text-text')}>
         <span className="mono-num truncate">{value}</span>
       </p>
-      {sub ? <p className="mt-0.5 truncate text-[11px] text-muted">{sub}</p> : null}
+      {sub ? <p className="mt-0.5 truncate text-xs text-muted">{sub}</p> : null}
     </div>
   )
 }
@@ -31,7 +31,7 @@ function SeasonProgress({ rounds, completed }: { rounds: number | null; complete
   const pct = Math.max(2, (completed / rounds) * 100)
   return (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-line bg-bg-secondary/40 px-4 py-3">
-      <span className="label text-[10px] text-muted/70">Season Progress</span>
+      <span className="label text-[11px] text-muted/70">Season Progress</span>
       <Progress
         value={pct}
         className="h-1 min-w-[8rem] flex-1 bg-bg-secondary"

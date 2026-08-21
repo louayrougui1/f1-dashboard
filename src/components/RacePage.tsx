@@ -47,8 +47,8 @@ export function RacePage({
         <div className="flex flex-col gap-5 px-5 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-7">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <span className="label text-[10px] text-muted/70">Race Result</span>
-              <span className="label text-[10px] text-muted/40">{display(seasonLabel)}</span>
+              <span className="label text-[11px] text-muted/70">Race Result</span>
+              <span className="label text-[11px] text-muted/70">{display(seasonLabel)}</span>
             </div>
             <h1 className="mt-1 flex min-w-0 items-center gap-3 text-3xl leading-tight font-semibold tracking-tight text-text uppercase sm:text-4xl">
               {flag ? (
@@ -59,7 +59,7 @@ export function RacePage({
               <span className="truncate">{display(race?.raceName)}</span>
             </h1>
             <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
-              <Badge className="h-auto rounded-sm border-line bg-bg/60 px-1.5 py-px mono-num text-[10px] tracking-[0.18em]">
+              <Badge className="h-auto rounded-sm border-line bg-bg/60 px-1.5 py-px mono-num text-[11px] tracking-[0.18em]">
                 {roundLabel(round)}
               </Badge>
               {race ? (
@@ -75,13 +75,13 @@ export function RacePage({
             <div className="flex shrink-0 items-end gap-6 sm:flex-col sm:items-end sm:gap-3">
               <div className="flex items-baseline gap-2">
                 <span className="text-4xl font-bold text-gold">P1</span>
-                <span className="label text-[10px] text-muted/70">WINNER</span>
+                <span className="label text-[11px] text-muted/70">WINNER</span>
               </div>
               <div>
                 <p className="mono-num text-xl font-semibold text-text">
                   {results[0] ? display(results[0].driver.code) : '—'}
                 </p>
-                <p className="label text-[10px] text-muted/70">Code</p>
+                <p className="label text-[11px] text-muted/70">Code</p>
               </div>
             </div>
           ) : null}

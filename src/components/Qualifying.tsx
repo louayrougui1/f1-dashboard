@@ -9,7 +9,7 @@ import { DriverNumber } from './DriverNumber'
 
 function headClass(extra = '') {
   return cn(
-    'h-auto border-b border-line bg-surface px-2 py-2.5 text-[11px] font-semibold tracking-[0.18em] text-muted',
+    'h-auto border-b border-line bg-surface px-2 py-2.5 text-xs font-semibold tracking-[0.18em] text-muted',
     extra,
   )
 }
@@ -70,7 +70,7 @@ export function Qualifying({
           {display(raceName)}
           {round !== null && round !== undefined ? <span className="text-muted"> · {display(roundLabel(round))}</span> : null}
         </p>
-        <p className="label text-[10px] text-muted/70">Q1 · Q2 · Q3</p>
+        <p className="label text-[11px] text-muted/70">Q1 · Q2 · Q3</p>
       </div>
       <Table className="min-w-[34rem] border-separate border-spacing-0 text-sm">
         <TableHeader>
@@ -108,16 +108,16 @@ export function Qualifying({
                       className="h-4 w-1 shrink-0 rounded-full"
                       style={{ backgroundColor: teamColor(row.constructor.constructorId) }}
                     />
-                    <span className="mono-num hidden w-8 shrink-0 text-[11px] font-bold tracking-widest text-muted sm:inline">
+                    <span className="mono-num hidden w-8 shrink-0 text-xs font-bold tracking-widest text-muted sm:inline">
                       {driverCode(row.driver)}
                     </span>
-                    <DriverNumber driver={row.driver} className="text-[11px] font-bold" />
+                    <DriverNumber driver={row.driver} className="text-xs font-bold" />
                     <span className="min-w-0">
                       <span className="block max-w-[9.5rem] truncate font-medium text-text sm:max-w-none">
                         {driverFullName(row.driver)}
                       </span>
                       <span
-                        className="block truncate text-[11px]"
+                        className="block truncate text-xs"
                         style={{ color: teamColor(row.constructor.constructorId) }}
                       >
                         {display(row.constructor.name)}
@@ -125,13 +125,13 @@ export function Qualifying({
                     </span>
                   </div>
                 </TableCell>
-                <TableCell className="mono-num border-b border-line/60 px-2 py-2.5 text-right text-xs text-text">
+                <TableCell className="mono-num border-b border-line/60 px-2 py-2.5 text-right text-sm text-text">
                   {qTime(row.q1)}
                 </TableCell>
-                <TableCell className="mono-num border-b border-line/60 px-2 py-2.5 text-right text-xs text-text">
+                <TableCell className="mono-num border-b border-line/60 px-2 py-2.5 text-right text-sm text-text">
                   {qTime(row.q2)}
                 </TableCell>
-                <TableCell className="mono-num border-b border-line/60 px-4 py-2.5 text-right text-xs font-semibold text-text">
+                <TableCell className="mono-num border-b border-line/60 px-4 py-2.5 text-right text-sm font-semibold text-text">
                   {qTime(row.q3)}
                 </TableCell>
               </TableRow>

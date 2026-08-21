@@ -23,7 +23,7 @@ function PositionMark({ position }: { position: number }) {
 
 function headClass(extra = '') {
   return cn(
-    'sticky top-14 z-10 h-auto border-b border-line bg-surface px-2 py-2.5 text-[11px] font-semibold tracking-[0.18em] text-muted',
+    'sticky top-14 z-10 h-auto border-b border-line bg-surface px-2 py-2.5 text-xs font-semibold tracking-[0.18em] text-muted',
     extra,
   )
 }
@@ -117,23 +117,23 @@ export function DriverTable({
                       className="h-4 w-1 shrink-0 rounded-full"
                       style={{ backgroundColor: teamColor(row.constructor.constructorId) }}
                     />
-                    <span className="mono-num hidden w-8 shrink-0 text-[11px] font-bold tracking-widest text-muted sm:inline">
+                    <span className="mono-num hidden w-8 shrink-0 text-xs font-bold tracking-widest text-muted sm:inline">
                       {display(driverCode(row.driver))}
                     </span>
-                    <DriverNumber driver={row.driver} className="text-[11px] font-bold" />
+                    <DriverNumber driver={row.driver} className="text-xs font-bold" />
                     <span className="min-w-0">
                       <span className="block max-w-[7.5rem] truncate font-medium text-text sm:max-w-none">
                         {driverFullName(row.driver)}
                       </span>
                       <span
-                        className="block truncate text-[11px]"
+                        className="block truncate text-xs"
                         style={{ color: teamColor(row.constructor.constructorId) }}
                       >
                         {display(row.constructor.name)}
                       </span>
                     </span>
                     {isP1 ? (
-                      <Badge className="hidden h-auto shrink-0 rounded-sm bg-accent px-1.5 py-px text-[9px] font-bold tracking-[0.18em] text-bg sm:inline-flex">
+                      <Badge className="hidden h-auto shrink-0 rounded-sm bg-accent px-1.5 py-px text-[10px] font-bold tracking-[0.18em] text-bg sm:inline-flex">
                         LEADER
                       </Badge>
                     ) : null}
@@ -144,13 +144,13 @@ export function DriverTable({
                 </TableCell>
                 <TableCell
                   className={cn(
-                    'mono-num border-b border-line/60 px-2 py-2.5 text-right text-xs text-muted sm:px-4',
+                    'mono-num border-b border-line/60 px-2 py-2.5 text-right text-sm text-muted sm:px-4',
                     'hidden sm:table-cell',
                   )}
                 >
                   {isP1 ? '—' : `-${gap}`}
                 </TableCell>
-                <TableCell className="mono-num border-b border-line/60 px-2 py-2.5 text-right text-xs text-muted sm:px-4">
+                <TableCell className="mono-num border-b border-line/60 px-2 py-2.5 text-right text-sm text-muted sm:px-4">
                   {row.wins}
                 </TableCell>
               </TableRow>
@@ -261,7 +261,7 @@ export function ConstructorTable({
                       {display(row.constructor.name)}
                     </span>
                     {isP1 ? (
-                      <Badge className="hidden h-auto shrink-0 rounded-sm bg-accent px-1.5 py-px text-[9px] font-bold tracking-[0.18em] text-bg sm:inline-flex">
+                      <Badge className="hidden h-auto shrink-0 rounded-sm bg-accent px-1.5 py-px text-[10px] font-bold tracking-[0.18em] text-bg sm:inline-flex">
                         LEADER
                       </Badge>
                     ) : null}
@@ -278,13 +278,13 @@ export function ConstructorTable({
                 </TableCell>
                 <TableCell
                   className={cn(
-                    'mono-num border-b border-line/60 px-2 py-2.5 text-right text-xs text-muted sm:px-4',
+                    'mono-num border-b border-line/60 px-2 py-2.5 text-right text-sm text-muted sm:px-4',
                     'hidden sm:table-cell',
                   )}
                 >
                   {isP1 ? '—' : `-${gap}`}
                 </TableCell>
-                <TableCell className="mono-num border-b border-line/60 px-2 py-2.5 text-right text-xs text-muted sm:px-4">
+                <TableCell className="mono-num border-b border-line/60 px-2 py-2.5 text-right text-sm text-muted sm:px-4">
                   {row.wins}
                 </TableCell>
               </TableRow>

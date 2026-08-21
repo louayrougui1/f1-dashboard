@@ -430,7 +430,7 @@ export default function App() {
                                 "h-8 rounded-md px-3 text-xs font-semibold tracking-[0.15em] uppercase transition-colors",
                                 isActive
                                   ? "bg-accent text-bg"
-                                  : "text-muted hover:bg-surface-2 hover:text-text",
+                                  : "text-text/80 hover:bg-surface-2 hover:text-text",
                               )}
                             >
                               {t.label}
@@ -592,11 +592,11 @@ export default function App() {
                   </section>
 
                   <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-line pt-4 pb-2">
-                    <p className="label text-[9px] text-muted/70">
+                    <p className="label text-[10px] text-muted/70">
                       Data · Jolpica F1 API · Season {season ?? "—"} · Live
                       standings &amp; results
                     </p>
-                    <p className="mono-num text-[9px] text-muted/70">
+                    <p className="mono-num text-[10px] text-muted/70">
                       F1 DATA CENTER · 2026
                     </p>
                   </footer>

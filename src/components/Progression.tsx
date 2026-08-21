@@ -103,7 +103,7 @@ export function Progression({
     <div className="rounded-lg border border-line bg-surface">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line bg-bg-secondary/50 px-4 py-2.5 lg:px-5">
         <p className="label min-w-0 truncate text-text">Championship Progression</p>
-        <p className="label text-[10px] text-muted/70">Cumulative Constructor Points</p>
+        <p className="label text-[11px] text-muted/70">Cumulative Constructor Points</p>
       </div>
       <div className="px-3 pt-3">
         <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-label="Cumulative constructor points per round">

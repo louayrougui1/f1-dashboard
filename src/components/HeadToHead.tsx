@@ -24,7 +24,7 @@ function summary(cells: CompareCell[], get: (c: CompareCell) => RaceResultRow | 
 
 function CellValue({ row }: { row: RaceResultRow | null }) {
   if (!row || row.position <= 0) {
-    return <span className="text-muted/60">—</span>
+    return <span className="text-muted/80">—</span>
   }
   const tone =
     row.position === 1
@@ -34,7 +34,7 @@ function CellValue({ row }: { row: RaceResultRow | null }) {
           ? 'text-silver'
           : 'text-bronze'
         : 'text-text/80'
-  return <span className={cn('mono-num text-xs', tone)}>{String(row.position).padStart(2, '0')}</span>
+  return <span className={cn('mono-num text-sm', tone)}>{String(row.position).padStart(2, '0')}</span>
 }
 
 export function HeadToHead({
@@ -148,7 +148,7 @@ export function HeadToHead({
 
       <div className="grid grid-cols-1 gap-2 border-b border-line px-4 py-3 sm:grid-cols-3 lg:px-5">
         <div className="rounded-md border border-line bg-bg/40 px-3 py-2">
-          <p className="label text-[10px] text-muted/70">Wins</p>
+          <p className="label text-[11px] text-muted/70">Wins</p>
           <p className="mt-1 text-lg font-semibold">
             <span style={{ color: driverColor(a) }}>{aSum.wins}</span>
             <span className="mx-2 text-muted">–</span>
@@ -156,7 +156,7 @@ export function HeadToHead({
           </p>
         </div>
         <div className="rounded-md border border-line bg-bg/40 px-3 py-2">
-          <p className="label text-[10px] text-muted/70">Best Finish</p>
+          <p className="label text-[11px] text-muted/70">Best Finish</p>
           <p className="mt-1 text-lg font-semibold">
             <span className="mono-num" style={{ color: driverColor(a) }}>
               P{aSum.best ?? '—'}
@@ -168,7 +168,7 @@ export function HeadToHead({
           </p>
         </div>
         <div className="rounded-md border border-line bg-bg/40 px-3 py-2">
-          <p className="label text-[10px] text-muted/70">Head-to-Head Record</p>
+          <p className="label text-[11px] text-muted/70">Head-to-Head Record</p>
           <p className="mt-1 text-lg font-semibold">
             <span style={{ color: driverColor(a) }}>{h2hA}</span>
             <span className="mx-2 text-muted">–</span>
@@ -181,13 +181,13 @@ export function HeadToHead({
         <Table className="min-w-[44rem] border-separate border-spacing-0 text-sm">
           <TableHeader>
             <TableRow className="border-0">
-              <TableHead className="sticky left-0 z-10 h-auto border-b border-line bg-surface px-4 py-2 text-[11px] font-semibold tracking-[0.18em] text-muted">
+              <TableHead className="sticky left-0 z-10 h-auto border-b border-line bg-surface px-4 py-2 text-xs font-semibold tracking-[0.18em] text-muted">
                 ROUND
               </TableHead>
               {cells.map((c) => (
                 <TableHead
                   key={c.round}
-                  className="h-auto border-b border-line bg-surface px-1 py-2 text-center text-[11px] font-semibold tracking-[0.18em] text-muted"
+                  className="h-auto border-b border-line bg-surface px-1 py-2 text-center text-xs font-semibold tracking-[0.18em] text-muted"
                 >
                   {roundLabel(c.round).replace('R', '')}
                 </TableHead>
@@ -209,7 +209,7 @@ export function HeadToHead({
                         className="h-4 w-1 shrink-0 rounded-full"
                         style={{ backgroundColor: teamColor(d.constructor.constructorId) }}
                       />
-                      <span className="mono-num text-[11px] font-bold tracking-widest" style={{ color: teamColor(d.constructor.constructorId) }}>
+                      <span className="mono-num text-xs font-bold tracking-widest" style={{ color: teamColor(d.constructor.constructorId) }}>
                         {driverCode(d.driver)}
                       </span>
                     </span>
