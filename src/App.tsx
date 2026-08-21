@@ -7,7 +7,12 @@ import { display, driverFullName, roundLabel } from "./lib/format";
 import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { TopBar } from "./components/Header";
-import { MobileNavSheet, Sidebar, useNavActive, useScrollSpy } from "./components/Sidebar";
+import {
+  MobileNavSheet,
+  Sidebar,
+  useNavActive,
+  useScrollSpy,
+} from "./components/Sidebar";
 import { RaceStatusCards } from "./components/RaceStatusCards";
 import { StatStrip } from "./components/StatStrip";
 import { LastRaceResults } from "./components/LastRaceResults";
@@ -24,6 +29,7 @@ import { DriverPage } from "./components/DriverPage";
 import { TeamPage } from "./components/TeamPage";
 import { SectionHeading } from "./components/Card";
 import { ErrorState } from "./components/ErrorState";
+import { AppErrorBoundary } from "./components/AppErrorBoundary";
 
 const SEASON_FLOOR = 2000;
 
@@ -203,7 +209,11 @@ export default function App() {
     <TooltipProvider>
       <div className="min-h-screen bg-bg text-text">
         <div className="flex min-h-screen">
-          <Sidebar navMode={route.name === "dashboard" ? "dashboard" : "standings"} active={effectiveActive} onNavigate={onNavigate} />
+          <Sidebar
+            navMode={route.name === "dashboard" ? "dashboard" : "standings"}
+            active={effectiveActive}
+            onNavigate={onNavigate}
+          />
 
           <div className="flex min-w-0 flex-1 flex-col">
             <TopBar
@@ -231,377 +241,387 @@ export default function App() {
             />
 
             <main className="main-wash flex-1 px-4 py-5 lg:px-6">
-              {route.name === "standings" ? (
-                <div className="mx-auto max-w-[1560px]">
-                  <StandingsPage
-                    season={season}
-                    drivers={driverRows}
-                    driverLoading={
-                      dashboard.driverStandings.status === "loading" &&
-                      driverRows.length === 0
-                    }
-                    driverError={dashboard.driverStandings.error}
-                    onRetryDrivers={() => dashboard.retry("drivers")}
-                    constructors={constructorRows}
-                    constructorLoading={
-                      dashboard.constructorStandings.status === "loading" &&
-                      constructorRows.length === 0
-                    }
-                    constructorError={dashboard.constructorStandings.error}
-                    onRetryConstructors={() => dashboard.retry("constructors")}
-                    calendar={calendar}
-                    rounds={seasonResults}
-                    roundsLoading={seasonResultsLoading}
-                    roundsError={seasonResultsError}
-                    onRetryRounds={() => dashboard.retry("seasonResults")}
-                    onSelectDriver={navigate.toDriver}
-                    onSelectConstructor={navigate.toConstructor}
-                    onSelectRace={navigate.toRace}
-                  />
-                </div>
-              ) : route.name === "race" ? (
-                <div className="mx-auto max-w-[1560px]">
-                  <RacePage
-                    round={Number(route.round)}
-                    seasonLabel={season}
-                    calendar={calendar}
-                    rounds={seasonResults}
-                    roundsLoading={seasonResultsLoading}
-                    roundsError={seasonResultsError}
-                    onRetryRounds={() => dashboard.retry("seasonResults")}
-                    onBack={navigate.toStandings}
-                  />
-                </div>
-              ) : route.name === "driver" ? (
-                <div className="mx-auto max-w-[1560px]">
-                  <DriverPage
-                    driverId={route.driverId}
-                    seasonLabel={season}
-                    calendar={calendar}
-                    standings={driverRows}
-                    standingsLoading={
-                      dashboard.driverStandings.status === "loading" &&
-                      driverRows.length === 0
-                    }
-                    standingsError={dashboard.driverStandings.error}
-                    onRetryStandings={() => dashboard.retry("drivers")}
-                    rounds={seasonResults}
-                    roundsLoading={seasonResultsLoading}
-                    roundsError={seasonResultsError}
-                    onRetryRounds={() => dashboard.retry("seasonResults")}
-                    onBack={navigate.toStandings}
-                    onSelectDriver={navigate.toDriver}
-                    onSelectConstructor={navigate.toConstructor}
-                  />
-                </div>
-              ) : route.name === "team" ? (
-                <div className="mx-auto max-w-[1560px]">
-                  <TeamPage
-                    constructorId={route.constructorId}
-                    seasonLabel={season}
-                    calendar={calendar}
-                    standings={constructorRows}
-                    driverStandings={driverRows}
-                    standingsLoading={
-                      dashboard.constructorStandings.status === "loading" &&
-                      constructorRows.length === 0
-                    }
-                    standingsError={dashboard.constructorStandings.error}
-                    onRetryStandings={() => dashboard.retry("constructors")}
-                    rounds={seasonResults}
-                    roundsLoading={seasonResultsLoading}
-                    roundsError={seasonResultsError}
-                    onRetryRounds={() => dashboard.retry("seasonResults")}
-                    onBack={navigate.toStandings}
-                    onSelectDriver={navigate.toDriver}
-                  />
-                </div>
-              ) : (
-                <div className="mx-auto max-w-[1560px] space-y-8">
-                  <section
-                    id="overview"
-                    aria-label="Race overview"
-                    className="scroll-mt-14"
-                  >
-                    {scheduleError && !hasRaceData && !scheduleLoading ? (
-                      <div className="rounded-lg border border-line bg-surface">
-                        <ErrorState
-                          message="Unable to retrieve the race schedule from the Formula 1 data service."
-                          detail={scheduleError?.message}
+              <AppErrorBoundary
+                resetKey={`${route.name}:${dashboard.seasonId}:${dashboard.round ?? "latest"}`}
+              >
+                {route.name === "standings" ? (
+                  <div className="mx-auto max-w-[1560px]">
+                    <StandingsPage
+                      season={season}
+                      drivers={driverRows}
+                      driverLoading={
+                        dashboard.driverStandings.status === "loading" &&
+                        driverRows.length === 0
+                      }
+                      driverError={dashboard.driverStandings.error}
+                      onRetryDrivers={() => dashboard.retry("drivers")}
+                      constructors={constructorRows}
+                      constructorLoading={
+                        dashboard.constructorStandings.status === "loading" &&
+                        constructorRows.length === 0
+                      }
+                      constructorError={dashboard.constructorStandings.error}
+                      onRetryConstructors={() =>
+                        dashboard.retry("constructors")
+                      }
+                      calendar={calendar}
+                      rounds={seasonResults}
+                      roundsLoading={seasonResultsLoading}
+                      roundsError={seasonResultsError}
+                      onRetryRounds={() => dashboard.retry("seasonResults")}
+                      onSelectDriver={navigate.toDriver}
+                      onSelectConstructor={navigate.toConstructor}
+                      onSelectRace={navigate.toRace}
+                    />
+                  </div>
+                ) : route.name === "race" ? (
+                  <div className="mx-auto max-w-[1560px]">
+                    <RacePage
+                      round={Number(route.round)}
+                      seasonLabel={season}
+                      calendar={calendar}
+                      rounds={seasonResults}
+                      roundsLoading={seasonResultsLoading}
+                      roundsError={seasonResultsError}
+                      onRetryRounds={() => dashboard.retry("seasonResults")}
+                      onBack={navigate.toStandings}
+                    />
+                  </div>
+                ) : route.name === "driver" ? (
+                  <div className="mx-auto max-w-[1560px]">
+                    <DriverPage
+                      driverId={route.driverId}
+                      seasonLabel={season}
+                      calendar={calendar}
+                      standings={driverRows}
+                      standingsLoading={
+                        dashboard.driverStandings.status === "loading" &&
+                        driverRows.length === 0
+                      }
+                      standingsError={dashboard.driverStandings.error}
+                      onRetryStandings={() => dashboard.retry("drivers")}
+                      rounds={seasonResults}
+                      roundsLoading={seasonResultsLoading}
+                      roundsError={seasonResultsError}
+                      onRetryRounds={() => dashboard.retry("seasonResults")}
+                      onBack={navigate.toStandings}
+                      onSelectDriver={navigate.toDriver}
+                      onSelectConstructor={navigate.toConstructor}
+                    />
+                  </div>
+                ) : route.name === "team" ? (
+                  <div className="mx-auto max-w-[1560px]">
+                    <TeamPage
+                      constructorId={route.constructorId}
+                      seasonLabel={season}
+                      calendar={calendar}
+                      standings={constructorRows}
+                      driverStandings={driverRows}
+                      standingsLoading={
+                        dashboard.constructorStandings.status === "loading" &&
+                        constructorRows.length === 0
+                      }
+                      standingsError={dashboard.constructorStandings.error}
+                      onRetryStandings={() => dashboard.retry("constructors")}
+                      rounds={seasonResults}
+                      roundsLoading={seasonResultsLoading}
+                      roundsError={seasonResultsError}
+                      onRetryRounds={() => dashboard.retry("seasonResults")}
+                      onBack={navigate.toStandings}
+                      onSelectDriver={navigate.toDriver}
+                    />
+                  </div>
+                ) : (
+                  <div className="mx-auto max-w-[1560px] space-y-8">
+                    <section
+                      id="overview"
+                      aria-label="Race overview"
+                      className="scroll-mt-14"
+                    >
+                      {scheduleError && !hasRaceData && !scheduleLoading ? (
+                        <div className="rounded-lg border border-line bg-surface">
+                          <ErrorState
+                            message="Unable to retrieve the race schedule from the Formula 1 data service."
+                            detail={scheduleError?.message}
+                            onRetry={() => dashboard.retry("schedule")}
+                          />
+                        </div>
+                      ) : (
+                        <RaceStatusCards
+                          featuredRace={featuredRace}
+                          featuredResults={featuredResults}
+                          featuredRound={featuredRound}
+                          nextRace={nextRace}
+                          seasonComplete={dashboard.seasonComplete}
+                          season={season}
+                          roundsCompleted={roundsCompleted}
+                          totalRounds={totalRounds}
+                          championDriver={dashboard.championDriver}
+                          championConstructor={dashboard.championConstructor}
+                          loading={resultsLoading && featuredRace === null}
+                          featuredTrack={featuredTrack}
+                          nextTrack={nextTrack}
+                          driverRows={driverRows}
+                          constructorRows={constructorRows}
+                        />
+                      )}
+                      <div className="mt-4">
+                        <StatStrip
+                          season={season}
+                          rounds={totalRounds}
+                          completed={completed}
+                          leader={
+                            pointsLeader
+                              ? driverFullName(pointsLeader.driver)
+                              : null
+                          }
+                          leaderPoints={
+                            pointsLeader ? display(pointsLeader.points) : null
+                          }
+                          constructorLeader={
+                            constructorLeader
+                              ? display(constructorLeader.constructor.name)
+                              : null
+                          }
+                          constructorLeaderPoints={
+                            constructorLeader
+                              ? display(constructorLeader.points)
+                              : null
+                          }
+                        />
+                      </div>
+                    </section>
+
+                    <section
+                      id="calendar"
+                      aria-label="Season calendar"
+                      className="scroll-mt-14"
+                    >
+                      <SectionHeading label="Season" meta="Race calendar" />
+                      <div className="mt-3">
+                        <Visualizations
+                          calendar={calendar}
+                          lastRound={lastRace?.round ?? null}
+                          nextRound={nextRace?.round ?? null}
+                          selectedRound={featuredRound}
+                          onSelectRound={dashboard.setRound}
+                          loading={scheduleLoading}
+                          error={scheduleError}
                           onRetry={() => dashboard.retry("schedule")}
                         />
                       </div>
-                    ) : (
-                      <RaceStatusCards
-                        featuredRace={featuredRace}
-                        featuredResults={featuredResults}
-                        featuredRound={featuredRound}
-                        nextRace={nextRace}
-                        seasonComplete={dashboard.seasonComplete}
-                        season={season}
-                        roundsCompleted={roundsCompleted}
-                        totalRounds={totalRounds}
-                        championDriver={dashboard.championDriver}
-                        championConstructor={dashboard.championConstructor}
-                        loading={resultsLoading && featuredRace === null}
-                        featuredTrack={featuredTrack}
-                        nextTrack={nextTrack}
-                        driverRows={driverRows}
-                        constructorRows={constructorRows}
-                      />
-                    )}
-                    <div className="mt-4">
-                      <StatStrip
-                        season={season}
-                        rounds={totalRounds}
-                        completed={completed}
-                        leader={
-                          pointsLeader ? driverFullName(pointsLeader.driver) : null
-                        }
-                        leaderPoints={
-                          pointsLeader ? display(pointsLeader.points) : null
-                        }
-                        constructorLeader={
-                          constructorLeader
-                            ? display(constructorLeader.constructor.name)
-                            : null
-                        }
-                        constructorLeaderPoints={
-                          constructorLeader
-                            ? display(constructorLeader.points)
-                            : null
-                        }
-                      />
-                    </div>
-                  </section>
+                    </section>
 
-                  <section
-                    id="calendar"
-                    aria-label="Season calendar"
-                    className="scroll-mt-14"
-                  >
-                    <SectionHeading label="Season" meta="Race calendar" />
-                    <div className="mt-3">
-                      <Visualizations
-                        calendar={calendar}
-                        lastRound={lastRace?.round ?? null}
-                        nextRound={nextRace?.round ?? null}
-                        selectedRound={featuredRound}
-                        onSelectRound={dashboard.setRound}
-                        loading={scheduleLoading}
-                        error={scheduleError}
-                        onRetry={() => dashboard.retry("schedule")}
+                    <section
+                      id="results"
+                      aria-label="Race data"
+                      className="scroll-mt-14"
+                    >
+                      <SectionHeading
+                        label="Race Data"
+                        meta={
+                          featuredRound !== null
+                            ? `${roundLabel(featuredRound)} · ${
+                                activeRaceTab === "results"
+                                  ? "Timing"
+                                  : activeRaceTab === "qualifying"
+                                    ? "Q1/Q2/Q3"
+                                    : activeRaceTab === "sprint"
+                                      ? "Sprint"
+                                      : "Pit Stops"
+                              }`
+                            : undefined
+                        }
                       />
-                    </div>
-                  </section>
-
-                  <section
-                    id="results"
-                    aria-label="Race data"
-                    className="scroll-mt-14"
-                  >
-                    <SectionHeading
-                      label="Race Data"
-                      meta={
-                        featuredRound !== null
-                          ? `${roundLabel(featuredRound)} · ${
-                              activeRaceTab === "results"
-                                ? "Timing"
-                                : activeRaceTab === "qualifying"
-                                  ? "Q1/Q2/Q3"
-                                  : activeRaceTab === "sprint"
-                                    ? "Sprint"
-                                    : "Pit Stops"
-                            }`
-                          : undefined
-                      }
-                    />
-                    <div className="mt-3">
-                      <div className="flex flex-wrap gap-1 rounded-lg border border-line bg-surface p-1">
-                        {visibleTabs.map((t) => {
-                          const isActive = activeRaceTab === t.key;
-                          return (
-                            <button
-                              key={t.key}
-                              type="button"
-                              aria-pressed={isActive}
-                              onClick={() => setRaceTab(t.key)}
-                              className={cn(
-                                "h-8 rounded-md px-3 text-xs font-semibold tracking-[0.15em] uppercase transition-colors",
-                                isActive
-                                  ? "bg-accent text-bg"
-                                  : "text-text/80 hover:bg-surface-2 hover:text-text",
-                              )}
-                            >
-                              {t.label}
-                            </button>
-                          );
-                        })}
-                      </div>
                       <div className="mt-3">
-                        {activeRaceTab === "results" ? (
-                          <LastRaceResults
-                            raceName={
-                              featuredDetail.data?.race.raceName ?? null
-                            }
-                            round={featuredDetail.data?.round ?? featuredRound}
-                            rows={featuredResults}
-                            maxRows={featuredResults.length || undefined}
-                            loading={resultsLoading}
-                            error={resultsError}
-                            hasData={featuredResults.length > 0}
-                            upcoming={dashboard.featuredUpcoming}
-                            onRetry={() => dashboard.retry("results")}
-                            onPrev={
-                              prevRound !== null
-                                ? () => dashboard.setRound(prevRound)
-                                : undefined
-                            }
-                            onNext={
-                              nextRound !== null
-                                ? () => dashboard.setRound(nextRound)
-                                : undefined
-                            }
-                            canPrev={prevRound !== null}
-                            canNext={nextRound !== null}
-                          />
-                        ) : activeRaceTab === "qualifying" ? (
-                          <Qualifying
-                            raceName={qualifyingRace?.raceName ?? null}
-                            round={qualifying?.round ?? featuredRound}
-                            rows={qualifyingRows}
-                            loading={qualifyingLoading}
-                            error={qualifyingError}
-                            hasData={qualifyingRows.length > 0}
-                            upcoming={dashboard.featuredUpcoming}
-                            onRetry={() => dashboard.retry("qualifying")}
-                          />
-                        ) : activeRaceTab === "sprint" ? (
-                          <LastRaceResults
-                            raceName={sprintDetail?.race.raceName ?? null}
-                            round={sprintDetail?.round ?? featuredRound}
-                            rows={sprintRows}
-                            maxRows={sprintRows.length || undefined}
-                            loading={sprintLoading}
-                            error={sprintError}
-                            hasData={sprintRows.length > 0}
-                            upcoming={dashboard.featuredUpcoming}
-                            onRetry={() => dashboard.retry("sprint")}
-                            variant="sprint"
-                          />
-                        ) : (
-                          <PitStops
-                            raceName={pitStopsRace?.raceName ?? null}
-                            round={pitStops?.round ?? featuredRound}
-                            stops={pitStopRows}
-                            resultRows={featuredResults}
-                            loading={pitStopsLoading}
-                            error={pitStopsError}
-                            hasData={pitStopRows.length > 0}
-                            upcoming={dashboard.featuredUpcoming}
-                            onRetry={() => dashboard.retry("pitStops")}
-                          />
-                        )}
+                        <div className="flex flex-wrap gap-1 rounded-lg border border-line bg-surface p-1">
+                          {visibleTabs.map((t) => {
+                            const isActive = activeRaceTab === t.key;
+                            return (
+                              <button
+                                key={t.key}
+                                type="button"
+                                aria-pressed={isActive}
+                                onClick={() => setRaceTab(t.key)}
+                                className={cn(
+                                  "h-8 rounded-md px-3 text-xs font-semibold tracking-[0.15em] uppercase transition-colors",
+                                  isActive
+                                    ? "bg-accent text-bg"
+                                    : "text-text/80 hover:bg-surface-2 hover:text-text",
+                                )}
+                              >
+                                {t.label}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        <div className="mt-3">
+                          {activeRaceTab === "results" ? (
+                            <LastRaceResults
+                              raceName={
+                                featuredDetail.data?.race.raceName ?? null
+                              }
+                              round={
+                                featuredDetail.data?.round ?? featuredRound
+                              }
+                              rows={featuredResults}
+                              maxRows={featuredResults.length || undefined}
+                              loading={resultsLoading}
+                              error={resultsError}
+                              hasData={featuredResults.length > 0}
+                              upcoming={dashboard.featuredUpcoming}
+                              onRetry={() => dashboard.retry("results")}
+                              onPrev={
+                                prevRound !== null
+                                  ? () => dashboard.setRound(prevRound)
+                                  : undefined
+                              }
+                              onNext={
+                                nextRound !== null
+                                  ? () => dashboard.setRound(nextRound)
+                                  : undefined
+                              }
+                              canPrev={prevRound !== null}
+                              canNext={nextRound !== null}
+                            />
+                          ) : activeRaceTab === "qualifying" ? (
+                            <Qualifying
+                              raceName={qualifyingRace?.raceName ?? null}
+                              round={qualifying?.round ?? featuredRound}
+                              rows={qualifyingRows}
+                              loading={qualifyingLoading}
+                              error={qualifyingError}
+                              hasData={qualifyingRows.length > 0}
+                              upcoming={dashboard.featuredUpcoming}
+                              onRetry={() => dashboard.retry("qualifying")}
+                            />
+                          ) : activeRaceTab === "sprint" ? (
+                            <LastRaceResults
+                              raceName={sprintDetail?.race.raceName ?? null}
+                              round={sprintDetail?.round ?? featuredRound}
+                              rows={sprintRows}
+                              maxRows={sprintRows.length || undefined}
+                              loading={sprintLoading}
+                              error={sprintError}
+                              hasData={sprintRows.length > 0}
+                              upcoming={dashboard.featuredUpcoming}
+                              onRetry={() => dashboard.retry("sprint")}
+                              variant="sprint"
+                            />
+                          ) : (
+                            <PitStops
+                              raceName={pitStopsRace?.raceName ?? null}
+                              round={pitStops?.round ?? featuredRound}
+                              stops={pitStopRows}
+                              resultRows={featuredResults}
+                              loading={pitStopsLoading}
+                              error={pitStopsError}
+                              hasData={pitStopRows.length > 0}
+                              upcoming={dashboard.featuredUpcoming}
+                              onRetry={() => dashboard.retry("pitStops")}
+                            />
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </section>
+                    </section>
 
-                  <section
-                    id="fastest"
-                    aria-label="Fastest lap"
-                    className="scroll-mt-14"
-                  >
-                    <SectionHeading
-                      label="Fastest Lap"
-                      meta={
-                        featuredRound !== null
-                          ? roundLabel(featuredRound)
-                          : undefined
-                      }
-                    />
-                    <div className="mt-3">
-                      <FastestLap
-                        raceName={featuredDetail.data?.race.raceName ?? null}
-                        rows={featuredResults}
-                        loading={resultsLoading}
-                        error={resultsError}
-                        hasData={featuredResults.length > 0}
-                        upcoming={dashboard.featuredUpcoming}
-                        onRetry={() => dashboard.retry("results")}
+                    <section
+                      id="fastest"
+                      aria-label="Fastest lap"
+                      className="scroll-mt-14"
+                    >
+                      <SectionHeading
+                        label="Fastest Lap"
+                        meta={
+                          featuredRound !== null
+                            ? roundLabel(featuredRound)
+                            : undefined
+                        }
                       />
-                    </div>
-                  </section>
+                      <div className="mt-3">
+                        <FastestLap
+                          raceName={featuredDetail.data?.race.raceName ?? null}
+                          rows={featuredResults}
+                          loading={resultsLoading}
+                          error={resultsError}
+                          hasData={featuredResults.length > 0}
+                          upcoming={dashboard.featuredUpcoming}
+                          onRetry={() => dashboard.retry("results")}
+                        />
+                      </div>
+                    </section>
 
-                  <section
-                    id="lapchart"
-                    aria-label="Lap-by-lap chart"
-                    className="scroll-mt-14"
-                  >
-                    <SectionHeading
-                      label="Lap Chart"
-                      meta={
-                        featuredRound !== null
-                          ? roundLabel(featuredRound)
-                          : undefined
-                      }
-                    />
-                    <div className="mt-3">
-                      <LapChart
-                        raceName={featuredDetail.data?.race.raceName ?? null}
-                        round={featuredDetail.data?.round ?? featuredRound}
-                        detail={lapsDetail}
-                        resultRows={featuredResults}
-                        loading={lapsLoading}
-                        error={lapsError}
-                        upcoming={dashboard.featuredUpcoming}
+                    <section
+                      id="lapchart"
+                      aria-label="Lap-by-lap chart"
+                      className="scroll-mt-14"
+                    >
+                      <SectionHeading
+                        label="Lap Chart"
+                        meta={
+                          featuredRound !== null
+                            ? roundLabel(featuredRound)
+                            : undefined
+                        }
                       />
-                    </div>
-                  </section>
+                      <div className="mt-3">
+                        <LapChart
+                          raceName={featuredDetail.data?.race.raceName ?? null}
+                          round={featuredDetail.data?.round ?? featuredRound}
+                          detail={lapsDetail}
+                          resultRows={featuredResults}
+                          loading={lapsLoading}
+                          error={lapsError}
+                          upcoming={dashboard.featuredUpcoming}
+                        />
+                      </div>
+                    </section>
 
-                  <section
-                    id="circuit"
-                    aria-label="Circuit"
-                    className="scroll-mt-14"
-                  >
-                    <SectionHeading
-                      label="Circuit"
-                      meta={
-                        featuredRound !== null
-                          ? roundLabel(featuredRound)
-                          : undefined
-                      }
-                    />
-                    <div className="mt-3">
-                      <Circuit
-                        race={featuredRace}
-                        track={featuredTrack}
-                        rows={featuredResults}
+                    <section
+                      id="circuit"
+                      aria-label="Circuit"
+                      className="scroll-mt-14"
+                    >
+                      <SectionHeading
+                        label="Circuit"
+                        meta={
+                          featuredRound !== null
+                            ? roundLabel(featuredRound)
+                            : undefined
+                        }
                       />
-                    </div>
-                  </section>
+                      <div className="mt-3">
+                        <Circuit
+                          race={featuredRace}
+                          track={featuredTrack}
+                          rows={featuredResults}
+                        />
+                      </div>
+                    </section>
 
-                  <section
-                    id="watchlive"
-                    aria-label="Watch live"
-                    className="scroll-mt-14"
-                  >
-                    <SectionHeading label="Watch" meta="Live F1 streams" />
-                    <div className="mt-3">
-                      <WatchLive />
-                    </div>
-                  </section>
+                    <section
+                      id="watchlive"
+                      aria-label="Watch live"
+                      className="scroll-mt-14"
+                    >
+                      <SectionHeading label="Watch" meta="Live F1 streams" />
+                      <div className="mt-3">
+                        <WatchLive />
+                      </div>
+                    </section>
 
-                  <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-line pt-4 pb-2">
-                    <p className="label text-[10px] text-muted/70">
-                      Data · Jolpica F1 API · Season {season ?? "—"} · Live
-                      standings &amp; results
-                    </p>
-                    <p className="mono-num text-[10px] text-muted/70">
-                      F1 DATA CENTER · 2026
-                    </p>
-                  </footer>
-                </div>
-              )}
+                    <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-line pt-4 pb-2">
+                      <p className="label text-[10px] text-muted/70">
+                        Data · Jolpica F1 API · Season {season ?? "—"} · Live
+                        standings &amp; results
+                      </p>
+                      <p className="mono-num text-[10px] text-muted/70">
+                        F1 DATA CENTER · 2026
+                      </p>
+                    </footer>
+                  </div>
+                )}
+              </AppErrorBoundary>
             </main>
           </div>
         </div>

@@ -4,34 +4,34 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import type { Race } from '../lib/types'
-import { display } from '../lib/format'
-import { cn } from '@/lib/utils'
+} from "@/components/ui/select";
+import type { Race } from "../lib/types";
+import { display } from "../lib/format";
+import { cn } from "@/lib/utils";
 
 function shortName(race: Race | null | undefined): string {
-  const name = display(race?.raceName)
-  if (name === 'N/A') return 'LATEST'
-  const idx = name.toUpperCase().indexOf('GRAND PRIX')
-  if (idx > 0) return name.slice(0, idx).trim()
-  return name
+  const name = display(race?.raceName);
+  if (name === "N/A") return "LATEST";
+  const idx = name.toUpperCase().indexOf("GRAND PRIX");
+  if (idx > 0) return name.slice(0, idx).trim();
+  return name;
 }
 
 function roundCode(round: number): string {
-  return `R${String(round).padStart(2, '0')}`
+  return `R${String(round).padStart(2, "0")}`;
 }
 
-function RoundDot({ tone }: { tone: 'last' | 'next' | null }) {
-  if (!tone) return null
+function RoundDot({ tone }: { tone: "last" | "next" | null }) {
+  if (!tone) return null;
   return (
     <span
       aria-hidden="true"
       className={cn(
-        'h-1.5 w-1.5 shrink-0 rounded-full',
-        tone === 'next' ? 'bg-accent ring-1 ring-accent/50' : 'bg-gold',
+        "h-1.5 w-1.5 shrink-0 rounded-full",
+        tone === "next" ? "bg-accent ring-1 ring-accent/50" : "bg-gold",
       )}
     />
-  )
+  );
 }
 
 export function SeasonRoundControls({
@@ -45,19 +45,24 @@ export function SeasonRoundControls({
   onSeasonChange,
   onRoundChange,
 }: {
-  seasonId: string
-  seasonYears: string[]
-  currentSeason: string | null
-  round: number | null
-  lastRace: Race | null
-  nextRace: Race | null
-  calendar: Race[]
-  onSeasonChange: (season: string) => void
-  onRoundChange: (round: number | null) => void
+  seasonId: string;
+  seasonYears: string[];
+  currentSeason: string | null;
+  round: number | null;
+  lastRace: Race | null;
+  nextRace: Race | null;
+  calendar: Race[];
+  onSeasonChange: (season: string) => void;
+  onRoundChange: (round: number | null) => void;
 }) {
-  const yearOptions = seasonYears.filter((y) => y !== 'current' && y !== currentSeason)
-  const lastRound = lastRace?.round ?? null
-  const nextRound = nextRace?.round ?? null
+  const yearOptions = seasonYears.filter(
+    (y) => y !== "current" && y !== currentSeason,
+  );
+  const lastRound = lastRace?.round ?? null;
+  const nextRound = nextRace?.round ?? null;
+  const roundInCalendar =
+    round !== null && calendar.some((r) => r.round === round);
+  const roundValue = roundInCalendar ? String(round) : "latest";
   return (
     <div className="flex items-center gap-2 shrink-0">
       <Select value={seasonId} onValueChange={onSeasonChange}>
@@ -69,7 +74,9 @@ export function SeasonRoundControls({
           <SelectValue placeholder="Season" />
         </SelectTrigger>
         <SelectContent align="end" className="max-h-72 border-line bg-surface">
-          <SelectItem value="current">{display(currentSeason) || 'CURRENT'}</SelectItem>
+          <SelectItem value="current">
+            {display(currentSeason) || "CURRENT"}
+          </SelectItem>
           {yearOptions.map((y) => (
             <SelectItem key={y} value={y}>
               {y}
@@ -79,8 +86,8 @@ export function SeasonRoundControls({
       </Select>
 
       <Select
-        value={round === null ? 'latest' : String(round)}
-        onValueChange={(v) => onRoundChange(v === 'latest' ? null : Number(v))}
+        value={roundValue}
+        onValueChange={(v) => onRoundChange(v === "latest" ? null : Number(v))}
       >
         <SelectTrigger
           size="sm"
@@ -92,7 +99,12 @@ export function SeasonRoundControls({
         <SelectContent align="end" className="max-h-72 border-line bg-surface">
           <SelectItem value="latest">LATEST</SelectItem>
           {calendar.map((r) => {
-            const tone = r.round === nextRound ? 'next' : r.round === lastRound ? 'last' : null
+            const tone =
+              r.round === nextRound
+                ? "next"
+                : r.round === lastRound
+                  ? "last"
+                  : null;
             return (
               <SelectItem key={r.round} value={String(r.round)}>
                 <span className="flex items-center gap-1.5">
@@ -102,10 +114,10 @@ export function SeasonRoundControls({
                   </span>
                 </span>
               </SelectItem>
-            )
+            );
           })}
         </SelectContent>
       </Select>
     </div>
-  )
+  );
 }
