@@ -20,8 +20,9 @@ import type {
 } from './types'
 
 const BASE = 'https://api.jolpi.ca/ergast/f1'
-const TIMEOUT_MS = 20000
-const MAX_CONCURRENT = 5
+const TIMEOUT_MS = 30000
+const MAX_CONCURRENT = 2
+const REQUEST_GAP_MS = 250
 
 export class ApiError extends Error {
   readonly status: number | null
@@ -40,12 +41,22 @@ function isTransient(err: unknown): boolean {
   return status >= 500
 }
 
-const MAX_ATTEMPTS = 4
-const RETRY_BASE_MS = 400
-const MAX_BACKOFF_MS = 8000
+const MAX_ATTEMPTS = 6
+const RETRY_BASE_MS = 1200
+const MAX_BACKOFF_MS = 20000
 
 let inFlight = 0
+let lastRequestAt = 0
 const waiters: Array<() => void> = []
+
+async function waitForRequestGap(): Promise<void> {
+  const now = Date.now()
+  const delta = lastRequestAt + REQUEST_GAP_MS - now
+  if (delta > 0) {
+    await new Promise((resolve) => setTimeout(resolve, delta))
+  }
+  lastRequestAt = Date.now()
+}
 
 function wake(): void {
   while (waiters.length > 0 && inFlight < MAX_CONCURRENT) {
@@ -371,11 +382,25 @@ async function request<T>(
     const onOuterAbort = () => controller.abort()
     signal?.addEventListener('abort', onOuterAbort, { once: true })
     try {
+      await waitForRequestGap()
       const res = await fetch(BASE + path, {
         signal: controller.signal,
         headers: { accept: 'application/json' },
       })
       if (!res.ok) {
+        const retryAfterHeader = res.headers.get('Retry-After')
+        const retryAfterMs = retryAfterHeader
+          ? Number.parseFloat(retryAfterHeader) * 1000
+          : null
+        if (res.status === 429) {
+          const waitMs = Number.isFinite(retryAfterMs)
+            ? Math.max(retryAfterMs as number, RETRY_BASE_MS * 2)
+            : RETRY_BASE_MS * 2
+          if (attempt < maxAttempts - 1) {
+            await new Promise((resolve) => setTimeout(resolve, waitMs))
+            continue
+          }
+        }
         throw new ApiError(`API request failed (${res.status})`, res.status)
       }
       let json: unknown
