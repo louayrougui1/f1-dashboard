@@ -297,12 +297,13 @@ export function TeamPage({
                     c.rows.map((row, i) => {
                       const isLeader = row.position === 1
                       const mark = resultMark(row.status, row.gap)
+                      const dnfDisplay = mark === 'DNF' || posTwo(row.positionText).toUpperCase() === 'DNF'
                       return (
                         <tr
                           key={`${c.round}-${row.driver.driverId}`}
                           className={cn(
                             'hover:bg-surface-hover',
-                            mark ? 'bg-surface-2/60' : '',
+                            dnfDisplay ? 'bg-surface-2/60' : '',
                             isLeader ? 'bg-gold/[0.06]' : '',
                           )}
                         >
@@ -338,10 +339,10 @@ export function TeamPage({
                             </button>
                           </td>
 <td className="border-b border-line/60 px-2 py-2.5 text-right">
-  {mark ? (
+  {mark || posTwo(row.positionText).toUpperCase() === 'DNF' ? (
     <span className={cn(
       'mono-num text-xs font-bold tracking-widest',
-      mark === 'DNF' ? 'text-error' : mark === 'DNS' ? 'text-muted/60' : 'text-muted'
+      dnfDisplay ? 'text-error' : mark === 'DNS' ? 'text-muted/60' : 'text-muted'
     )}>
       {mark === 'LAPPED' ? (
         <>

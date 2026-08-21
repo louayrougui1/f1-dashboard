@@ -96,15 +96,52 @@ export function roundLabel(round: number | null | undefined): string {
 export function posTwo(position: number | string): string {
   const s = String(position).trim().toUpperCase()
   if (s === '' || s === NA) return NA
+  if (
+    s === 'R' ||
+    s === 'RET' ||
+    s === 'RETIRED' ||
+    s === 'DNF' ||
+    s === 'DID NOT FINISH' ||
+    s === 'W' ||
+    s === 'WITHDREW' ||
+    s === 'WITHDRAWN'
+  )
+    return 'DNF'
   if (/^[A-Z]$/.test(s)) return s
   const n = Number(s)
   if (Number.isFinite(n)) return pad(n, 2)
   return s
 }
 
+export function normalizeRaceStatus(status: string | null | undefined): string {
+  const s = display(status)
+  const normalized = s.toUpperCase()
+  if (
+    normalized === 'R' ||
+    normalized === 'RETIRED' ||
+    normalized === 'DNF' ||
+    normalized === 'DID NOT FINISH' ||
+    normalized === 'W' ||
+    normalized === 'WITHDREW' ||
+    normalized === 'WITHDRAWN'
+  )
+    return 'DNF'
+  return s
+}
+
 export function isRetiredStatus(status: string | null | undefined): boolean {
-  const s = display(status).toLowerCase()
-  return s.includes('retired') || s.includes('dnf') || s.includes('accident') || s.includes('damage')
+  const s = normalizeRaceStatus(status).toLowerCase()
+  return (
+    s === 'dnf' ||
+    s.includes('retired') ||
+    s.includes('dnf') ||
+    s.includes('accident') ||
+    s.includes('damage') ||
+    s.includes('withdrew') ||
+    s.includes('withdrawn') ||
+    s === 'r' ||
+    s === 'w'
+  )
 }
 
 export function isDnsStatus(status: string | null | undefined): boolean {

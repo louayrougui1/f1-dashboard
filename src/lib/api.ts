@@ -18,6 +18,7 @@ import type {
   SeasonRoundResults,
   SessionKey,
 } from './types'
+import { normalizeRaceStatus } from './format'
 
 const BASE = 'https://api.jolpi.ca/ergast/f1'
 const TIMEOUT_MS = 30000
@@ -263,13 +264,30 @@ function normalizeResult(raw: RawResult): RaceResultRow | null {
   const position = num(raw.position)
   const grid = num(raw.grid)
   const isWinner = position !== null && position === 1
+  const normalizedPositionText = (() => {
+    const text = str(raw.positionText) ?? String(position ?? '')
+    const s = text.trim().toUpperCase()
+    if (
+      s === 'R' ||
+      s === 'RET' ||
+      s === 'RETIRED' ||
+      s === 'DNF' ||
+      s === 'DID NOT FINISH' ||
+      s === 'W' ||
+      s === 'WITHDREW' ||
+      s === 'WITHDRAWN'
+    )
+      return 'DNF'
+    return text
+  })()
+
   return {
     position: position ?? 0,
-    positionText: str(raw.positionText) ?? String(position ?? ''),
+    positionText: normalizedPositionText,
     points: num(raw.points) ?? 0,
     grid,
     laps: num(raw.laps) ?? 0,
-    status: str(raw.status) ?? '',
+    status: normalizeRaceStatus(raw.status),
     time: time && isWinner ? time : null,
     gap: time && !isWinner ? time : null,
     driver,

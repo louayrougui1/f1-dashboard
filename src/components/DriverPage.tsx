@@ -229,12 +229,13 @@ export function DriverPage({
                     const row = c.row
                     const isLeader = row?.position === 1
                     const mark = row ? resultMark(row.status, row.gap) : null
+                    const dnfDisplay = mark === 'DNF' || (row ? posTwo(row.positionText).toUpperCase() === 'DNF' : false)
                     return (
                       <tr
                         key={c.round}
                         className={cn(
                           'hover:bg-surface-hover',
-                          mark ? 'bg-surface-2/60' : '',
+                          dnfDisplay ? 'bg-surface-2/60' : '',
                           isLeader ? 'bg-gold/[0.06]' : '',
                         )}
                       >
@@ -255,10 +256,10 @@ export function DriverPage({
                           )}
                         </td>
 <td className="border-b border-line/60 px-2 py-2.5 text-right">
-  {mark ? (
+  {mark || dnfDisplay ? (
     <span className={cn(
       'mono-num text-xs font-bold tracking-widest',
-      mark === 'DNF' ? 'text-error' : mark === 'DNS' ? 'text-muted/60' : 'text-muted'
+      dnfDisplay ? 'text-error' : mark === 'DNS' ? 'text-muted/60' : 'text-muted'
     )}>
       {mark === 'LAPPED' && row ? (
         <>
@@ -266,7 +267,7 @@ export function DriverPage({
           <span className="text-warn ml-1">LAPPED</span>
         </>
       ) : (
-        mark
+        mark ?? (row ? posTwo(row.positionText) : 'DNF')
       )}
     </span>
   ) : row && row.position > 0 ? (

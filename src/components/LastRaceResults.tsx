@@ -136,12 +136,13 @@ export function LastRaceResults({
             const isP1 = row.position === 1
             const podium = row.position <= 3
             const mark = resultMark(row.status, row.gap)
+            const dnfDisplay = mark === 'DNF' || posTwo(row.positionText).toUpperCase() === 'DNF'
             return (
               <TableRow
                 key={`${row.driver.driverId}-${row.position}`}
                 className={cn(
                   'border-0 hover:bg-surface-hover',
-                  mark ? 'bg-surface-2/60' : '',
+                  dnfDisplay ? 'bg-surface-2/60' : '',
                   isP1 ? 'bg-accent/[0.05]' : podium ? 'bg-surface-2/40' : '',
                 )}
               >
@@ -154,7 +155,7 @@ export function LastRaceResults({
                   <span
                     className={cn(
                       'mono-num text-sm font-bold',
-                      mark === 'DNF'
+                      dnfDisplay
                         ? 'text-error'
                         : mark === 'DNS'
                           ? 'text-muted/60'
@@ -220,15 +221,14 @@ export function LastRaceResults({
                   ) : (
                     (() => {
                       const delta = row.grid - row.position
-                      const sign = delta > 0 ? '+' : delta < 0 ? '-' : ''
+                      const normalized = delta === 0 ? '0' : `${delta > 0 ? '+' : '-'}${Math.abs(delta)}`
                       const cls = delta > 0 ? 'text-good' : delta < 0 ? 'text-error' : 'text-muted'
                       return (
                         <span
                           className={cn('font-semibold', cls)}
                           title={`Started P${row.grid} · Finished P${row.position}`}
                         >
-                          {sign}
-                          {delta}
+                          {normalized}
                         </span>
                       )
                     })()
