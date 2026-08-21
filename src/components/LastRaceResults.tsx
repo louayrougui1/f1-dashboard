@@ -1,5 +1,5 @@
 import type { RaceResultRow } from '../lib/types'
-import { display, driverCode, driverFullName, formatPoints, isLapped, posTwo, resultMark, roundLabel } from '../lib/format'
+import { display, driverCode, driverFullName, formatPoints, posTwo, resultMark, roundLabel } from '../lib/format'
 import { teamColor } from '../lib/teamColors'
 import { cn } from '@/lib/utils'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
@@ -135,7 +135,7 @@ export function LastRaceResults({
             const gapOrTime = row.position === 1 ? row.time : row.gap
             const isP1 = row.position === 1
             const podium = row.position <= 3
-            const mark = resultMark(row.status)
+            const mark = resultMark(row.status, row.gap)
             return (
               <TableRow
                 key={`${row.driver.driverId}-${row.position}`}
@@ -154,16 +154,29 @@ export function LastRaceResults({
                   <span
                     className={cn(
                       'mono-num text-sm font-bold',
-                      row.position === 1
-                        ? 'text-gold'
-                        : row.position === 2
-                          ? 'text-silver'
-                          : row.position === 3
-                            ? 'text-bronze'
-                            : 'text-muted',
+                      mark === 'DNF'
+                        ? 'text-error'
+                        : mark === 'DNS'
+                          ? 'text-muted/60'
+                          : mark === 'LAPPED'
+                            ? 'text-warn'
+                            : row.position === 1
+                              ? 'text-gold'
+                              : row.position === 2
+                                ? 'text-silver'
+                                : row.position === 3
+                                  ? 'text-bronze'
+                                  : 'text-muted',
                     )}
-                  >
-                    {mark ?? posTwo(row.positionText)}
+>
+                    {mark === 'LAPPED' ? (
+                      <span className="mono-num text-sm font-bold">
+                        <span className="text-muted">{posTwo(row.positionText)}</span>
+                        <span className="text-warn ml-1">LAPPED</span>
+                      </span>
+                    ) : (
+                      mark ?? posTwo(row.positionText)
+                    )}
                   </span>
                 </TableCell>
                 <TableCell className="min-w-0 border-b border-line/60 px-2 py-2.5">
@@ -222,19 +235,7 @@ export function LastRaceResults({
                   )}
                 </TableCell>
                 <TableCell className="mono-num border-b border-line/60 px-2 py-2.5 text-right text-sm">
-                  {isLapped(row.gap) ? (
-                    <span className="inline-flex items-center justify-end gap-1.5">
-                      <Badge
-                        className="h-auto shrink-0 rounded bg-warn/15 px-1 py-px text-[10px] font-bold tracking-widest text-warn"
-                        variant="outline"
-                      >
-                        LAPPED
-                      </Badge>
-                      <span className="font-semibold text-warn">{display(gapOrTime)}</span>
-                    </span>
-                  ) : (
-                    <span className="text-text">{display(gapOrTime)}</span>
-                  )}
+                  {display(gapOrTime)}
                 </TableCell>
                 <TableCell className="mono-num border-b border-line/60 px-4 py-2.5 text-right text-sm font-semibold text-text">
                   {formatPoints(row.points)}

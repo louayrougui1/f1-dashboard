@@ -27,17 +27,20 @@ function PodiumRow({ result, position }: { result: RaceResultRow; position: numb
   const tone =
     position === 1 ? 'text-gold' : position === 2 ? 'text-silver' : position === 3 ? 'text-bronze' : 'text-muted'
   const gapOrTime = result.position === 1 ? result.time : result.gap
+  const team = teamColor(result.constructor.constructorId)
+  const isP1 = position === 1
   return (
     <div
       className={`flex items-center gap-3 rounded border-b border-line/60 py-2 last:border-b-0 ${
-        position === 1 ? 'border-l-2 border-l-gold bg-gold/[0.05] pl-2.5' : 'pl-4'
+        isP1 ? 'border-l-2 pl-2.5' : 'pl-4'
       }`}
+      style={isP1 ? { borderLeftColor: team, backgroundColor: `${team}0D` } : undefined}
     >
       <span className={`mono-num w-6 shrink-0 text-sm font-bold ${tone}`}>{posTwo(result.position)}</span>
       <span
         aria-hidden="true"
         className="h-4 w-1 shrink-0 rounded-full"
-        style={{ backgroundColor: teamColor(result.constructor.constructorId) }}
+        style={{ backgroundColor: team }}
       />
       <span className="mono-num w-9 shrink-0 text-xs font-bold tracking-widest text-text">
         {driverCode(result.driver)}
@@ -45,7 +48,7 @@ function PodiumRow({ result, position }: { result: RaceResultRow; position: numb
       <DriverNumber driver={result.driver} className="text-[11px] font-bold" />
       <span
         className="min-w-0 flex-1 truncate text-base"
-        style={{ color: teamColor(result.constructor.constructorId) }}
+        style={{ color: team }}
       >
         {driverFullName(result.driver)}
       </span>
@@ -371,9 +374,9 @@ export function RaceStatusCards({
                 <>
                   <Separator className="mt-4 bg-line" />
                   <div className="mt-2">
-                    {podium.length > 0 ? (
-                      podium.map((r) => <PodiumRow key={r.position} result={r} position={r.position} />)
-                    ) : (
+{podium.length > 0 ? (
+                        podium.map((r) => <PodiumRow key={r.position} result={r} position={r.position} />)
+                      ) : (
                       <p className="py-2 text-xs text-muted">Podium data unavailable.</p>
                     )}
                   </div>

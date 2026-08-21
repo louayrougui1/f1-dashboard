@@ -112,10 +112,18 @@ export function isDnsStatus(status: string | null | undefined): boolean {
   return s.includes('did not start') || s.includes('dns')
 }
 
-export function resultMark(status: string | null | undefined): 'DNF' | 'DNS' | null {
+export function resultMark(status: string | null | undefined, gap?: string | null): 'DNF' | 'DNS' | 'LAPPED' | null {
   if (isRetiredStatus(status)) return 'DNF'
   if (isDnsStatus(status)) return 'DNS'
+  if (isLappedStatus(status, gap)) return 'LAPPED'
   return null
+}
+
+export function isLappedStatus(status: string | null | undefined, gap?: string | null): boolean {
+  const s = display(status).toLowerCase()
+  if (s.includes('lapped')) return true
+  if (gap && /^\+\d+\s*laps?$/i.test(gap)) return true
+  return false
 }
 
 export function isLapped(gap: string | null | undefined): boolean {

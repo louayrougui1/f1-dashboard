@@ -296,7 +296,7 @@ export function TeamPage({
                   {cells.map((c) =>
                     c.rows.map((row, i) => {
                       const isLeader = row.position === 1
-                      const mark = resultMark(row.status)
+                      const mark = resultMark(row.status, row.gap)
                       return (
                         <tr
                           key={`${c.round}-${row.driver.driverId}`}
@@ -339,7 +339,19 @@ export function TeamPage({
                           </td>
 <td className="border-b border-line/60 px-2 py-2.5 text-right">
   {mark ? (
-    <span className="mono-num text-xs font-bold tracking-widest text-muted">{mark}</span>
+    <span className={cn(
+      'mono-num text-xs font-bold tracking-widest',
+      mark === 'DNF' ? 'text-error' : mark === 'DNS' ? 'text-muted/60' : 'text-muted'
+    )}>
+      {mark === 'LAPPED' ? (
+        <>
+          <span>{posTwo(row.positionText)}</span>
+          <span className="text-warn ml-1">LAPPED</span>
+        </>
+      ) : (
+        mark
+      )}
+    </span>
   ) : row.position > 0 ? (
     <PositionMark position={row.position} />
   ) : (
