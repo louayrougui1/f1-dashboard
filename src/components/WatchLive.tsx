@@ -5,14 +5,15 @@ import { Badge } from "@/components/ui/badge";
 const WATCH_LINKS = [
   { id: "1", name: "pitsport.xyz", url: "https://pitsport.xyz" },
   { id: "2", name: "streamed.pk", url: "https://streamed.pk/" },
-  { id: "3", name: "ppv.to", url: "https://ppv.to/" },
-  { id: "4", name: "acestrlms.pages.dev", url: "https://acestrlms.pages.dev/f11/" },
+  { id: "3", name: "rerace.net", url: "https://rerace.net" },
+  { id: "4", name: "ppv.to", url: "https://ppv.to/" },
+  { id: "5", name: "acestrlms.pages.dev", url: "https://acestrlms.pages.dev/f11/" },
 ] as const;
 
 export function WatchLive() {
   return (
     <div
-      className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4"
+      className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5"
       role="list"
       aria-label="External live streams"
     >
