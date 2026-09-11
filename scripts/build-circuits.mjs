@@ -48,7 +48,7 @@ const MAPPING = {
   zandvoort: ['nl-1948'],
   mexico: ['mx-1962'],
   kyalami: ['za-1961'],
-  madrid: ['es-2026'],
+  madring: ['es-2026'],
   valencia: ['es-2008'],
   yeongam: ['kr-2010'],
   buddh: ['in-2011'],
